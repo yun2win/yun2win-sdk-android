@@ -26,6 +26,4 @@ dependencies {
     compile project(':uikit')
     compile files('libs/httpmime-4.1.2.jar')
     compile files('libs/yun2win-0.1.jar')
-    compile files('libs/mqtt-client-java1.4-uber-1.7.jar')
-    compile files('libs/wmqtt.jar')
 }

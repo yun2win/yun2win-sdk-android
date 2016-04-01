@@ -92,10 +92,8 @@
     <orderEntry type="library" exported="" name="ormlite-core-4.48" level="project" />
     <orderEntry type="library" exported="" name="yun2win-0.1" level="project" />
     <orderEntry type="library" exported="" name="httpmime-4.1.2" level="project" />
-    <orderEntry type="library" exported="" name="mqtt-client-java1.4-uber-1.7" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.1.1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.1.1" level="project" />
-    <orderEntry type="library" exported="" name="wmqtt" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.1.1" level="project" />
     <orderEntry type="module" module-name="uikit" exported="" />
   </component>
