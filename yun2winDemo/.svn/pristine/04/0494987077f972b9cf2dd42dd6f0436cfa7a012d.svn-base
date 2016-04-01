@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/lyy_message_unread_news_icon_pressed" android:state_pressed="true"/>
+    <item android:drawable="@drawable/lyy_message_unread_news_icon_normal" android:state_pressed="false"/>
+
+</selector>
+<!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/src/main/res/drawable/lyy_message_unread_news_icon_selector.xml -->

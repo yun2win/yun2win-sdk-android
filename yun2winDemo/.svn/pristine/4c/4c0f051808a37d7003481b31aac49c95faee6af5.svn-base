@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/build/intermediates/exploded-aar/yun2win-sdk-android-master/uikit/unspecified/res/values-w820dp/values-w820dp.xml -->
+    <eat-comment/>
+    <dimen name="activity_horizontal_margin">64dp</dimen>
+</resources>

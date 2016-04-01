@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/src/main/res/values-zh-rCN/strings.xml -->
+    <eat-comment/>
+    <string name="Account_cannot_be_empty">帐号不能为空！</string>
+    <string name="Are_logged_out">正在退出登录..</string>
+    <string name="Is_landing">正在登录...</string>
+    <string name="Is_the_registered">正在注册...</string>
+    <string name="Login_failed">登录失败:</string>
+    <string name="Password_cannot_be_empty">密码不能为空！</string>
+    <string name="Registered_successfully">注册成功</string>
+    <string name="Registration_failed">注册失败:</string>
+    <string name="This_user_is_already_your_friend">此用户已是你的好友</string>
+    <string name="Two_input_password">两次输入的密码不一致，请重新输入!</string>
+    <string name="User_already_exists">用户已存在！</string>
+    <string name="User_name_cannot_be_empty">昵称不能为空！</string>
+    <!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.1.1/res/values-zh-rCN/values.xml -->
+    <eat-comment/>
+    <string msgid="4600421777120114993" name="abc_action_bar_home_description">"转到主屏幕"</string>
+    <string msgid="1594238315039666878" name="abc_action_bar_up_description">"转到上一层级"</string>
+    <string msgid="3588849162933574182" name="abc_action_menu_overflow_description">"更多选项"</string>
+    <string msgid="4076576682505996667" name="abc_action_mode_done">"完成"</string>
+    <string msgid="7468859129482906941" name="abc_activity_chooser_view_see_all">"查看全部"</string>
+    <string msgid="2031811694353399454" name="abc_activitychooserview_choose_application">"选择应用"</string>
+    <string msgid="3691816814315814921" name="abc_searchview_description_clear">"清除查询"</string>
+    <string msgid="2550479030709304392" name="abc_searchview_description_query">"搜索查询"</string>
+    <string msgid="8264924765203268293" name="abc_searchview_description_search">"搜索"</string>
+    <string msgid="8928215447528550784" name="abc_searchview_description_submit">"提交查询"</string>
+    <string msgid="893419373245838918" name="abc_searchview_description_voice">"语音搜索"</string>
+    <string msgid="3421042268587513524" name="abc_shareactionprovider_share_with">"分享方式"</string>
+    <string msgid="7165123711973476752" name="abc_shareactionprovider_share_with_application">"通过%s分享"</string>
+    <!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/src/main/res/values-zh-rCN/strings.xml -->
+    <eat-comment/>
+    <string name="about_clear_msg_history">清空所有聊天记录</string>
+    <string name="about_custom_button1">自定义1</string>
+    <string name="about_me">关于</string>
+    <string name="add_contact">添加好友</string>
+    <string name="add_friend">添加好友</string>
+    <string name="app_name">理约云 DEMO</string>
+    <string name="black_list">黑名单</string>
+    <string name="button_logout">退出登录</string>
+    <string name="can_not_connect_chat_server_connection">连接不到聊天服务器</string>
+    <string name="cancel">取消</string>
+    <string name="change_pass">修改密码</string>
+    <string name="chat">聊天</string>
+    <string name="clear_msg_history_success">聊天记录已清空</string>
+    <string name="confirmpassword">确认密码</string>
+    <string name="create_group">创建群聊</string>
+    <string name="creategrups">正在创建中...</string>
+    <string name="custom_notification">自定义通知</string>
+    <string name="delete_friend">删除好友</string>
+    <string name="ec_newwork_error">请检查网络连接!</string>
+    <string name="ec_parameter_error">参数错误</string>
+    <string name="error">错误</string>
+    <string name="feature_not_available_on_this_device">功能在此设备上不可用</string>
+    <string name="getout_login">退出</string>
+    <string name="group_start">发起群聊</string>
+    <string name="hint_contact_search">请输入关键字</string>
+    <string name="input_account">请输入帐号，限20位字母或者数字</string>
+    <string name="input_nickname">请输入昵称，限10位汉字、字母或者数字</string>
+    <string name="input_password">请输入密码，6~20位字母或者数字</string>
+    <string name="join_group">加入群聊</string>
+    <string name="loading">加载中...</string>
+    <string name="login">登录</string>
+    <string name="login_hint_account">请输入帐号</string>
+    <string name="login_hint_password">请输入密码</string>
+    <string name="menu_1">会话</string>
+    <string name="menu_2">通讯录</string>
+    <string name="menu_3">设置</string>
+    <string name="msg_notice">消息提醒</string>
+    <string name="msg_speaker">听筒模式</string>
+    <string name="network_anomalies">网络异常，请检查网络！</string>
+    <string name="no_disturb">免打扰</string>
+    <string name="no_disturb_tips">在设定的时间段内云信消息将不再提醒</string>
+    <string name="not_add_myself">不能添加自己</string>
+    <string name="ok">确定</string>
+    <string name="operationing">操作中...</string>
+    <string name="out_mygroup">退出该群</string>
+    <string name="password">密码</string>
+    <string name="prompt">提示</string>
+    <string name="register">注册</string>
+    <string name="register_account_tip">帐号限20位字母或者数字</string>
+    <string name="register_nick_name_tip">昵称限10位汉字、字母或者数字</string>
+    <string name="register_password_tip">密码必须为6~20位字母或者数字</string>
+    <string name="searching">查找中...</string>
+    <string name="send_choceimg">选择图片</string>
+    <string name="setting_about">关于</string>
+    <string name="setting_close">已关闭</string>
+    <string name="settings">设置</string>
+    <string name="the_current_network">当前网络不可用，请检查网络设置</string>
+    <string name="time_from">从</string>
+    <string name="time_from_default">22:00</string>
+    <string name="time_to">至</string>
+    <string name="time_to_default">08:00</string>
+    <string name="user_name">用户名</string>
+</resources>

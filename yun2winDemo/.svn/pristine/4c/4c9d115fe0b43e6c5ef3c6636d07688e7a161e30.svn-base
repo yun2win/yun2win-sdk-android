@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="yun2win-0.1">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/app/libs/yun2win-0.1.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

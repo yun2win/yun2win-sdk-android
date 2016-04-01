@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:paddingRight="@dimen/dp_5"
+    android:paddingBottom="@dimen/dp_15"
+    >
+    
+     <LinearLayout 
+        android:id="@+id/ll_message_createdate_include"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="visible">
+        <include layout="@layout/message_view_type_createdate"/>
+    </LinearLayout>
+    
+    <LinearLayout 
+        android:id="@+id/myside_message_image_item"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_message_createdate_include"
+        android:layout_alignParentRight="true"
+        android:orientation="horizontal">
+
+      <include layout="@layout/message_view_type_time_right"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/dp_5"
+            android:orientation="vertical"
+            android:visibility="visible" >
+	       <RelativeLayout 
+	           android:layout_width="wrap_content"
+	           android:layout_height="wrap_content"
+               >
+		      <com.y2w.uikit.customcontrols.imageview.RoundAngleImageView
+	               android:id="@+id/iv_myside_image"
+	               android:layout_width="wrap_content"
+	               android:layout_height="wrap_content"
+	               android:layout_centerInParent="true"
+                   android:background="@drawable/file_loading"
+	               android:scaleType="fitEnd"
+	               android:maxWidth="@dimen/dp_120"
+	               android:maxHeight="@dimen/dp_160"
+	               android:visibility="visible" >
+	           </com.y2w.uikit.customcontrols.imageview.RoundAngleImageView>
+
+
+               <RelativeLayout
+                   android:layout_width="@dimen/dp_50"
+                   android:layout_height="@dimen/dp_50"
+                   android:layout_centerVertical="true"
+                   android:layout_centerHorizontal="true"
+                   >-->
+
+                   <com.y2w.uikit.customcontrols.view.RoundProgressBar
+                       android:id="@+id/pb_myside_image_transfer"
+                       android:layout_width="wrap_content"
+                       android:layout_height="wrap_content"
+                       android:layout_centerVertical="true"
+                       android:layout_centerHorizontal="true"
+                       android:visibility="visible"/>
+
+               </RelativeLayout>
+
+		        <ImageView
+                   android:id="@+id/iv_myside_image_open"
+                   android:layout_width="50dp"
+                   android:layout_height="50dp"
+                   android:layout_centerInParent="true"
+                   android:alpha="1.0"
+                   android:scaleType="fitCenter"
+                   android:visibility="gone"/>
+       
+      	  </RelativeLayout>
+
+       </LinearLayout>
+               
+      <include layout="@layout/message_view_type_headimage_right"/>
+      
+      </LinearLayout>
+
+</RelativeLayout>
+<!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/src/main/res/layout/message_view_type_image_right.xml -->

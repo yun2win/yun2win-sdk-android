@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="@dimen/dp_48"
+    android:gravity="center_vertical"
+    android:background="#21c0c0"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp" >
+    <ImageButton
+        android:id="@+id/left_imbt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:background="@null"
+        android:src="@drawable/lyy_main_login" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textColor="#FFFFFFFF"
+        android:textSize="18sp"
+        android:visibility="gone"
+        android:text="标题" />
+    <!-- actionbar 右边按钮 -->
+    <ImageButton
+        android:id="@+id/right_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:background="@null"
+        android:padding="@dimen/dp_10"
+        android:src="@drawable/lyy_main_add" />
+    <ImageButton
+        android:id="@+id/right_search"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/right_add"
+        android:layout_centerVertical="true"
+        android:background="@null"
+        android:padding="@dimen/dp_10"
+        android:src="@drawable/lyy_main_search" />
+</RelativeLayout><!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/src/main/res/layout/actionbar_main.xml -->

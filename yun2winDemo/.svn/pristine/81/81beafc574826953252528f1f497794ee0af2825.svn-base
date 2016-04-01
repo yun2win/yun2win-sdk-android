@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="1dp" >
+
+    <ImageView
+        android:id="@+id/ivOfGVItem"
+        android:layout_width="100dip"
+        android:layout_height="100dip"
+        android:layout_centerHorizontal="true"
+         />
+
+    <ImageView
+        android:id="@+id/ivOfGVItem_flag"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_alignRight="@+id/ivOfGVItem"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="10dip"
+        android:layout_marginRight="5dip"
+        android:layout_marginTop="5dip"
+        android:scaleType="centerCrop" />
+
+</RelativeLayout><!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/src/main/res/layout/feel_img_grid.xml -->

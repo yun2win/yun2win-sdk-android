@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@drawable/nim_message_input_emotion_pressed" android:state_pressed="true"/>
+    <item android:drawable="@drawable/nim_message_input_emotion_pressed" android:state_focused="true"/>
+    <item android:drawable="@drawable/nim_message_input_emotion"/>
+
+</selector><!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/uikit/src/main/res/drawable/nim_message_button_bottom_emoji_selector.xml --><!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/build/intermediates/exploded-aar/yun2win-sdk-android-master/uikit/unspecified/res/drawable/nim_message_button_bottom_emoji_selector.xml -->

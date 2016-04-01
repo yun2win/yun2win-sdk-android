@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+     android:paddingTop="@dimen/dp_10"
+    android:paddingBottom="@dimen/dp_10"
+    android:orientation="vertical" >
+    
+    <LinearLayout 
+        android:id="@+id/ll_message_createdate_include"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="visible">
+        <include layout="@layout/message_view_type_createdate"/>
+     </LinearLayout>
+     
+     <LinearLayout
+            android:id="@+id/otherside_message_image_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/ll_message_createdate_include"
+            android:orientation="horizontal"
+            android:visibility="visible" >
+
+             <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" 
+                android:gravity="center_horizontal">
+
+                <include layout="@layout/message_view_type_headimage_left"/>
+                
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+                <com.y2w.uikit.customcontrols.imageview.RoundAngleImageView
+                     android:id="@+id/iv_otherside_image"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:layout_centerInParent="true"
+                     android:layout_marginLeft="@dimen/dp_10"
+                     android:scaleType="fitStart"
+                     android:maxWidth="@dimen/dp_120"
+                     android:maxHeight="@dimen/dp_160"
+                     android:visibility="visible" />
+                
+                <ImageView
+                     android:id="@+id/iv_otherside_image_open"
+                     android:layout_width="50dp"
+                     android:layout_height="50dp"
+                     android:layout_centerInParent="true"
+                     android:alpha="1.0"
+                     android:scaleType="fitCenter"
+                     android:visibility="gone" />
+
+                </RelativeLayout>
+               
+      </LinearLayout>
+
+    
+</RelativeLayout>
+<!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/src/main/res/layout/message_view_type_image_left.xml -->

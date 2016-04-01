@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/uikit/src/main/res/values/colors.xml -->
+    <eat-comment/>
+    <color name="black">#000000</color>
+    <color name="color_black_333333">#333333</color>
+    <color name="color_gray_d9d9d9">#d9d9d9</color>
+    <color name="color_message_default_bg">#e9ecf0</color>
+    <color name="color_split_line_cccccc">#cccccc</color>
+    <color name="color_split_line_d9d9d9">#d9d9d9</color>
+    <color name="white">#FFFFFF</color>
+    <declare-styleable name="CircleImageView"><attr format="dimension" name="civ_border_width"/><attr format="color" name="civ_border_color"/><attr format="boolean" name="civ_border_overlay"/><attr format="color" name="civ_fill_color"/></declare-styleable>
+    <declare-styleable name="Emojicon"><attr format="dimension" name="emojiconSize"/><attr format="integer" name="emojiconTextStart"/><attr format="integer" name="emojiconTextLength"/></declare-styleable>
+    <declare-styleable name="RoundAngleImageView"><attr format="dimension" name="roundWidth"/><attr format="dimension" name="roundHeight"/></declare-styleable>
+    <!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/uikit/src/main/res/values/dimens.xml -->
+    <eat-comment/>
+    <dimen name="bottom_component_margin_horizontal">6dip</dimen>
+    <dimen name="bottom_component_margin_vertical">8dip</dimen>
+    <dimen name="split_one_pixels">1px</dimen>
+    <!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/uikit/src/main/res/values/strings.xml -->
+    <eat-comment/>
+    <string name="app_name">Uikit</string>
+    <string name="empty"/>
+    <string name="record_audio">按住 说话</string>
+    <string name="record_audio_end">松开  结束</string>
+    <string name="recording_cancel">手指上滑，取消发送</string>
+    <string name="recording_cancel_tip">松开手指，取消发送</string>
+    <string name="recording_error">录音失败，请重试</string>
+    <string name="recording_init_failed">初始化录音失败</string>
+    <string name="recording_max_time">录音达到最大时间，是否发送？</string>
+    <string name="sdcard_not_exist_error">请插入SD卡</string>
+    <string name="send">发送</string>
+    <string name="timer_default">00:00</string>
+    <string name="unknow_size">未知大小</string>
+    <!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/uikit/src/main/res/values/styles.xml -->
+    <eat-comment/>
+    <style name="horizontal_light_thin_divider">
+        <item name="android:layout_height">2px</item>
+        <item name="android:layout_width">fill_parent</item>
+        <item name="android:background">@color/color_gray_d9d9d9</item>
+    </style>
+    <style name="list_view" parent="@android:style/Widget.ListView">
+        <item name="android:scrollbarThumbVertical">@drawable/nim_scrollbar_handle_holo_dark</item>
+        <item name="android:scrollbarThumbHorizontal">@drawable/nim_scrollbar_handle_holo_dark</item>
+    </style>
+</resources>

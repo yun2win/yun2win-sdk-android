@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+    <RelativeLayout
+        android:id="@+id/relativeLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="@dimen/dp_10"
+        >
+
+        <ImageView
+            android:id="@+id/iv_validate_image"
+            android:layout_width="@dimen/dp_45"
+            android:layout_height="@dimen/dp_45"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="@dimen/dp_8"
+            android:layout_marginRight="@dimen/dp_10"
+            android:layout_marginTop="@dimen/dp_8"
+            android:background="@drawable/nim_avatar_group"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/tv_validate_account"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/tv_validate_1"
+            android:layout_alignTop="@+id/iv_validate_image"
+            android:ellipsize="end"
+            android:maxWidth="@dimen/dp_180"
+            android:singleLine="true"
+            android:text="kaka"
+            android:textColor="#101010"
+            android:textSize="@dimen/sp_16" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:layout_alignBaseline="@+id/tv_validate_account"
+            android:layout_alignParentRight="true"
+            android:layout_alignTop="@+id/tv_validate_account"
+            android:text="2014.05.15 12:23"
+            android:textColor="#bebebe"
+            android:textSize="@dimen/sp_12" />
+
+        <TextView
+            android:id="@+id/tv_validate_1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@+id/iv_validate_image"
+            android:layout_below="@+id/tv_validate_account"
+            android:layout_toRightOf="@+id/iv_validate_image"
+            android:ellipsize="middle"
+            android:gravity="center_vertical"
+            android:maxWidth="@dimen/dp_150"
+            android:singleLine="true"
+            android:text="若灵"
+            android:textSize="@dimen/sp_13" />
+
+
+        <TextView
+            android:id="@+id/iv_validate_status_line"
+            android:layout_width="@dimen/dp_1"
+            android:layout_height="@dimen/dp_45"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:background="#eeeeee"
+            android:layout_marginRight="@dimen/dp_50"
+            android:visibility="gone"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/tv_validate_status"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:paddingLeft="@dimen/dp_12"
+            android:paddingRight="@dimen/dp_12"
+            android:paddingTop="@dimen/dp_5"
+            android:paddingBottom="@dimen/dp_5"
+            android:text=""
+            android:textSize="@dimen/sp_12"
+            android:layout_marginRight="@dimen/dp_15"
+            android:visibility="visible"
+            android:textColor="#999999"
+            android:gravity="center"
+            android:scaleType="centerCrop" />
+
+
+        <View
+            android:id="@+id/view1"
+            android:layout_width="fill_parent"
+            android:layout_height="1px"
+            android:layout_marginTop="@dimen/dp_8"
+            android:layout_alignLeft="@+id/tv_validate_account"
+            android:layout_below="@+id/tv_validate_1"
+            android:background="#d7d7d7"
+            />
+    </RelativeLayout>
+
+</LinearLayout>

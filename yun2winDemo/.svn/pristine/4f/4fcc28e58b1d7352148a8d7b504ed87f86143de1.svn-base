@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item >
+        <shape android:shape="oval">
+            <solid android:color="#7dcf5d"/>
+        </shape>
+        
+    </item>
+
+</layer-list>
+<!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/uikit/src/main/res/drawable/circle_name_2.xml --><!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/build/intermediates/exploded-aar/yun2win-sdk-android-master/uikit/unspecified/res/drawable/circle_name_2.xml -->
