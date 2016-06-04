@@ -4,7 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://$PROJECT_DIR$/uikit/uikit.iml" filepath="$PROJECT_DIR$/uikit/uikit.iml" />
-      <module fileurl="file://$PROJECT_DIR$/yun2winDemo.iml" filepath="$PROJECT_DIR$/yun2winDemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/y2wDemo.iml" filepath="$PROJECT_DIR$/y2wDemo.iml" />
     </modules>
   </component>
 </project>

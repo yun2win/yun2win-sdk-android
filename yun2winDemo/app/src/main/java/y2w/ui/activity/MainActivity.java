@@ -13,6 +13,7 @@
  */
 package y2w.ui.activity;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,17 +42,19 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import y2w.base.AppData;
+import y2w.base.Urls;
+import y2w.common.AsyncMultiPartGet;
+import y2w.common.Config;
 import y2w.manage.Users;
+import y2w.model.Emoji;
+import y2w.service.Back;
 import y2w.ui.adapter.FragmentAdapter;
 import y2w.ui.fragment.ContactFragment;
 import y2w.ui.fragment.ConversationFragment;
 import y2w.ui.fragment.SettingFragment;
 
-import com.y2w.uikit.customcontrols.listview.ListViewUtil;
 import com.y2w.uikit.utils.ToastUtil;
 import com.yun2win.demo.R;
-
-import org.w3c.dom.Text;
 
 /**
  * Created by hejie on 2016/3/14.
@@ -70,6 +73,7 @@ public class MainActivity extends FragmentActivity {
 	private ImageButton imgbutton_search,getImgbutton_more;
 	private ControlsOnClick controlsclick;
 	private int unread =0;
+	private int index = -1;
 	Handler updatenumHandler= new Handler(){
 		@Override
 		public void handleMessage(Message msg) {
@@ -104,6 +108,39 @@ public class MainActivity extends FragmentActivity {
 
 		//理约云消息通道服务器连接
 		Users.getInstance().getCurrentUser().getImBridges().connect();
+		Users.getInstance().getCurrentUser().getEmojis().getRemote().getEmojiList(new Back.Result<List<Emoji>>() {
+			@Override
+			public void onSuccess(List<Emoji> emojiList) {
+				File file = new File(Config.CACHE_PATH_EMOJI+"base");
+				if(!file.exists()){
+					file.mkdirs();
+				}
+				for(int i = 0;i < emojiList.size();i++){
+					Emoji emoji = emojiList.get(i);
+					String emojiName = emoji.getEntity().getName()+".png";
+					File file1 = new File(file.getPath()+"/"+emojiName);
+					if(!file1.exists()) {
+						try {
+							AsyncMultiPartGet get = new AsyncMultiPartGet(Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_EMOJI_DownLoad + emoji.getEntity().getUrl(),Config.CACHE_PATH_EMOJI+"base/", emojiName);
+							get.execute();
+							if ((i + 1) % 5 == 0) {
+								try {
+									Thread.sleep(200);
+								} catch (InterruptedException e) {
+									e.printStackTrace();
+								}
+							}
+						}catch (Exception e){
+						}
+					}
+				}
+			}
+
+			@Override
+			public void onError(int code, String error) {
+
+			}
+		});
 		//toast初始化
 		ToastUtil.initToast(context);
 	}
@@ -121,13 +158,12 @@ public class MainActivity extends FragmentActivity {
 		getImgbutton_more = (ImageButton) findViewById(R.id.right_add);
 		imgbutton_search.setOnClickListener(controlsclick);
 		getImgbutton_more.setOnClickListener(controlsclick);
-		imgbutton_search.setVisibility(View.GONE);
 	}
 	private List<Fragment> fragmentList = new ArrayList<Fragment>();
 	public void InitViewPager(){
-		Fragment sessionFragment = ConversationFragment.newInstance(this, MainActivity.this);
-		Fragment contactFragment = ContactFragment.newInstance(this, MainActivity.this);
-		Fragment settingFragment = SettingFragment.newInstance(this, MainActivity.this);
+		Fragment sessionFragment = ConversationFragment.newInstance(this, context);
+		Fragment contactFragment = ContactFragment.newInstance(this, context);
+		Fragment settingFragment = SettingFragment.newInstance(this,context);
 		fragmentList.add(sessionFragment);
 		fragmentList.add(contactFragment);
 		fragmentList.add(settingFragment);
@@ -154,6 +190,7 @@ public class MainActivity extends FragmentActivity {
 		@Override
 		public void onPageSelected(int arg0) {
 			menuIndexDisplay(arg0);
+			index = arg0;
 		}
 	}
 
@@ -207,7 +244,11 @@ public class MainActivity extends FragmentActivity {
 		}
 	}
 	private void seachViewClick() {
-
+		//跳转搜索
+		Intent intent = new Intent();
+		intent.setClass(this,SearchActivity.class);
+		intent.putExtra("index",index+"");
+		startActivity(intent);
 	}
 	//界面下方主菜单初始化
 	private void initMenu(){
@@ -258,11 +299,12 @@ public class MainActivity extends FragmentActivity {
 		for(int i=0;i<menus.size();i++){
 			if(i == index){
 				menus.get(index).setCurrent(true);
-               if(index==2) {
+               if(index==3) {
 				   imgbutton_search.setVisibility(View.GONE);
 				   getImgbutton_more.setVisibility(View.GONE);
-			   }else{
-				   imgbutton_search.setVisibility(View.GONE);
+			   }
+			   else{
+				   imgbutton_search.setVisibility(View.VISIBLE);
 				   getImgbutton_more.setVisibility(View.VISIBLE);
 			   }
 			}else{

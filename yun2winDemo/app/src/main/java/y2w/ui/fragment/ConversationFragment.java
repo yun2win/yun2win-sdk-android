@@ -14,21 +14,20 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.yun2win.demo.R;
+import com.yun2win.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import y2w.common.Config;
-import y2w.manage.EnumManage;
+import y2w.ui.dialog.Y2wDialog;
 import y2w.manage.Users;
 import y2w.base.AppData;
 import y2w.common.CallBackUpdate;
 import y2w.entities.UserConversationEntity;
-import y2w.model.MessageModel;
+import y2w.model.DataSaveModuel;
 import y2w.model.Session;
 import y2w.model.UserConversation;
 import y2w.service.Back;
-import y2w.service.ErrorCode;
 import y2w.ui.activity.ChatActivity;
 import y2w.ui.activity.MainActivity;
 import y2w.ui.adapter.ConversationAdapter;
@@ -38,7 +37,7 @@ import y2w.ui.adapter.ConversationAdapter;
  * 会话界面
  */
 public class ConversationFragment extends Fragment{
-	
+	private String TAG = ConversationFragment.class.getSimpleName();
     private String type;
     private String DEFAULT = "default";
     private static Activity activity;
@@ -53,25 +52,26 @@ public class ConversationFragment extends Fragment{
 				conversationAdapter.updateListView();
 			}else if(msg.what==1){//更新全部
 				conversations = Users.getInstance().getCurrentUser().getUserConversations().getUserConversations();
-				conversationAdapter.setCOnversations(conversations);
+				DataSaveModuel.getInstance().conversations = conversations;
+				conversationAdapter.setConversations(conversations);
 				updatesessionHandler.sendEmptyMessage(0);
 			}else if(msg.what ==2){//添加一条
-				UserConversationEntity entity = (UserConversationEntity) msg.obj;
+				UserConversation conversation = (UserConversation) msg.obj;
 				 boolean find = false;
 				if(conversations==null)
-					conversations = new ArrayList<UserConversationEntity>();
+					conversations = new ArrayList<UserConversation>();
 				  for(int i =0;i<conversations.size();i++){
-					 if(conversations.get(i).getId().equals(entity.getId())){
-						 conversations.get(i).setLastContext(entity.getLastContext());
-						 conversations.get(i).setUpdatedAt(entity.getUpdatedAt());
-						 conversations.get(i).setUnread(entity.getUnread());
+					 if(conversations.get(i).getEntity().getId().equals(conversation.getEntity().getId())){
+						 conversations.get(i).getEntity().setLastContext(conversation.getEntity().getLastContext());
+						 conversations.get(i).getEntity().setUpdatedAt(conversation.getEntity().getUpdatedAt());
+						 conversations.get(i).getEntity().setUnread(conversation.getEntity().getUnread());
 						 find = true;
 						 conversations.set(0,conversations.get(i));
 						 break;
 					 }
 				 }
 				if(!find){
-					conversations.add(0,entity);
+					conversations.add(0,conversation);
 				}
 				conversationAdapter.updateListView();
 			}else if(msg.what ==3){//删除一条
@@ -80,7 +80,7 @@ public class ConversationFragment extends Fragment{
 					return;
 				boolean find = false;
 				for(int i =0;i<conversations.size();i++){
-					if(conversations.get(i).getId().equals(entity.getId())){
+					if(conversations.get(i).getEntity().getId().equals(entity.getId())){
 						find = true;
 						break;
 
@@ -93,7 +93,7 @@ public class ConversationFragment extends Fragment{
 			}
 			int num = 0;
 			for(int i = 0;i<conversations.size();i++){
-				num = num +conversations.get(i).getUnread();
+				num = num +conversations.get(i).getEntity().getUnread();
 			}
 			((MainActivity)activity).updatemessagenum(num);
 		}
@@ -132,7 +132,7 @@ public class ConversationFragment extends Fragment{
 
 	private ListView lv_conversation;
 	private ConversationAdapter conversationAdapter;
-	private List<UserConversationEntity> conversations =new ArrayList<UserConversationEntity>();
+	private List<UserConversation> conversations =new ArrayList<UserConversation>();
 	public void conversaionInit(View view){
 		lv_conversation = (ListView) view.findViewById(R.id.lv_conversation);
 		conversationAdapter = new ConversationAdapter(context);
@@ -142,13 +142,14 @@ public class ConversationFragment extends Fragment{
 		lv_conversation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+				//ToastUtil.ToastMessage(context,"点了");
 				if (isGetSession) {
 					return;
 				}
 				isGetSession = true;
 				if (conversations != null && conversations.size() > position){
-					final UserConversationEntity entity = conversations.get(position);
-				   Users.getInstance().getCurrentUser().getSessions().getSessionByTargetId(entity.getTargetId(), entity.getType(), new Back.Result<Session>() {
+					final UserConversation userConversation = conversations.get(position);
+				   Users.getInstance().getCurrentUser().getSessions().getSessionByTargetId(userConversation.getEntity().getTargetId(), userConversation.getEntity().getType(), new Back.Result<Session>() {
 					@Override
 					public void onSuccess(final Session session) {
 						Intent intent = new Intent(context, ChatActivity.class);
@@ -156,23 +157,95 @@ public class ConversationFragment extends Fragment{
 						bundle.putString("sessionid", session.getEntity().getId());
 						bundle.putString("sessiontype", session.getEntity().getType());
 						bundle.putString("otheruserId", session.getEntity().getOtherSideId());
-						bundle.putString("name", entity.getName());
+						bundle.putString("name", userConversation.getEntity().getName());
 						intent.putExtras(bundle);
 						startActivity(intent);
 						isGetSession = false;
+						//ToastUtil.ToastMessage(context,"成功");
 					}
 
 					@Override
 					public void onError(int errorCode, String error) {
 						isGetSession = false;
+						//ToastUtil.ToastMessage(context,"失败");
 					}
-				});
+					});
 		     	}else{
 					isGetSession = false;
 				}
 			}
 		});
+
+		lv_conversation.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+				if (conversations != null && conversations.size() > position) {
+					final UserConversation userConversation = conversations.get(position);
+					Y2wDialog dialog = new Y2wDialog(context);
+					dialog.addOption("删除");
+					dialog.addOption("置顶");
+					dialog.show();
+					dialog.setOnOptionClickListener(new Y2wDialog.onOptionClickListener() {
+						@Override
+						public void onOptionClick(String option, int position) {
+							if(position == 0){
+								Users.getInstance().getCurrentUser().getUserConversations().getRemote().deleteUserConversation(userConversation.getEntity().getId(), new Back.Callback() {
+
+									@Override
+									public void onSuccess() {
+										Users.getInstance().getCurrentUser().getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
+											@Override
+											public void onSuccess(List<UserConversation> userConversationList) {
+												updatesessionHandler.sendEmptyMessage(1);
+												LogUtil.getInstance().log(TAG,"删除："+userConversationList.size(),null);
+											}
+
+											@Override
+											public void onError(int code, String error) {
+												LogUtil.getInstance().log(TAG,"code 1："+error,null);
+											}
+										});
+									}
+
+									@Override
+									public void onError(int code, String error) {
+										LogUtil.getInstance().log(TAG,"code 0："+error,null);
+									}
+								});
+							}else if(position == 1){
+								userConversation.getEntity().setTop(true);
+								Users.getInstance().getCurrentUser().getUserConversations().getRemote().updateUserConversation(userConversation, new Back.Result<UserConversation>() {
+									@Override
+									public void onSuccess(UserConversation userConversation) {
+										Users.getInstance().getCurrentUser().getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
+											@Override
+											public void onSuccess(List<UserConversation> userConversationList) {
+												updatesessionHandler.sendEmptyMessage(1);
+												LogUtil.getInstance().log(TAG,"置顶："+userConversationList.size(),null);
+											}
+
+											@Override
+											public void onError(int code, String error) {
+												LogUtil.getInstance().log(TAG,"code 1："+error,null);
+											}
+										});
+									}
+
+									@Override
+									public void onError(int code, String error) {
+										LogUtil.getInstance().log(TAG,"code 0："+error,null);
+									}
+								});
+							}
+						}
+					});
+				}
+				return true;
+			}
+		});
 	}
+
+
 
 	@Override
 	public void onDestroy() {

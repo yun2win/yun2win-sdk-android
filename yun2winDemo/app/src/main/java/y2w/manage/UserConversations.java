@@ -12,6 +12,7 @@ import y2w.db.TimeStampDb;
 import y2w.db.UserConversationDb;
 import y2w.entities.TimeStampEntity;
 import y2w.entities.UserConversationEntity;
+import y2w.entities.UserSessionEntity;
 import y2w.model.UserConversation;
 import y2w.service.Back;
 import y2w.service.ErrorCode;
@@ -52,8 +53,13 @@ public class UserConversations implements Serializable {
      * 获取本地用户会话列表
      * @return 返回结果
      */
-    public List<UserConversationEntity> getUserConversations(){
-        return UserConversationDb.query(user.getEntity().getId());
+    public List<UserConversation> getUserConversations(){
+        List<UserConversation> userConversationList = new ArrayList<UserConversation>();
+        List<UserConversationEntity> entityList = UserConversationDb.query(user.getEntity().getId());
+        for(UserConversationEntity entity : entityList){
+            userConversationList.add(new UserConversation(this,entity));
+        }
+        return userConversationList;
     }
 
     /**
@@ -177,14 +183,14 @@ public class UserConversations implements Serializable {
          * @param result 回调
          */
         public void getUserConversation(String userId,String userConversationId,Back.Result<UserConversation> result){
-            UserConversationSrv.getInstance().getUserConversation(user.getToken(), userId,userConversationId, new Back.Result<UserConversationEntity>() {
+            UserConversationSrv.getInstance().getUserConversation(user.getToken(), userId, userConversationId, new Back.Result<UserConversationEntity>() {
                 @Override
                 public void onSuccess(UserConversationEntity entity) {
 
                 }
 
                 @Override
-                public void onError(int errorCode,String error) {
+                public void onError(int errorCode, String error) {
 
                 }
             });
@@ -194,8 +200,22 @@ public class UserConversations implements Serializable {
          * @param userConversationId 用户会话唯一标识码
          * @param result 回调
          */
-        public void delete(String userConversationId,Back.Callback result){
+        public void deleteUserConversation(String userConversationId,Back.Callback result){
             UserConversationSrv.getInstance().deleteUserConversation(user.getToken(), user.getEntity().getId(), userConversationId, result);
+        }
+
+        public void updateUserConversation(UserConversation userConversation, final Back.Result<UserConversation> result){
+            UserConversationSrv.getInstance().updateUserConversation(user.getToken(), user.getEntity().getId(), userConversation.getEntity().getId(), userConversation.getEntity().getTargetId(), userConversation.getEntity().getName(), userConversation.getEntity().isTop(), userConversation.getEntity().getType(), userConversation.getEntity().getAvatarUrl(), new Back.Result<UserConversationEntity>() {
+                @Override
+                public void onSuccess(UserConversationEntity entity) {
+                    result.onSuccess(new UserConversation(userConversations,entity));
+                }
+
+                @Override
+                public void onError(int code, String error) {
+                    result.onError(code, error);
+                }
+            });
         }
     }
 

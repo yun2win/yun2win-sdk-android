@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/list_item_backgroud_change"
+    android:orientation="horizontal" >
+    
+    <TextView 
+        android:id="@+id/tv_expresstion_menu_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:padding="@dimen/dp_10"
+        android:text="sfsdfsf"
+        android:textColor="#999999"
+        android:gravity="center"/>
+
+     <TextView 
+        android:layout_width="@dimen/dp_1"
+        android:layout_height="match_parent"
+        android:background="#dfe2e3"
+        />
+</LinearLayout>

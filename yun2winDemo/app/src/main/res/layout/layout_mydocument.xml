@@ -1,0 +1,95 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" android:id="@+id/rl_storeage"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    >
+    <!--style="@style/StyledIndicator"-->
+    <LinearLayout
+        android:id="@+id/ll_storage"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content" >
+
+        <y2w.common.AnimTabLayout
+            android:id="@+id/animTab"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_40"
+            android:background="#eee" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_storeage_root"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_storage"
+        android:orientation="vertical" >
+
+        <y2w.ui.widget.storeage.mediacenter.MyLayout
+            android:id="@+id/mylayout"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1" >
+
+            <android.support.v4.view.ViewPager
+                android:id="@+id/viewpager"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" >
+            </android.support.v4.view.ViewPager>
+        </y2w.ui.widget.storeage.mediacenter.MyLayout>
+
+<!--         <GridView
+            android:id="@+id/layout_fitem_lv"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_weight="1"
+            android:numColumns="3"
+            android:scrollbars="none"
+            android:visibility="gone" >
+        </GridView> -->
+
+		<View android:layout_width="match_parent"
+		    android:layout_height="1px"
+		    android:background="#cdcdcd"/>
+        <LinearLayout
+            android:id="@+id/ll_storage_menu_manager"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/dp_45"
+            android:orientation="horizontal"
+            android:visibility="gone" >
+
+            <TextView
+                android:id="@+id/tv_storage_file_send"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/button_doc_bg"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="已选"
+                android:textColor="#1cc09f"
+                android:textSize="16sp"
+                android:visibility="visible" />
+
+            <View
+                android:layout_width="@dimen/dp_0.5"
+                android:layout_height="match_parent"
+                android:layout_marginTop="2dip"
+                android:layout_marginBottom="2dip"
+                android:background="#999999" />
+
+            <TextView
+                android:id="@+id/tv_storage_local_delete"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/button_doc_bg"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="下一步"
+                android:textColor="#1cc09f"
+                android:textSize="16sp"
+                android:visibility="visible" />
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_pressed="true" android:drawable="@color/grey_dep"></item>
-    <item android:drawable="@android:color/white"></item>
-</selector>
-<!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/src/main/res/drawable/list_item_press_bg_change.xml -->

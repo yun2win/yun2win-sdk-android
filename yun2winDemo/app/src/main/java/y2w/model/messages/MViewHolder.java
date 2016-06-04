@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 
 import com.y2w.uikit.customcontrols.imageview.RoundAngleImageView;
+import com.y2w.uikit.customcontrols.movie.ScalableVideoView;
 import com.y2w.uikit.customcontrols.view.RoundProgressBar;
 
 /**
@@ -46,12 +47,19 @@ public class MViewHolder {
     /******* 图片、视频控件 ********/
     LinearLayout llOtherSideImageItem;
     RoundAngleImageView ivOtherSideImage;
-
+    ScalableVideoView svOtherSideMovie;
     ImageView ivOtherSideImageOpen;
     ProgressBar pbOtherSideImageTransfer;
 
     /******* 帖图 ********/
     ImageView ivOtherSidePinup;
+
+    /******* 文件 ********/
+    ImageView ivOtherSideFileIcon;
+    TextView tvOtherSideFileTitle;
+    TextView tvOtherSideFileSize;
+    TextView tvOtherSideFileState;
+    ProgressBar pbOtherSideFile;
 
     /******* 音频文件 ********/
     LinearLayout llOtherSideAudioFileItem;
@@ -89,10 +97,19 @@ public class MViewHolder {
     LinearLayout llMySideImageItem;
     RoundAngleImageView ivMySideImage;
     ImageView ivMySideImageOpen;
+    ScalableVideoView svMySideMovie;
     RoundProgressBar pbMySideImageTransfer;
 
     /******* 帖图 ********/
     ImageView ivMySidePinup;
+
+    /******* 文件 ********/
+    LinearLayout llMySideItem;
+    ImageView ivMySideFileIcon;
+    TextView tvMySideFileTitle;
+    TextView tvMySideFileSize;
+    TextView tvMySideFileState;
+    ProgressBar pbMySideFile;
 
     /******* 音频文件 ********/
     LinearLayout llMySideAudioFileItem;

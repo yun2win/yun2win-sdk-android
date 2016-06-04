@@ -28,8 +28,7 @@
                 android:layout_height="wrap_content">
 
             </FrameLayout>
-
-            <com.y2w.uikit.customcontrols.listview.MessageListView
+            <com.y2w.uikit.customcontrols.listview.PullToRefreshListView
                 android:id="@+id/messageListView"
                 style="@style/list_view"
                 android:layout_width="match_parent"
@@ -39,18 +38,25 @@
                 android:fadingEdge="none"
                 android:focusable="false"
                 android:listSelector="@android:color/transparent"
-                android:scrollbars="vertical"/>
+                android:transcriptMode="alwaysScroll"
+                />
+
         </LinearLayout>
 
         <FrameLayout
-            android:id="@+id/layoutPlayAudio"
+            android:id="@+id/fl_record_volume"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="@drawable/nim_dialog_toast_bg"
-            android:visibility="gone">
+            android:visibility="gone"><!--android:background="@drawable/nim_dialog_toast_bg"-->
 
-            <Chronometer
+            <ImageView
+                android:id="@+id/iv_record_volume"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/record_volume2"/>
+
+           <!-- <Chronometer
                 android:id="@+id/timer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -74,7 +80,7 @@
                     android:text="@string/recording_cancel"
                     android:textColor="@color/white"
                     android:textSize="20sp"/>
-            </LinearLayout>
+            </LinearLayout>-->
         </FrameLayout>
 
     </FrameLayout>
@@ -117,25 +123,45 @@
                     android:layout_marginLeft="@dimen/dp_5"
                     android:background="@drawable/robot_yuying"
                     android:textSize="16sp"
-                    android:visibility="gone" />
+                    android:visibility="visible" />
 
-                <EditText
-                    android:id="@+id/et_input"
-                    android:layout_width="0dp"
+                <RelativeLayout
+                    android:id="@+id/rl_message_middle"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
                     android:layout_marginLeft="@dimen/dp_8"
                     android:layout_weight="1"
-                    android:padding="5dip"
-                    android:background="@drawable/button_chatedit_shape"
-                    android:ems="10"
-                    android:gravity="center_vertical"
-                    android:inputType="textMultiLine"
-                    android:maxLines="3"
-                    android:minHeight="@dimen/dp_36"
-                    android:textColor="#101010"
-                    android:visibility="visible" >
-                </EditText>
+                    android:gravity="center_vertical" >
+
+                    <EditText
+                        android:id="@+id/et_input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="5dip"
+                        android:background="@drawable/button_chatedit_shape"
+                        android:ems="10"
+                        android:gravity="center_vertical"
+                        android:inputType="textMultiLine"
+                        android:maxLines="3"
+                        android:minHeight="@dimen/dp_36"
+                        android:textColor="#101010"
+                        android:visibility="visible" >
+                    </EditText>
+
+                    <com.y2w.uikit.customcontrols.record.RecordButton
+                        android:id="@+id/rb_voice"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_36"
+                        android:padding="5dip"
+                        android:background="@drawable/button_chatedit_shape"
+                        android:text="按住 说话"
+                        android:gravity="center"
+                        android:inputType="textMultiLine"
+                        android:minHeight="@dimen/dp_36"
+                        android:textColor="#353535"
+                        android:visibility="gone" >
+                    </com.y2w.uikit.customcontrols.record.RecordButton>
+                </RelativeLayout>
 
                 <ImageButton
                     android:id="@+id/ib_emoji"
@@ -145,7 +171,7 @@
                     android:layout_marginLeft="@dimen/dp_5"
                     android:background="@drawable/button_message_expression"
                     android:textSize="16sp"
-                    android:visibility="gone" />
+                    android:visibility="visible" />
 
                 <ImageButton
                     android:id="@+id/ib_send"
@@ -188,20 +214,20 @@
                 android:id="@+id/vp_message_add_viewPager"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#f3f3f4"
+                android:background="#ffffff"
                 android:visibility="gone" >
             </android.support.v4.view.ViewPager>
 
             <android.support.v4.view.ViewPager
-                android:id="@+id/vp_message_expression_viewPager"
+                android:id="@+id/vp_message_emoji_viewPager"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="#f3f3f4"
+                android:background="#ffffff"
                 android:visibility="gone" >
             </android.support.v4.view.ViewPager>
 
             <LinearLayout
-                android:id="@+id/ll_expression_menu"
+                android:id="@+id/ll_emoji_menu"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"
@@ -212,8 +238,8 @@
                     android:layout_width="@dimen/dp_50"
                     android:layout_height="@dimen/dp_12"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginBottom="@dimen/dp_5"
-                    android:background="#f3f3f4"
+                    android:layout_marginBottom="@dimen/dp_10"
+                    android:background="#ffffff"
                     android:descendantFocusability="blocksDescendants"
                     android:gravity="center"
                     android:horizontalSpacing="@dimen/dp_2"
@@ -222,6 +248,11 @@
                     android:stretchMode="columnWidth"
                     android:visibility="visible" />
 
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_1"
+                    android:background="#dfe2e3"
+                    />
                 <GridView
                     android:id="@+id/gv_expression_menu"
                     android:layout_width="match_parent"

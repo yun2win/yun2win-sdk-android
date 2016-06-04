@@ -21,7 +21,7 @@ public class IMBridge implements Serializable{
     private CurrentUser user;
     public IMBridge(CurrentUser user){
         this.user = user;
-        imClient = new IMClient(user.getImToken().getAccessToken(),user.getEntity().getId());
+        imClient = new IMClient(user.getAppKey(),user.getImToken().getAccessToken(),user.getEntity().getId());
     }
 
     public IMClient getImClient() {

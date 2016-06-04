@@ -4,18 +4,16 @@ import java.io.Serializable;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 
+import y2w.common.Config;
+
 /**
  * 访问url
  * Created by maa2 on 2016/1/6.
  */
 public class Urls implements Serializable {
 
-    public final static String HTTP = "http://";
-    public final static String HTTPS = "https://";
     //public final static String HOST = "http://192.168.0.133"; //验证测试
-    public final static String HOST = "http://112.74.210.208";
-    //public final static String HOST = "http://192.168.0.181";
-    public final static String HOST_PORT = HOST+":8080";
+    public final static String HOST_PORT = Config.Host_Port;
 
 
     /*********************************************User*********************************************/
@@ -43,7 +41,10 @@ public class Urls implements Serializable {
     public final static String User_UserConversation_Get = HOST_PORT+"/v1/users/";
     public final static String User_UserConversation_Last = "/userConversations/";
 
-    public final static String User_UserConversations_delete = HOST_PORT+"/v1/users/";
+    public final static String User_UserConversations_Delete = HOST_PORT+"/v1/users/";
+
+    public final static String User_UserConversations_Update = HOST_PORT+"/v1/users/";
+
 
     /*********************************************Messages*********************************************/
     public final static String User_Messages_Send = HOST_PORT+"/v1/sessions/";
@@ -52,6 +53,10 @@ public class Urls implements Serializable {
     public final static String User_Messages_Get = HOST_PORT+"/v1/sessions/";
     public final static String User_Messages_Get_Last = "/messages";
     public final static String User_Messages_Get_Hostory = "/messages/history";
+
+    public final static String User_Message_Update = HOST_PORT+"/v1/sessions/";
+    public final static String User_Message_Update_Last = "/messages/";
+
     /*********************************************Sessions*********************************************/
     public final static String User_SessionP2p_Get = HOST_PORT+"/v1/sessions/p2p/";
 
@@ -64,6 +69,8 @@ public class Urls implements Serializable {
     public final static String User_Sessions_Get_Last = "/userSessions";
     public final static String User_Sessions_Delete = HOST_PORT+"/v1/users/";
     public final static String User_Sessions_Delete_Last = "/userSessions/";
+    public final static String User_Session_Update = HOST_PORT+"/v1/users/";
+    public final static String User_Session_Update_Last = "/userSessions/";
 
     public final static String User_SessionMember_Add = HOST_PORT+"/v1/sessions/";
     public final static String User_SessionMember_Add_Last = "/members";
@@ -72,9 +79,14 @@ public class Urls implements Serializable {
     public final static String User_SessionMembers_Get = HOST_PORT+"/v1/sessions/";
     public final static String User_SessionMembers_Get_Last = "/members";
 
+
     /*********************************************File*********************************************/
     public final static String User_Messages_File_UpLoad = HOST_PORT+"/v1/attachments";
+    public final static String User_Messages_File_DownLoad = HOST_PORT+"/v1/";
+    public final static String User_Messages_EMOJI_DownLoad = HOST_PORT;
 
+    /*********************************************emojis*********************************************/
+    public final static String User_Messages_Emojis_Get = HOST_PORT+"/v1/emojis";
 
 
 

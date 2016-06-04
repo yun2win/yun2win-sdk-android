@@ -5,6 +5,7 @@ import android.content.Context;
 import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import y2w.entities.ContactEntity;
+import y2w.entities.EmojiEntity;
 import y2w.entities.SessionEntity;
 import y2w.entities.SessionMemberEntity;
 import y2w.entities.MessageEntity;
@@ -27,6 +28,7 @@ public class DaoManager {
 	public Dao<UserSessionEntity, Integer> dao_userSession = null;
 	public Dao<TimeStampEntity, Integer> dao_timeStamp = null;
 	public Dao<UserEntity, Integer> dao_user = null;
+	public Dao<EmojiEntity, Integer> dao_emoji = null;
 
 
 
@@ -47,6 +49,7 @@ public class DaoManager {
 			dao_userSession = helper.getUserSessionDao();
 			dao_timeStamp = helper.getTimeStampDao();
 			dao_user = helper.getUserDao();
+			dao_emoji = helper.getEmojiDao();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

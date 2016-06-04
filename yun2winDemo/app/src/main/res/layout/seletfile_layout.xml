@@ -1,0 +1,44 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white" android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="10dip"
+        android:paddingLeft="10dip"
+        android:paddingTop="10dip" >
+
+        <ImageView
+            android:id="@+id/imgicon"
+            android:layout_width="55dip"
+            android:layout_height="50dip"
+            android:scaleType="centerCrop" />
+
+        <TextView
+            android:id="@+id/filename"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:maxLines="2"
+            android:paddingLeft="10dip"
+            android:textColor="#101010"
+            android:textSize="13sp" />
+
+        <ImageView
+            android:id="@+id/seletimg"
+            android:layout_width="26dp"
+            android:layout_height="26dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dip"
+            android:src="@drawable/file_choce_delete" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="0.5dip"
+        android:background="#dcdddd" />
+
+</LinearLayout>

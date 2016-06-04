@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingRight="@dimen/dp_10"
+    >
+
+    <RelativeLayout
+        android:id="@+id/rl_bg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dp_2"
+        android:background="#21c0c0">
+        <org.webrtc.SurfaceViewRenderer
+            android:id="@+id/svr_video_item"
+            android:layout_width="@dimen/dp_83"
+            android:layout_height="@dimen/dp_110"
+            android:visibility="visible"
+            />
+
+        <ImageView
+            android:id="@+id/iv_av_member_avatar"
+            android:layout_width="@dimen/dp_83"
+            android:layout_height="@dimen/dp_110"
+            android:scaleType="fitXY"
+            />
+    </RelativeLayout>
+
+</LinearLayout>

@@ -55,7 +55,6 @@ public class ContactTest extends InstrumentationTestCase {
 
 
         //注册 A
-        //String emailA = StringUtil.getRandomString(6);
         String emailA = "hejie";
         String name = emailA + "乖";
         signal = new CountDownLatch(1);
@@ -91,7 +90,6 @@ public class ContactTest extends InstrumentationTestCase {
         });
         signal.await();
        /* //B 注册
-        String emailB = StringUtil.getRandomString(6);
         signal = new CountDownLatch(1);
         Users.getInstance().getRemote().register(emailB, passWord, emailB + "杨", new Back.Result<User>() {
             @Override

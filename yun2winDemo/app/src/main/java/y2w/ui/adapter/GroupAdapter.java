@@ -32,7 +32,7 @@ public class GroupAdapter extends BaseAdapter {
         notifyDataSetChanged();
     }
 
-    public void setListViewdate(List<UserSession> list){
+    public void updateListView(List<UserSession> list){
         this.usersessions = list;
     }
 

@@ -8,6 +8,7 @@ public class Constants {
     public static final String TIME_QUERY_BEFORE = "2049-01-01 20:12:33";
     public static final String TIME_QUERY_AFTER = "2016-01-01 20:12:33";
     public static final int CONTACTS_SYNC_LIMIT = 20;
+    public static final int EMOJIS_SYNC_LIMIT = 100;
     public static final long TIME_STAMP_ADD = 26784*10000;
 
     public static  final String TAG = "lyy Notes";

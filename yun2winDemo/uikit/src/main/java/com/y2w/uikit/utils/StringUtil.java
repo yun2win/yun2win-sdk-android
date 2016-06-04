@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.text.Collator;
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -516,5 +517,222 @@ public class StringUtil {
                 "yyyy-MM-dd hh:mm:ss");
         String date = sDateFormat.format(new java.util.Date());
         return date;
+    }
+
+    /**
+     * 是否是Apk文件(Apk)
+     *
+     * @param suffixName
+     *            后缀
+     * @return
+     */
+    public static boolean isApkFileWithSuffixName(String suffixName) {
+        if (isEmpty(suffixName)) {
+            return false;
+        }
+        suffixName = suffixName.toLowerCase();
+        if ("apk".equals(suffixName)) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 是否是Txt文件(Txt)
+     *
+     * @param suffixName
+     *            后缀
+     * @return
+     */
+    public static boolean isTxtFileWithSuffixName(String suffixName) {
+        if (isEmpty(suffixName)) {
+            return false;
+        }
+        suffixName = suffixName.toLowerCase();
+        if ("txt".equals(suffixName)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否是Pdf文件(Pdf)
+     *
+     * @param suffixName
+     *            后缀
+     * @return
+     */
+    public static boolean isPdfFileWithSuffixName(String suffixName) {
+        if (isEmpty(suffixName)) {
+            return false;
+        }
+        suffixName = suffixName.toLowerCase();
+        if ("pdf".equals(suffixName)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否是PPT文件(ppt,pptx,pps,dps)
+     *
+     * @param suffixName
+     *            后缀
+     * @return
+     */
+    public static boolean isPPTFileWithSuffixName(String suffixName) {
+        if (isEmpty(suffixName)) {
+            return false;
+        }
+        suffixName = suffixName.toLowerCase();
+        if ("ppt".equals(suffixName) || "pptx".equals(suffixName)
+                || "pps".equals(suffixName) || "dps".equals(suffixName)) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 是否是xls文件(xls,xlsx)
+     *
+     * @param suffixName
+     *            后缀
+     * @return
+     */
+    public static boolean isXlsFileWithSuffixName(String suffixName) {
+        if (isEmpty(suffixName)) {
+            return false;
+        }
+        suffixName = suffixName.toLowerCase();
+        if ("xls".equals(suffixName) || "xlsx".equals(suffixName)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否是doc文件(doc,docx,wps)
+     * @param suffixName
+     *            后缀
+     * @return
+     */
+    public static boolean isDocFileWithSuffixName(String suffixName) {
+        if (isEmpty(suffixName)) {
+            return false;
+        }
+        suffixName = suffixName.toLowerCase();
+        if ("doc".equals(suffixName) || "docx".equals(suffixName)
+                || "wps".equals(suffixName)) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 是否是压缩文件(zip,rar,7z)
+     * @param suffixName
+     *            后缀
+     * @return
+     */
+    public static boolean isZIPFileWithSuffixName(String suffixName) {
+        if (isEmpty(suffixName)) {
+            return false;
+        }
+        suffixName = suffixName.toLowerCase();
+        if ("zip".equals(suffixName) || "rar".equals(suffixName)
+                || "7z".equals(suffixName)) {
+            return true;
+        }
+        return false;
+    }
+      /**
+     * 是否是图片(jpg,jpeg,png,bmp,gif)
+     * @param suffixName
+     *            后缀
+     * @return
+     */
+    public static boolean isImageWithSuffixName(String suffixName) {
+        if (isEmpty(suffixName)) {
+            return false;
+        }
+        suffixName = suffixName.toLowerCase();
+        if ("jpg".equals(suffixName) || "jpeg".equals(suffixName)
+                || "png".equals(suffixName) || "bmp".equals(suffixName)
+                || "gif".equals(suffixName) || "tif".equals(suffixName)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 是否是音频(audio,wma,wav,ogg,mp3,amr,aac)
+     * @param suffixName
+     *            后缀
+     * @return
+     */
+    public static boolean isAudioWithSuffixName(String suffixName) {
+        if (isEmpty(suffixName)) {
+            return false;
+        }
+        suffixName = suffixName.toLowerCase();
+        if ("audio".equals(suffixName) || "mp3".equals(suffixName)
+                || "wma".equals(suffixName) || "wav".equals(suffixName)
+                || "ogg".equals(suffixName) || "m4a".equals(suffixName)
+                || "mid".equals(suffixName) || "xmf".equals(suffixName)
+                || "amr".equals(suffixName)|| "aac".equals(suffixName)) {
+            return true;
+        }
+        return false;
+    }
+    /**
+     * 是否是视频(video,wmv,3gp,mp4,rmvb,avi)
+     * @param suffixName
+     *            后缀
+     * @return
+     */
+    public static boolean isVideoWithSuffixName(String suffixName) {
+        if (isEmpty(suffixName)) {
+            return false;
+        }
+        suffixName = suffixName.toLowerCase();
+        if ("video".equals(suffixName) || "wmv".equals(suffixName)
+                || "3gp".equals(suffixName) || "mp4".equals(suffixName)
+                || "rmvb".equals(suffixName) || "avi".equals(suffixName)) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 根据文件名获取文件类型
+     *
+     * @param fileName
+     * @return
+     */
+    public static String getFileExtensionName(String fileName) {
+        String extensionName = "";
+        if (!isEmpty(fileName)
+                && fileName.lastIndexOf(".") >= 0) {
+            extensionName = fileName.substring(fileName.lastIndexOf(".") + 1)
+                    .toLowerCase();
+        }
+        return extensionName;
+    }
+
+    /**
+     * 获取文件大小友好显示
+     * @param fileSize
+     * @return
+     */
+    public static String getFriendlyFileSize(long fileSize) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        String fileSizeString = "";
+        if (fileSize < 1024) {
+            fileSizeString = df.format((double) fileSize) + "B";
+        } else if (fileSize < 1048576) {
+            fileSizeString = df.format((double) fileSize / 1024) + "KB";
+        } else if (fileSize < 1073741824) {
+            fileSizeString = df.format((double) fileSize / 1048576) + "MB";
+        } else {
+            fileSizeString = df.format((double) fileSize / 1073741824) + "GB";
+        }
+        return fileSizeString;
     }
 }

@@ -10,6 +10,8 @@ import com.yun2win.utils.LogUtil;
 import java.io.Serializable;
 import java.util.List;
 
+import y2w.base.AppContext;
+import y2w.common.NoticeUtil;
 import y2w.manage.CurrentUser;
 import y2w.manage.EnumManage;
 import y2w.model.Session;
@@ -213,12 +215,14 @@ public class ReceiveUtil implements Serializable{
         List<Json> syncs = json.getList("syncs");
         for(Json j : syncs){
             SyncQueue sq = new SyncQueue();
-            sq.setType(j.getInt("type"));
+            sq.setType(j.getStr("type"));
             sq.setSessionId(j.getStr("sessionId"));
+            sq.setContent(j.getStr("content"));
             sq.setStatus(EnumManage.ReceiveSyncStatusType.none.toString());
             sq.setMyId(user.getEntity().getId());
             syncManager.addSync(sq);
         }
+
     }
 
 }

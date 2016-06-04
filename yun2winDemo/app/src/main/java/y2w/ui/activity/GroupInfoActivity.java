@@ -19,7 +19,6 @@ import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.y2w.uikit.utils.HeadTextBgProvider;
@@ -29,16 +28,13 @@ import com.yun2win.demo.R;
 
 import java.util.List;
 
-import y2w.base.AppData;
-import y2w.common.CallBackUpdate;
 import y2w.manage.EnumManage;
 import y2w.manage.Users;
-import y2w.model.Contact;
 import y2w.model.Session;
 import y2w.model.SessionMember;
+import y2w.model.UserSession;
 import y2w.service.Back;
-import y2w.service.ErrorCode;
-import y2w.ui.adapter.GroupMemberAdapter;
+import y2w.ui.adapter.GroupInfoAdapter;
 
 /**
  * Created by hejie on 2016/3/14.
@@ -47,7 +43,7 @@ import y2w.ui.adapter.GroupMemberAdapter;
 public class GroupInfoActivity extends Activity{
     private Context context;
     private Session _session;
-    private GroupMemberAdapter groupMemberAdapter;
+    private GroupInfoAdapter groupMemberAdapter;
     private String sessionId,sessionName,sessionAvatar;
     private List<SessionMember> listMembers;
     private SessionMember mysessionMember;
@@ -125,10 +121,23 @@ public class GroupInfoActivity extends Activity{
         tv_group_name.setText(sessionName);
         iv_group_head.loadBuddyAvatarbyurl(sessionAvatar, R.drawable.default_group_icon);
         iv_group_head.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(sessionId)));
-        groupMemberAdapter = new GroupMemberAdapter(context);
+        groupMemberAdapter = new GroupInfoAdapter(context);
         gv_member_preview.setAdapter(groupMemberAdapter);
     }
     private void addEvent(){
+
+        tv_group_name.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(GroupInfoActivity.this, GroupNameActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("sessionId", sessionId);
+                bundle.putString("groupName", tv_group_name.getText().toString());
+                intent.putExtras(bundle);
+                startActivityForResult(intent, 101);
+            }
+        });
+
         ll_add_member.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -162,12 +171,12 @@ public class GroupInfoActivity extends Activity{
                     @Override
                     public void onSuccess() {
                         Users.getInstance().getCurrentUser().getUserConversations().delete(_session.getEntity().getId());
-                        ((ChatActivity)ChatActivity._context).finish();
+                        ((ChatActivity) ChatActivity._context).finish();
                         finish();
                     }
 
                     @Override
-                    public void onError(int errorCode,String error) {
+                    public void onError(int errorCode, String error) {
                         ToastUtil.ToastMessage(context, "退出失败");
                     }
                 });
@@ -189,6 +198,17 @@ public class GroupInfoActivity extends Activity{
                     ToastUtil.ToastMessage(context, "您没有权限删除");
                 }
                 return false;
+            }
+        });
+        gv_member_preview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(context, GroupMemberActivity.class);
+                Bundle bundle = new Bundle();
+                bundle.putString("sessionId",sessionId);
+                bundle.putString("sessionName", sessionName);
+                intent.putExtras(bundle);
+                startActivity(intent);
             }
         });
     }
@@ -290,6 +310,12 @@ public class GroupInfoActivity extends Activity{
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 100) {
             getRemmoteMembers();
+        }else if (requestCode == 101) {
+            UserSession userSession = Users.getInstance().getCurrentUser().getUserSessions().getUserSessionBySessionId(sessionId);
+            if(userSession.getEntity() != null){
+                sessionName = userSession.getEntity().getName();
+                tv_group_name.setText(sessionName);
+            }
         }
     }
 }

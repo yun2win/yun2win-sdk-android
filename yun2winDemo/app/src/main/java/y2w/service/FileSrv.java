@@ -28,8 +28,6 @@ public class FileSrv {
     public void uploadMessagesFile(final Context context,String token, String uploadFileURL, String filepath){
         try {
             AsyncMultiPartPost post = new AsyncMultiPartPost(context,token, uploadFileURL, filepath);
-
-            post.execute();
             //将请求加入到全局保存
             AppData.getInstance().addPost(filepath, post);
         } catch (Exception e) {

@@ -9,13 +9,14 @@ import java.io.Serializable;
  */
 
 public class SyncQueue implements Serializable{
-    private int type;
+    private String type;
+    private String content;
     private String sessionId;
     private String status;
     private String time;
     private String myId;
 
-    public static SyncQueue parse(int type,String sessionId,String status){
+    public static SyncQueue parse(String type,String sessionId,String status){
         SyncQueue syncQueue = new SyncQueue();
         syncQueue.setType(type);
         syncQueue.setSessionId(sessionId);
@@ -24,12 +25,20 @@ public class SyncQueue implements Serializable{
         return syncQueue;
     }
 
-    public int getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(int type) {
+    public void setType(String type) {
         this.type = type;
+    }
+
+    public String getContent() {
+        return content;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
     }
 
     public String getSessionId() {

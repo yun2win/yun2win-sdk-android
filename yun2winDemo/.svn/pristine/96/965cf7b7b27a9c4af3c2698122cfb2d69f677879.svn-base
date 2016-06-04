@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <dimen name="bottom_component_margin_horizontal">6dip</dimen>
-    <dimen name="bottom_component_margin_vertical">8dip</dimen>
-
-    <dimen name="split_one_pixels">1px</dimen>
-</resources>

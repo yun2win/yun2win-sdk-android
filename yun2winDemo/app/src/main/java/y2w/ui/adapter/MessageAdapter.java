@@ -92,6 +92,34 @@ public class MessageAdapter extends BaseAdapter{
                     case MessageType.ImageLeft:
                         view = messageView.otherSideImageInit(viewHolder);
                         break;
+                    /*********** 语音 ***********/
+                    case MessageType.AudioRight:
+                        view = messageView.mySideVoiceInit(viewHolder);
+                        break;
+                    case MessageType.AudioLeft:
+                        view = messageView.otherSideVoiceInit(viewHolder);
+                        break;
+                    /*********** 小视频 ***********/
+                    case MessageType.VideoRight:
+                        view = messageView.mySideMovieInit(viewHolder);
+                        break;
+                    case MessageType.VideoLeft:
+                        view = messageView.otherSideMovieInit(viewHolder);
+                        break;
+                    /*********** 文件 ***********/
+                    case MessageType.FileRight:
+                        view = messageView.mySideFileInit(viewHolder);
+                        break;
+                    case MessageType.FileLeft:
+                        view = messageView.otherSideFileInit(viewHolder);
+                        break;
+                    /*********** 位置 ***********/
+                    case MessageType.LocationRight:
+                        view = messageView.mySideImageInit(viewHolder);
+                        break;
+                    case MessageType.LocationLeft:
+                        view = messageView.otherSideImageInit(viewHolder);
+                        break;
                     default:
                         return new TextView(_context);
                 }
@@ -126,10 +154,38 @@ public class MessageAdapter extends BaseAdapter{
 
                /*********** 图片 ***********/
                case MessageType.ImageRight:
-                   messageDisplay.setMySideImageDisplay(model,viewHolder, position);
+                   messageDisplay.setMySideImageDisplay(model, viewHolder, position);
                    break;
                case MessageType.ImageLeft:
                    messageDisplay.setOtherSideImageDisplay(model, viewHolder, position);
+                   break;
+               /*********** 语音 ***********/
+               case MessageType.AudioRight:
+                   messageDisplay.setMySideVoiceDisplay(model, viewHolder, position);
+                   break;
+               case MessageType.AudioLeft:
+                   messageDisplay.setOtherSideVoiceDisplay(model, viewHolder, position);
+                   break;
+               /*********** 小视频 ***********/
+               case MessageType.VideoRight:
+                   messageDisplay.setMySideMovieDisplay(model, viewHolder, position);
+                   break;
+               case MessageType.VideoLeft:
+                   messageDisplay.setOtherSideMovieDisplay(model, viewHolder, position);
+                   break;
+               /*********** 文件 ***********/
+               case MessageType.FileRight:
+                   messageDisplay.setMySideFileDisplay(model, viewHolder, position);
+                   break;
+               case MessageType.FileLeft:
+                   messageDisplay.setOtherSideFileDisplay(model, viewHolder, position);
+                   break;
+               /*********** 文件 ***********/
+               case MessageType.LocationRight:
+                   messageDisplay.setMySideLocationDisplay(model, viewHolder, position);
+                   break;
+               case MessageType.LocationLeft:
+                   messageDisplay.setOtherSideLocationDisplay(model, viewHolder, position);
                    break;
                default:
                    break;
@@ -152,6 +208,18 @@ public class MessageAdapter extends BaseAdapter{
         else if (MessageType.Image.equals(type)) {
             return isMySide(position) ? MessageType.ImageRight
                     : MessageType.ImageLeft;
+        }else if (MessageType.Audio.equals(type)) {
+            return isMySide(position) ? MessageType.AudioRight
+                    : MessageType.AudioLeft;
+        }else if (MessageType.Video.equals(type)) {
+            return isMySide(position) ? MessageType.VideoRight
+                    : MessageType.VideoLeft;
+        }else if (MessageType.File.equals(type)) {
+            return isMySide(position) ? MessageType.FileRight
+                    : MessageType.FileLeft;
+        }else if (MessageType.Location.equals(type)) {
+            return isMySide(position) ? MessageType.LocationRight
+                    : MessageType.LocationLeft;
         }
         else {
             return -1;

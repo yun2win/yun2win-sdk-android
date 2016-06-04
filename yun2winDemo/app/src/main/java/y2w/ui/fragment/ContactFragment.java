@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.yun2win.demo.R;
@@ -25,6 +26,8 @@ import y2w.manage.Users;
 import y2w.base.AppData;
 import y2w.common.CallBackUpdate;
 import y2w.model.Contact;
+import y2w.model.DataSaveModuel;
+import y2w.model.UserSession;
 import y2w.service.Back;
 import y2w.service.ErrorCode;
 import y2w.ui.activity.ContactInfoActivity;

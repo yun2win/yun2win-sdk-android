@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ListView
+        android:id="@+id/lvVideoList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cacheColorHint="#00000000"
+        android:divider="#e6e6e6"
+        android:dividerHeight="0.5dip"
+        android:drawSelectorOnTop="false" >
+    </ListView>
+
+    <GridView
+        android:id="@+id/gvVideoList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top"
+        android:horizontalSpacing="15dip"
+        android:listSelector="@drawable/grid_selector"
+        android:padding="0dip"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="10dip" />
+
+</RelativeLayout>

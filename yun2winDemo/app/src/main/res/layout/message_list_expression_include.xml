@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+    
+    <GridView
+        android:id="@+id/gv_message_expression"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:minHeight="80dp"
+        android:paddingTop="@dimen/dp_20"
+        android:paddingBottom="15dp"        
+        android:descendantFocusability="blocksDescendants"
+	    android:listSelector="@android:color/transparent"
+        android:gravity="left"        
+        android:numColumns="7"	        
+        android:paddingLeft="@dimen/dp_15"
+        android:paddingRight="@dimen/dp_5"	        
+        android:stretchMode="columnWidth"
+        android:horizontalSpacing="@dimen/dp_5"
+        android:verticalSpacing="@dimen/dp_20" />
+
+</LinearLayout>

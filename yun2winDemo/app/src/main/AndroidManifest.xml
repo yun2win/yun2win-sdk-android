@@ -2,34 +2,109 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.yun2win.demo" >
 
-    <!-- 加入应用需要的权限 -->
-    <!-- 网络相关 -->
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
 
-    <!-- 手机状态 -->
-    <uses-permission android:name="android.permission.GET_TASKS"/>
-    <uses-permission android:name="android.permission.FLASHLIGHT"/>
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.BLUETOOTH"/>
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
-    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION"/>
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-feature android:name="android.hardware.camera"/>
+    <uses-feature android:name="android.hardware.camera.autofocus"/>
+    <uses-feature
+        android:glEsVersion="0x00020000"
+        android:required="true"
+        />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
+    <uses-permission android:name="com.google.android.apps.photos.permission.GOOGLE_PHOTOS" />
+    <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
+    <uses-permission android:name="com.pushbullet.android.permission.READ_MESSAGING_EXTENSION_DATA" />
+    <uses-permission android:name="com.pushbullet.android.permission.SEND_MESSAGES" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.USE_SIP" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.RESTART_PACKAGES" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.DEVICE_POWER" />
+    <uses-permission android:name="android.permission.WRITE_APN_SETTINGS" />
+    <uses-permission android:name="android.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_SETTINGS" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
+    <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS" />
+    <uses-permission android:name="com.huawei.android.launcher.permission.READ_SETTINGS" />
 
-    <!-- 读写文件 -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
-    <!-- 多媒体 -->
-    <uses-permission android:name="android.permission.CAMERA"/>
-    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <uses-permission android:name="android.permission.DELETE_PACKAGES" />
+
+    <!-- Frontia框架的公共权限 -->
+    <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
+
+    <!-- FrontiaPush 和FrontiaStatistics 需要的权限 -->
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" >
+    </uses-permission>
+
+    <!-- FrontiaPush 需要的权限 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
+    <!-- 可选的权限 -->
+    <!-- 使用GPS获取用户精确定位信息 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" >
+    </uses-permission>
+    <uses-permission android:name="com.android.email.permission.ACCESS_PROVIDER" />
+    <uses-permission android:name="com.android.email.permission.READ_ATTACHMENT" />
+
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.RAISED_THREAD_PRIORITY"/>
+
+  <!--  &lt;!&ndash; 加入应用需要的权限 &ndash;&gt;
+    &lt;!&ndash; 网络相关 &ndash;&gt;
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+
+    &lt;!&ndash; 手机状态 &ndash;&gt;
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    &lt;!&ndash; 读写文件 &ndash;&gt;
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    &lt;!&ndash; 多媒体 &ndash;&gt;
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+
+    <uses-permission android:name="android.permission.USE_SIP" />-->
 
     <application
         android:name="y2w.base.AppContext"
@@ -39,8 +114,13 @@
         android:theme="@style/AppTheme" >
         <meta-data
             android:name="YUN2WIN_APP_KEY"
-            android:value="CerAgk970T8MlUmz" /> <!--您自己的App Key-->
-
+            android:value="CerAgk970T8MlUmz" /> <!-- 您自己的App Key -->
+        <meta-data
+            android:name="com.amap.api.v2.apikey"
+            android:value="6afc1282af86d10a0992ceff0737fcd3" /> <!-- 高德地图 Key -->
+        <!-- 定位需要的服务 -->
+        <service android:name="com.amap.api.location.APSService" >
+        </service>
         <!-- 主界面 -->
         <activity
             android:name="y2w.ui.activity.MainActivity"
@@ -66,7 +146,7 @@
             android:name="y2w.ui.activity.LoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/horizontal_slide"
-            android:windowSoftInputMode="stateVisible">
+            android:windowSoftInputMode="stateVisible" >
         </activity>
 
         <!-- 注册界面 -->
@@ -74,58 +154,104 @@
             android:name="y2w.ui.activity.RegisterActivity"
             android:screenOrientation="portrait"
             android:theme="@style/horizontal_slide"
-            android:windowSoftInputMode="stateVisible">
+            android:windowSoftInputMode="stateVisible" >
         </activity>
 
         <!-- 添加好友 -->
         <activity
             android:name="y2w.ui.activity.AddContactActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateVisible">
+            android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
 
         <!-- 聊天界面 -->
         <activity
             android:name="y2w.ui.activity.ChatActivity"
-            android:screenOrientation="portrait"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustResize|stateVisible">
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateVisible" >
         </activity>
         <!-- 群列表界面 -->
         <activity
             android:name="y2w.ui.activity.GroupListActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait" >
         </activity>
         <!-- 通讯录用户基本信息界面 -->
         <activity
             android:name="y2w.ui.activity.ContactInfoActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden"
-            >
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
         </activity>
         <!-- 群信息界面 -->
         <activity
             android:name="y2w.ui.activity.GroupInfoActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden"
-            >
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
         </activity>
         <!-- 发起群聊界面 -->
         <activity
             android:name="y2w.ui.activity.SessionStartActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden"
-            >
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
         </activity>
 
         <!-- 图片发送选择界面 -->
         <activity
             android:name="y2w.ui.activity.ImageSendChooseActivity"
             android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
-            >
+            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
         </activity>
 
+        <!-- 小视频录制界面 -->
+        <activity
+            android:name="y2w.ui.activity.MovieRecorderActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
+        </activity>
+        <!-- 文件选择界面 -->
+        <activity
+            android:name="y2w.ui.activity.StoreageFileSelectActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
+        </activity>
+        <!-- 地理位置界面 -->
+        <activity
+            android:name="y2w.ui.activity.LocationActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
+        </activity>
 
+        <!-- 群名称修改界面 -->
+        <activity
+            android:name="y2w.ui.activity.GroupNameActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
+        </activity>
+        <activity
+            android:name="y2w.ui.activity.SearchActivity"
+            android:screenOrientation="portrait" >
+        </activity>
+
+        <!-- 群成员界面 -->
+        <activity
+            android:name="y2w.ui.activity.GroupMemberActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
+        </activity>
+
+        <!-- 音视频界面 -->
+        <activity
+            android:name="y2w.ui.activity.AVCallActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
+        </activity>
+
+        <!-- 音视频选择群成员界面 -->
+        <activity
+            android:name="y2w.ui.activity.AVMemberSelectActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
+        </activity>
     </application>
+
 </manifest>

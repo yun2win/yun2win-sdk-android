@@ -10,26 +10,28 @@
        android:gravity="center_vertical"
        android:background="#21c0c0"
        android:orientation="horizontal"
-       android:paddingRight="15dp" >
+       android:paddingRight="@dimen/dp_10" >
     <ImageButton
         android:id="@+id/left_close"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         android:background="@null"
-        android:paddingLeft="15dp"
+        android:padding="@dimen/dp_15"
         android:src="@drawable/back_white" />
     <TextView
         android:id="@+id/text_title"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
+        android:maxLength="20"
+        android:ellipsize="middle"
         android:singleLine="true"
         android:layout_weight="1"
         android:textColor="#ffffff"
         android:textSize="18sp"
-        android:gravity="center"
-        android:text="标题" />
+        android:gravity="left"
+        android:text="title" />
        <ImageButton
            android:id="@+id/right_person"
            android:layout_width="wrap_content"
@@ -39,6 +41,15 @@
            android:visibility="gone"
            android:padding="@dimen/dp_10"
            android:src="@drawable/person_info_action" />
+       <ImageButton
+           android:id="@+id/right_other_third"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_gravity="center_vertical"
+           android:background="@null"
+           android:padding="@dimen/dp_10"
+           android:visibility="gone"
+           android:src="@drawable/lyy_main_search" />
     <ImageButton
         android:id="@+id/right_add"
         android:layout_width="wrap_content"
@@ -46,7 +57,20 @@
         android:layout_gravity="center_vertical"
         android:background="@null"
         android:padding="@dimen/dp_10"
+        android:visibility="gone"
         android:src="@drawable/group_info_action" />
+
+       <TextView
+           android:id="@+id/tv_right_oper"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content"
+           android:layout_gravity="center_vertical"
+           android:background="@null"
+           android:text=""
+           android:textColor="#ffffff"
+           android:visibility="gone"
+           android:padding="@dimen/dp_10"
+           android:src="@drawable/person_info_action" />
 </LinearLayout>
     <TextView
         android:id="@+id/viewline"

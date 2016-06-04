@@ -102,6 +102,101 @@
         <item name="android:includeFontPadding">false</item>
         <item name="android:background">@drawable/edit_text_bg</item>
     </style>
+    <style name="tvNormal">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@drawable/tv_normal</item>
+        <item name="android:shadowColor">#64000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">1</item>
+    </style>
+
+
+    <style name="MenuDialog">
+        <item name="android:windowBackground">@color/transparent_background</item>
+        <item name="android:windowNoTitle">true</item>
+        <!-- <item name="android:windowFullscreen">true</item> -->
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="tvInGridView" parent="@style/tvNormal">
+        <item name="android:textSize">13sp</item>
+        <item name="android:layout_marginTop">5dip</item>
+        <item name="android:layout_marginBottom">5dip</item>
+        <item name="android:textColor">@drawable/textselect</item>
+    </style>
+    <style name="tvInGridViewCut">
+        <item name="android:textSize">13sp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@drawable/my_textview_cut</item>
+    </style>
+
+    <style name="tvInGridViewSelected">
+        <item name="android:textSize">13sp</item>
+        <item name="android:layout_marginTop">10px</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@drawable/my_textview_selected</item>
+    </style>
+
+    <style name="tvInListView" parent="@style/tvNormal">
+        <item name="android:textSize">@dimen/left_list_font_size</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:textColor">@drawable/textselect</item>
+    </style>
+
+    <style name="tvTitle" parent="@style/tvNormal">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@drawable/tv_normal</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:layout_marginLeft">5dp</item>
+    </style>
+
+    <style name="tvTip">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@drawable/tv_normal</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:layout_width">80dp</item>
+        <item name="android:gravity">right</item>
+    </style>
+
+    <style name="linearLayout">
+        <item name="android:layout_marginTop">5dp</item>
+        <item name="android:layout_marginBottom">5dp</item>
+    </style>
+
+    <style name="dialog_text_color">
+        <item name="android:textColor">#ff33b5e5</item>
+    </style>
+
+    <style name="toolbarItemBg">
+        <item name="android:background">@drawable/toolbar_item_bg</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:layout_marginBottom">2dip</item>
+    </style>
+    <style name="toolbarItemBg_unenable">
+        <item name="android:background">@drawable/toolbar_item_bg_unenable</item>
+        <item name="android:scaleType">center</item>
+        <item name="android:layout_marginBottom">2dip</item>
+    </style>
+
+    <style name="toolbarPlaceHolder">
+        <item name="android:src">@drawable/iv_placeholder</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:layout_marginTop">3dip</item>
+        <item name="android:layout_marginBottom">3dip</item>
+        <item name="android:layout_width">0.5dip</item>
+    </style>
+
+    <style name="tvPath">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@drawable/my_textview_path</item>
+        <item name="android:layout_marginRight">5dp</item>
+        <item name="android:layout_marginLeft">5dp</item>
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
 
     <!--返回icon-->
 </resources>

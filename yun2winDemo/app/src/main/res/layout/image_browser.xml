@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <ExpandableListView
+        android:id="@+id/lvImageList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:cacheColorHint="#00000000"
+        android:divider="#d7d7d7"
+        android:dividerHeight="1px"
+        android:drawSelectorOnTop="false"
+        android:listSelector="#DEDEDE" >
+    </ExpandableListView>
+
+    <GridView
+        android:id="@+id/gvImageList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:listSelector="@drawable/grid_selector"
+        android:numColumns="3"
+        android:padding="0dip"
+        android:stretchMode="columnWidth" />
+
+</RelativeLayout>

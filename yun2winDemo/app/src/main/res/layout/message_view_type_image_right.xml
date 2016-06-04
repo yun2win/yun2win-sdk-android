@@ -46,8 +46,6 @@
 	               android:maxHeight="@dimen/dp_160"
 	               android:visibility="visible" >
 	           </com.y2w.uikit.customcontrols.imageview.RoundAngleImageView>
-
-
                <RelativeLayout
                    android:layout_width="@dimen/dp_50"
                    android:layout_height="@dimen/dp_50"

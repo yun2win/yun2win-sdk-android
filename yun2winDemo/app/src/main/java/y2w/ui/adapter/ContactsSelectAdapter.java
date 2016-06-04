@@ -34,6 +34,7 @@ public class ContactsSelectAdapter extends BaseAdapter {
 
     public void setListViewdate(List<SortModel> list){
         this.choiceContacts = list;
+        notifyDataSetChanged();
     }
 
     @Override

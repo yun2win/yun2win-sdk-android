@@ -11,6 +11,7 @@ import com.j256.ormlite.table.TableUtils;
 import java.sql.SQLException;
 
 import y2w.entities.ContactEntity;
+import y2w.entities.EmojiEntity;
 import y2w.entities.SessionEntity;
 import y2w.entities.SessionMemberEntity;
 import y2w.entities.MessageEntity;
@@ -27,7 +28,7 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
 
 	private static final String TAG = "DataBaseHelper";
 	private static final String DATABASE_NAME = "y2w.db";
-	private static final int DATABASE_VERSION = 2;
+	private static final int DATABASE_VERSION = 3;
 
 	private Dao<ContactEntity, Integer> dao_contact = null;
 	private Dao<UserConversationEntity, Integer> dao_userConversation = null;
@@ -37,6 +38,7 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
 	private Dao<UserSessionEntity, Integer> dao_userSession = null;
 	private Dao<TimeStampEntity, Integer> dao_timeStamp = null;
 	private Dao<UserEntity, Integer> dao_user = null;
+	private Dao<EmojiEntity, Integer> dao_emoji = null;
 	private Context context;
 
 	public DataBaseHelper(Context context) {
@@ -64,6 +66,12 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
 		}
 
 		try {
+			//群聊表
+			TableUtils.createTableIfNotExists(arg1, UserSessionEntity.class);
+		} catch (Exception ex) {
+		}
+
+		try {
 			//同步时间戳表
 			TableUtils.createTableIfNotExists(arg1, TimeStampEntity.class);
 		} catch (Exception ex) {
@@ -86,6 +94,13 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
 			TableUtils.createTableIfNotExists(arg1, UserEntity.class);
 		} catch (Exception ex) {
 		}
+
+		try {
+			//用户表
+			TableUtils.createTableIfNotExists(arg1, EmojiEntity.class);
+		} catch (Exception ex) {
+		}
+
 
 	}
 
@@ -154,6 +169,13 @@ public class DataBaseHelper extends OrmLiteSqliteOpenHelper {
 			dao_user = getDao(UserEntity.class);
 		}
 		return dao_user;
+	}
+
+	public Dao<EmojiEntity, Integer> getEmojiDao() throws SQLException {
+		if (dao_emoji == null) {
+			dao_emoji = getDao(EmojiEntity.class);
+		}
+		return dao_emoji;
 	}
 
 	@Override

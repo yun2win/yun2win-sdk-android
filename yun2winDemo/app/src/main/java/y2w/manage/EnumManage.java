@@ -48,4 +48,16 @@ public class EnumManage {
     public static enum ReceiveSyncStatusType{
         none,syncing,repeat
     };
+
+    public static enum AvType{
+        launch,agree,
+    };
+
+    public static enum AvCallType{
+        audio,video,
+    };
+
+    public static enum AvCmdType{
+        groupavcall,singleavcall,
+    };
 }

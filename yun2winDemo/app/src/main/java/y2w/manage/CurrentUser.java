@@ -25,6 +25,7 @@ public class CurrentUser extends User implements Serializable {
     private UserConversations userConversations;
     private UserSessions userSessions;
     private IMBridges imBridges;
+    private Emojis emojis;
     private Remote remote;
     private CurrentUser user;
 
@@ -161,6 +162,17 @@ public class CurrentUser extends User implements Serializable {
             imBridges = new IMBridges(this);
         }
         return imBridges;
+    }
+
+    /**
+     * 获取表情管理类实例
+     * @return
+     */
+    public Emojis getEmojis() {
+        if(emojis == null){
+            emojis = new Emojis(this);
+        }
+        return emojis;
     }
 
     /**

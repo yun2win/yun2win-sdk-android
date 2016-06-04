@@ -4,9 +4,9 @@ import android.content.Context;
 import android.test.InstrumentationTestCase;
 
 import com.y2w.uikit.utils.StringUtil;
-import com.yun2win.imlib.Urls;
 
 
+import y2w.base.Urls;
 import y2w.manage.CurrentUser;
 import y2w.manage.Users;
 import y2w.model.Contact;

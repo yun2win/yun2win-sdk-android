@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-	<item android:state_pressed="true" android:drawable="@drawable/message_expression_pressed" />
-	<item android:drawable="@drawable/message_expression_normal" />
-</selector>
-<!-- From: file:/C:/Users/maa46/Desktop/yun2win-sdk-android-master/yun2win-sdk-android-master/app/src/main/res/drawable/button_message_expression.xml -->

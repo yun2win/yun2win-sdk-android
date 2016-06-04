@@ -50,13 +50,23 @@ public class UserSessions implements Serializable{
         }
         return remote;
     }
+
+    public UserSession getUserSessionBySessionId(String sessionId){
+        UserSessionEntity entity = UserSessionDb.queryBySessionId(user.getEntity().getId(),sessionId);
+        return new UserSession(this,entity);
+    }
+
     /**
      * 获取本地所有群聊
      * @return 返回结果
      */
     public List<UserSession> getUserSessions(){
-        List<UserSessionEntity> entities = UserSessionDb.query(user.getEntity().getId());
-        return  new ArrayList<UserSession>();
+        List<UserSession> userSessionList = new ArrayList<UserSession>();
+        List<UserSessionEntity> entityList = UserSessionDb.query(user.getEntity().getId());
+        for(UserSessionEntity entity : entityList){
+            userSessionList.add(new UserSession(this,entity));
+        }
+        return userSessionList;
     }
 
     /**
@@ -128,11 +138,11 @@ public class UserSessions implements Serializable{
          * @param result 回调
          */
         public void sync(final Back.Result<List<UserSession>> result){
-            UserSessionSrv.getInstance().sync(user.getToken(), getUpdatedAt(),user.getEntity().getId(), new Back.Result<List<UserSessionEntity>>() {
+            UserSessionSrv.getInstance().sync(user.getToken(), getUpdatedAt(), user.getEntity().getId(), new Back.Result<List<UserSessionEntity>>() {
                 @Override
                 public void onSuccess(List<UserSessionEntity> entities) {
                     List<UserSession> sessionList = new ArrayList<UserSession>();
-                    for(UserSessionEntity entity:entities){
+                    for (UserSessionEntity entity : entities) {
                         sessionList.add(new UserSession(userSessions, entity));
                     }
                     add(sessionList);
@@ -140,8 +150,8 @@ public class UserSessions implements Serializable{
                 }
 
                 @Override
-                public void onError(int errorCode,String error) {
-                    result.onError(errorCode,error);
+                public void onError(int errorCode, String error) {
+                    result.onError(errorCode, error);
                 }
             });
         }
@@ -159,8 +169,22 @@ public class UserSessions implements Serializable{
                 }
 
                 @Override
-                public void onError(int errorCode,String error) {
-                    callback.onError(errorCode,error);
+                public void onError(int errorCode, String error) {
+                    callback.onError(errorCode, error);
+                }
+            });
+        }
+
+        public void userSessionUpdate(UserSession userSession, final Back.Result<UserSession> result){
+            UserSessionSrv.getInstance().updateUserSession(user.getToken(), user.getEntity().getId(), userSession.getEntity().getId(), userSession.getEntity().getSessionId(), userSession.getEntity().getName(), userSession.getEntity().getAvatarUrl(), new Back.Result<UserSessionEntity>() {
+                @Override
+                public void onSuccess(UserSessionEntity userSessionEntity) {
+                    result.onSuccess(new UserSession(userSessions,userSessionEntity));
+                }
+
+                @Override
+                public void onError(int code, String error) {
+                    result.onError(code, error);
                 }
             });
         }

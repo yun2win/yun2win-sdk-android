@@ -150,7 +150,7 @@ public class Sessions implements Serializable {
                 }
 
             }else{
-                result.onError(ErrorCode.EC_UNKNOWN,"");
+                getRemote().getSession(sessionId, EnumManage.SessionType.group.toString(), result);
             }
         }
     }

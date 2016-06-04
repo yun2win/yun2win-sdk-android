@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+
+    <com.uvchip.mediacenter.filebrowser.HorizontalLayout
+        android:id="@+id/filePathLayout"
+        android:layout_width="match_parent"
+        android:layout_height="23dip"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/tray_handle_bg"
+        android:gravity="center_vertical"
+        android:visibility="gone" >
+    </com.uvchip.mediacenter.filebrowser.HorizontalLayout>
+
+    <LinearLayout
+        android:id="@+id/btnLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/filePathLayout"
+        android:background="@drawable/toolbar_bg_normal"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="0dip"
+        android:visibility="gone" >
+
+        <ImageButton
+            android:id="@+id/imgbtn_home"
+            style="@style/toolbarItemBg"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="2dip" >
+        </ImageButton>
+
+        <ImageView style="@style/toolbarPlaceHolder" />
+
+        <ImageButton
+            android:id="@+id/imgbtn_operating"
+            style="@style/toolbarItemBg"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
+        </ImageButton>
+
+        <ImageView style="@style/toolbarPlaceHolder" />
+
+        <ImageButton
+            android:id="@+id/imgbtn_uplevel"
+            style="@style/toolbarItemBg"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
+        </ImageButton>
+
+        <ImageView style="@style/toolbarPlaceHolder" />
+
+        <ImageButton
+            android:id="@+id/imgbtn_paste"
+            style="@style/toolbarItemBg_unenable"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
+        </ImageButton>
+
+        <ImageView style="@style/toolbarPlaceHolder" />
+
+        <ImageButton
+            android:id="@+id/imgbtn_newFolder"
+            style="@style/toolbarItemBg"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" >
+        </ImageButton>
+
+        <ImageView style="@style/toolbarPlaceHolder" />
+
+        <ImageButton
+            android:id="@+id/imgbtn_toggleListAndGrid"
+            style="@style/toolbarItemBg"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginRight="2dip" >
+        </ImageButton>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_storage_deal"
+        android:layout_width="fill_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentTop="true"
+        android:orientation="vertical"
+        android:visibility="visible" >
+
+        <View
+            android:id="@+id/v_line3"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#eeeeee" />
+
+        <LinearLayout
+            android:id="@+id/ll_file_deal_menu"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/tv_file_home"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/button_contactor_deal_menu"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="根目录" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#eeeeee"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_file_search"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/button_contactor_deal_menu"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="搜索"
+                android:visibility="gone" />
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:background="#eeeeee" />
+
+            <TextView
+                android:id="@+id/tv_file_back"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="@drawable/button_contactor_deal_menu"
+                android:clickable="true"
+                android:gravity="center"
+                android:text="返回上一级" />
+        </LinearLayout>
+
+        <View
+            android:id="@+id/v_line4"
+            android:layout_width="fill_parent"
+            android:layout_height="1dp"
+            android:layout_weight="1"
+            android:background="#000000" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/empty_folder"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/btnLayout"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="invisible" >
+
+        <TextView
+            style="@style/tvNormal"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:visibility="gone" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:scaleType="center"
+            android:src="@drawable/empty_folder" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/filesListView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ll_storage_deal"
+        android:layout_margin="5dip"
+        android:cacheColorHint="#00000000"
+        android:divider="#e6e6e6"
+        android:dividerHeight="0.5dip" >
+    </ListView>
+
+    <GridView
+        android:id="@+id/filesGridView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/ll_storage_deal"
+        android:layout_marginTop="2dp"
+        android:gravity="top"
+        android:horizontalSpacing="5dip"
+        android:listSelector="@drawable/grid_selector"
+        android:padding="0dip"
+        android:stretchMode="columnWidth"
+        android:verticalSpacing="10dip" />
+
+</RelativeLayout>

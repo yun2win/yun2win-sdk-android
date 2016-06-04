@@ -37,7 +37,7 @@ public class UserConversationSrv {
      * @param result
      */
     public void getUserConversations(String token, String updateAt,String userId, Back.Result<List<UserConversationEntity>> result){
-        ClientFactory.getInstance().getUserConversations(token, updateAt,userId, result);
+        ClientFactory.getInstance().getUserConversations(token, updateAt, userId, result);
     }
 
     /**
@@ -48,6 +48,10 @@ public class UserConversationSrv {
      */
     public void deleteUserConversation(String token, String userId, String userConversationId, Back.Callback callback){
         ClientFactory.getInstance().deleteUserConversation(token, userId, userConversationId, callback);
+    }
+
+    public void updateUserConversation(String token, String userId, String userConversationId, String targetId, String name, boolean top, String type, String avatarUrl, Back.Result<UserConversationEntity> result){
+        ClientFactory.getInstance().updateUserConversation(token, userId, userConversationId, targetId, name, top, type, avatarUrl, result);
     }
 
 }

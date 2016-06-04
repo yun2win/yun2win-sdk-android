@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/dp_10"
+    android:paddingTop="@dimen/dp_10" >
+
+    <LinearLayout
+        android:id="@+id/ll_message_createdate_include"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:visibility="visible" >
+
+        <include layout="@layout/message_view_type_createdate" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/otherside_message_image_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ll_message_createdate_include"
+        android:orientation="horizontal"
+        android:visibility="visible" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical" >
+
+            <include layout="@layout/message_view_type_headimage_left" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" >
+
+            <LinearLayout
+                android:id="@+id/otherside_message_item"
+                android:layout_width="@dimen/dp_230"
+                android:layout_height="wrap_content"
+                android:layout_weight="1.0"
+                android:background="@drawable/message_text_otherside_style"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/dp_10"
+                android:paddingTop="@dimen/dp_6"
+                android:visibility="visible" >
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="@dimen/dp_2" >
+
+                    <ImageView
+                        android:id="@+id/iv_otherside_file_icon"
+                        android:layout_width="@dimen/dp_50"
+                        android:layout_height="@dimen/dp_50"
+                        android:layout_marginTop="@dimen/dp_10"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentTop="true" />
+
+                    <TextView
+                        android:id="@+id/tv_otherside_file_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/dp_38"
+                        android:layout_toRightOf="@+id/iv_otherside_file_icon"
+                        android:layout_marginLeft="@dimen/dp_7"
+                        android:layout_marginRight="@dimen/dp_4"
+                        android:layout_marginTop="@dimen/dp_7"
+                        android:ellipsize="middle"
+                        android:maxLines="2"
+                        android:paddingBottom="@dimen/dp_2"
+                        android:text=""
+                        android:textColor="#353535"
+                        android:textSize="@dimen/sp_14" />
+
+                    <TextView
+                        android:id="@+id/tv_otherside_file_size"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dp_5"
+                        android:layout_below="@+id/tv_otherside_file_title"
+                        android:layout_toRightOf="@+id/iv_otherside_file_icon"
+                        android:ellipsize="middle"
+                        android:gravity="center_vertical"
+                        android:maxLines="2"
+                        android:text="358KB"
+                        android:textColor="#5c5c5c"
+                        android:textSize="@dimen/sp_12" />
+
+                    <TextView
+                        android:id="@+id/tv_otherside_file_state"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="@dimen/dp_5"
+                        android:layout_marginRight="@dimen/dp_1"
+                        android:layout_below="@+id/tv_otherside_file_title"
+                        android:layout_alignParentRight="true"
+                        android:ellipsize="middle"
+                        android:gravity="center_vertical"
+                        android:maxLines="2"
+                        android:text=""
+                        android:textColor="#5c5c5c"
+                        android:textSize="@dimen/sp_12" />
+                </RelativeLayout>
+
+                <ProgressBar
+                    android:id="@+id/pb_otherside_file"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/dp_5"
+                    android:layout_marginTop="@dimen/dp_5"
+                    android:background="@color/Color_Yellow"
+                    />
+            </LinearLayout>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</RelativeLayout>

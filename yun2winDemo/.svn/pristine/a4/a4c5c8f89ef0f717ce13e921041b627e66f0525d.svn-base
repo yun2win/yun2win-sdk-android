@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="mqtt-client-java1.4-uber-1.7">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/app/libs/mqtt-client-java1.4-uber-1.7.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

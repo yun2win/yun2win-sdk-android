@@ -137,7 +137,7 @@ public class StorageManager {
 			String extension) {
 		File f = null;
 		if (checkStorage()) {
-			f = new File(new File(Config.CACHE_PATH),
+			f = new File(new File(Config.CACHE_PATH_FILE),
 					createNewAttachmentName(extension));
 		}
 		return f;

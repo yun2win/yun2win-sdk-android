@@ -66,18 +66,24 @@ public class MessageAddAdapter extends BaseAdapter{
 	}
 	
 	private int getDrawable(final int arg0){
-		
 		if("图片".equals(_items.get(arg0))){
-				return R.drawable.message_add_picture_normal;
-		}else if("本地文档".equals(_items.get(arg0))){
-				return R.drawable.message_add_storeage_normal;
+			return R.drawable.message_add_picture_normal;
+		}else if("小视频".equals(_items.get(arg0))){
+			return R.drawable.message_add_movie_normal;
+		}else if("文档".equals(_items.get(arg0))){
+			return R.drawable.message_add_storeage_normal;
+		}else if("位置".equals(_items.get(arg0))){
+			return R.drawable.message_add_location_normal;
+		}else if("语音".equals(_items.get(arg0))){
+			return R.drawable.message_add_voice_normal;
+		}else if("视频".equals(_items.get(arg0))){
+			return R.drawable.message_add_video_normal;
 		}
 		return 0;
 	}
 	public class ViewHolder{
 		private ImageView iv_more_image;
 		private TextView tv_more_name;
-		
 	}
 	
 }

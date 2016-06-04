@@ -25,7 +25,7 @@ public class ApplicationTest extends InstrumentationTestCase{
         super.tearDown();
     }
 
-    /*public void test() throws Exception {
+     /*public void test() throws Exception {
         String emailA = StringUtil.getRandomString(5);
         userA = new CurrentUser();
         //注册 A
@@ -217,4 +217,5 @@ public class ApplicationTest extends InstrumentationTestCase{
         signal10.await();
 
     }*/
+
 }

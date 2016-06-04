@@ -1,17 +1,20 @@
 package y2w.ui.activity;
 
-
 import android.app.ActionBar;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -19,18 +22,28 @@ import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AbsListView;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.y2w.uikit.customcontrols.listview.AutoRefreshListView;
-import com.y2w.uikit.customcontrols.listview.ListViewUtil;
-import com.y2w.uikit.customcontrols.listview.MessageListView;
+import com.y2w.uikit.customcontrols.listview.ILoadingLayout;
+import com.y2w.uikit.customcontrols.listview.PullToRefreshBase;
+import com.y2w.uikit.customcontrols.listview.PullToRefreshListView;
+import com.y2w.uikit.customcontrols.record.RecordButton;
+import com.y2w.uikit.utils.Commethod;
 import com.y2w.uikit.utils.StringUtil;
 import com.y2w.uikit.utils.ToastUtil;
 import com.yun2win.demo.R;
+import com.yun2win.utils.LogUtil;
+
 import y2w.base.Urls;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,14 +51,13 @@ import y2w.base.AppData;
 import y2w.common.CallBackUpdate;
 import y2w.common.Config;
 import y2w.common.Constants;
+import y2w.common.SendUtil;
 import y2w.manage.EnumManage;
 import y2w.manage.Users;
 import y2w.model.MessageModel;
-import y2w.model.QueryDirectionEnum;
 import y2w.model.Session;
 import y2w.model.SessionMember;
 import y2w.model.UserConversation;
-import y2w.model.messages.MViewHolder;
 import y2w.model.messages.MessageCrypto;
 import y2w.model.messages.MessageType;
 import y2w.service.Back;
@@ -53,6 +65,8 @@ import y2w.service.FileSrv;
 import y2w.ui.adapter.FragmentAdapter;
 import y2w.ui.adapter.MessageAdapter;
 import y2w.ui.fragment.MessageFragment;
+import y2w.ui.widget.emoji.ChatEmoji;
+import y2w.ui.widget.emoji.Expression;
 
 /**
  * Created by hejie on 2016/3/14.
@@ -61,68 +75,141 @@ import y2w.ui.fragment.MessageFragment;
 public class ChatActivity extends FragmentActivity {
 	private String TAG = ChatActivity.class.getSimpleName();
 	private EditText et_input;
-	private MessageListView lv_message;
+	private RecordButton rb_voice;
+	private PullToRefreshListView lv_message;
+	private FrameLayout fl_record;
+	private ImageView iv_record_volume;
 	private ImageButton ib_add;
 	private ImageButton ib_send;
 	private ImageButton ib_emoji;
+	private ImageButton ib_voice;
+	private boolean isfreshlist = false;
+
+	private ViewPager vp_emoji_pager;
 
 	private RelativeLayout rl_more;
 	private ViewPager vp_add;
 	private ViewPager vp_emoji;
+	private GridView gv_emoji_index;
+	private GridView gv_emoji_menu;
+	private LinearLayout ll_emoji_menu;
     private synMessagedate synMessagedate;
 	/**adapter**/
 	private MessageAdapter adapter;
 	private FragmentAdapter pagerAdapter;
 	static public Context _context;
 	private List<MessageModel> messageList = new ArrayList<MessageModel>();
-	private Handler chatHandler;
+	public static Handler chatHandler;
 	private Session _session;
 	private String sessionType,sessionId;
 	private String othername,otheruserID;
-
+	private boolean scrollbool = false;
 	private CallBackUpdate callBackUpdate;
+	private ChatEmoji chatEmoji;
+	public  int titleIndex = 0;
+	GestureDetector mGestureDetector;
+	MessageModel firstVisibleMM;
 	//界面更新
-	Handler updatechatHandler= new Handler(){
+	Handler updateChatHandler= new Handler(){
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			if(msg.what==0){
-				if (adapter == null) {
-					adapter = new MessageAdapter(_context, _session);
-					lv_message.setAdapter(adapter);
-				} else {
-					adapter.setSession(_session);
-				}
-				if(firstload) {
-					firstload =false;
-					getLastMessage();
-				}
-			}else if(msg.what==1){
 
-			}else if(msg.what ==2){//有新的消息
-
-				if(messageLoading){
-					hasNewMessage = true;
-				}else{
-					loadNewMessage();
-				}
-			}else if(msg.what ==3){//回撤了一个消息
-				MessageModel entity = (MessageModel) msg.obj;
-				boolean find = false;
-				for(int i =0;i<messageList.size();i++){
-					if(messageList.get(i).getEntity().getId().equals(entity.getEntity().getId())){
-						find = true;
-						break;
+			switch (msg.what){
+				case 0:
+					if (adapter == null) {
+						adapter = new MessageAdapter(_context, _session);
+						lv_message.setAdapter(adapter);
+					} else {
+						adapter.setSession(_session);
 					}
-				}
-				if(find){
-					messageList.remove(entity);
-				}
-				lv_message.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_DISABLED);
-				adapter.updateListView(messageList);
+					if(firstload) {
+						firstload =false;
+						getLastMessage();
+					}
+					break;
+				case 1:
+					break;
+				case 2://有新的消息
+					if(messageLoading){
+						hasNewMessage = true;
+					}else{
+						loadNewMessage(false);
+					}
+					break;
+				case 3:
+					MessageModel entity = (MessageModel) msg.obj;
+					boolean find = false;
+					for(int i =0;i<messageList.size();i++){
+						if(messageList.get(i).getEntity().getId().equals(entity.getEntity().getId())){
+							find = true;
+							break;
+						}
+					}
+					if(find){
+						messageList.remove(entity);
+					}
+					lv_message.getRefreshableView().setTranscriptMode(AbsListView.TRANSCRIPT_MODE_DISABLED);
+					refreshComplete();
+					adapter.updateListView(messageList);
+					break;
+				case 4:
+					Expression.emojiEditTextDisplay(_context, et_input,
+							msg.obj.toString(),
+							Expression.dip2px(_context, Expression.WH_0));
+					break;
+				case 5:
+					Expression.editTextExpressionDelete(et_input);
+					break;
+				case 6:
+					et_input.setText(et_input.getText() + msg.obj.toString());
+					break;
+				case 7:
+					fl_record.setVisibility(View.GONE);
+					rb_voice.setText("按住 说话");
+					break;
+				default:
+					break;
 			}
 		}
 	};
+
+
+	class ChatThread extends Thread {
+		@Override
+		public void run() {
+			try {
+				// 建立消息循环的步骤
+				Looper.prepare();// 1、初始化Looper
+				chatHandler = new Handler() {// 2、绑定handler到ChatThread实例的Looper对象
+					public void handleMessage(Message msg) {// 3、定义处理消息的方法
+						switch (msg.what) {
+							case RefreshCode.CODE_EMOJI_ADD:// 表情添加
+									Message message = new Message();
+									message.what = 4;
+									message.obj = msg.obj.toString();
+									updateChatHandler.sendMessage(message);
+								break;
+							case RefreshCode.CODE_EMOJI_DELETE:// 表情删除
+									message = new Message();
+									message.what = 5;
+									updateChatHandler.sendMessage(message);
+								break;
+							case RefreshCode.CODE_OTHER_AT:// 引用
+								message = new Message();
+								message.what = 6;
+								message.obj = msg.obj;
+								updateChatHandler.sendMessage(message);
+								break;
+						}
+					}
+				};
+				Looper.loop();// 4、启动消息循环
+			} catch (Exception ex) {
+
+			}
+		}
+	}
 
 
 	@Override
@@ -136,10 +223,12 @@ public class ChatActivity extends FragmentActivity {
 		controlsInit();
 		listenerInit();
 		initActionBar();
-		callBackUpdate = new CallBackUpdate(updatechatHandler);
+		callBackUpdate = new CallBackUpdate(updateChatHandler);
 		callBackUpdate.setId(sessionId);
 		AppData.getInstance().getUpdateHashMap().put(CallBackUpdate.updateType.chatting.toString(), callBackUpdate);
 		loadSession();
+		initEmoji();
+		new ChatThread().start();
 	}
 
 	@Override
@@ -158,6 +247,7 @@ public class ChatActivity extends FragmentActivity {
 		if(adapter == null){
 			return;
 		}
+		refreshComplete();
 		adapter.updateListView(messageList);
 		texttitle.setText(othername);
 		if(EnumManage.SessionType.p2p.toString().equals(sessionType)){
@@ -221,16 +311,21 @@ public class ChatActivity extends FragmentActivity {
 			othername = bundle.getString("name");
 			otheruserID = bundle.getString("otheruserId");
 			firstload =true;
-
 		}
+	}
+
+	private void initEmoji(){
+		chatEmoji = new ChatEmoji(this,this,_session,this.getSupportFragmentManager());
+		chatEmoji.initView(vp_emoji,gv_emoji_menu,gv_emoji_index);
 	}
     private void loadSession(){
 		Users.getInstance().getCurrentUser().getSessions().getSessionBySessionId(sessionId, new Back.Result<Session>() {
 			@Override
 			public void onSuccess(Session session) {
 				_session = session;
-				updatechatHandler.sendEmptyMessage(0);
+				updateChatHandler.sendEmptyMessage(0);
 			}
+
 			@Override
 			public void onError(int Code, String error) {
 			}
@@ -252,7 +347,7 @@ public class ChatActivity extends FragmentActivity {
 					_session.getEntity().setOtherSideId(session.getEntity().getOtherSideId());
 					_session.getEntity().setSecureType(session.getEntity().getSecureType());
 				}
-				updatechatHandler.sendEmptyMessage(0);
+				updateChatHandler.sendEmptyMessage(0);
 				syncMembers();
 			}
 
@@ -265,17 +360,75 @@ public class ChatActivity extends FragmentActivity {
 		});
 	}
 	private void controlsInit(){
-		lv_message = (MessageListView) findViewById(R.id.messageListView);
+		lv_message = (PullToRefreshListView) findViewById(R.id.messageListView);
+		fl_record = (FrameLayout) findViewById(R.id.fl_record_volume);
+		iv_record_volume = (ImageView) findViewById(R.id.iv_record_volume);
 		et_input = (EditText) findViewById(R.id.et_input);
+		rb_voice = (RecordButton) findViewById(R.id.rb_voice);
+		ib_voice = (ImageButton) findViewById(R.id.ib_keybord_voice);
+		ib_emoji = (ImageButton) findViewById(R.id.ib_emoji);
 		ib_add = (ImageButton) findViewById(R.id.ib_add);
 		ib_send = (ImageButton) findViewById(R.id.ib_send);
 		ib_emoji = (ImageButton) findViewById(R.id.ib_emoji);
 
 		rl_more = (RelativeLayout) findViewById(R.id.rl_message_more);
 		vp_add = (ViewPager) findViewById(R.id.vp_message_add_viewPager);
-		vp_emoji = (ViewPager) findViewById(R.id.vp_message_expression_viewPager);
+		vp_emoji = (ViewPager) findViewById(R.id.vp_message_emoji_viewPager);
 
-		show_send();
+		gv_emoji_index = (GridView) findViewById(R.id.gv_expression_index);
+		gv_emoji_menu = (GridView) findViewById(R.id.gv_expression_menu);
+		ll_emoji_menu = (LinearLayout) findViewById(R.id.ll_emoji_menu);
+		initfreshlistview();
+		//show_send();
+
+
+	}
+
+	private void initfreshlistview(){
+		lv_message.setFooterLoadingViewAble(false);
+		lv_message.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener2<ListView>(){
+			@Override
+			public void onPullDownToRefresh(
+					PullToRefreshBase<ListView> refreshView) {
+
+			}
+
+			@Override
+			public void onPullUpToRefresh(
+					PullToRefreshBase<ListView> refreshView) {
+				// TODO Auto-generated method stub
+			}
+		});
+
+		lv_message.setOnScrollListener(new AbsListView.OnScrollListener() {
+			@Override
+			public void onScrollStateChanged(AbsListView arg0, int arg1) {
+			}
+			@Override
+			public void onScroll(AbsListView arg0, int arg1, int arg2, int arg3) {
+				if(messageList != null && messageList.size() > arg1){
+					firstVisibleMM = messageList.get(arg1);
+				}
+				if(arg1 == 0 && !scrollbool){
+					scrollbool = true;
+					refreshMore();
+				}
+			}
+		});
+
+		lv_message.setOnLastItemVisibleListener(new PullToRefreshBase.OnLastItemVisibleListener() {
+
+			@Override
+			public void onLastItemVisible() {
+				lv_message.setMode(PullToRefreshBase.Mode.PULL_FROM_START);
+			}
+		});
+		ILoadingLayout startLabels = lv_message
+				.getLoadingLayoutProxy(true, false);
+		startLabels.setPullLabel("下拉刷新...");// 刚下拉时，显示的提示
+		startLabels.setRefreshingLabel("正在载入...");// 刷新时
+		startLabels.setReleaseLabel("放开刷新...");// 下来达到一定距离时，显示的提示
+
 	}
 
 	private void show_send(){
@@ -285,9 +438,11 @@ public class ChatActivity extends FragmentActivity {
 	private void listenerInit(){
 		et_input.addTextChangedListener(new messageInputTextChanged());
 		et_input.setOnTouchListener(new inputTextTouchListener());
+		ib_voice.setOnClickListener(new onViewClick());
 		ib_send.setOnClickListener(new onViewClick());
 		ib_add.setOnClickListener(new onViewClick());
 		ib_emoji.setOnClickListener(new onViewClick());
+		rb_voice.setOnRecordListener(new onRecordListener());
 	}
 	   /*
         ***获取成员
@@ -325,20 +480,22 @@ public class ChatActivity extends FragmentActivity {
 					@Override
 					public void onSuccess(List<MessageModel> models) {
 						setMessagenum(models.size());
-						messageDisplay();
+						isfreshlist = true;
+						updatelocal(Config.LOAD_MESSAGE_COUNT);
 					}
 
 					@Override
 					public void onError(int errorCode,String error) {
-						messageDisplay();
+						isfreshlist = true;
+						updatelocal(Config.LOAD_MESSAGE_COUNT);
 					}
 				});
 				return;
 			}
 		}
 	}
-		loadNewMessage();
-		messageDisplay();
+		loadNewMessage(true);
+		isfreshlist = true;
 	}
 
 	//获得最近消息
@@ -358,15 +515,7 @@ public class ChatActivity extends FragmentActivity {
 		synMessagedate =new synMessagedate();
 		synMessagedate.start();
 	}
-	public void messageDisplay(){
-		this.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				lv_message.setOnRefreshListener(new MessageLoader());
-			}
-		});
-	}
-
+    /******************************************监听*******************************************/
 	private final class messageInputTextChanged implements TextWatcher {
 		@Override
 		public void afterTextChanged(Editable s) {
@@ -382,9 +531,9 @@ public class ChatActivity extends FragmentActivity {
 					ib_add.setVisibility(View.GONE);
 					ib_send.setVisibility(View.VISIBLE);
 				} else {
-					show_send();
-					/*ib_add.setVisibility(View.VISIBLE);
-					ib_send.setVisibility(View.GONE);*/
+					//show_send();
+					ib_add.setVisibility(View.VISIBLE);
+					ib_send.setVisibility(View.GONE);
 				}
 		}
 	}
@@ -396,13 +545,16 @@ public class ChatActivity extends FragmentActivity {
 				sendMessage();
 			}else if(v.getId() == ib_add.getId()){
 				addOnclick();
+			}else if(v.getId() == ib_voice.getId()){
+				show();
+				voiceOnclick();
 			}else if(v.getId() == ib_emoji.getId()){
 				emojiOnclick();
 			}
 		}
 	}
 
-	public class MyOnPageChangeListener implements ViewPager.OnPageChangeListener {
+	private class MyOnPageChangeListener implements ViewPager.OnPageChangeListener {
 		@Override
 		public void onPageScrolled(int arg0, float arg1, int arg2) {
 		}
@@ -413,6 +565,103 @@ public class ChatActivity extends FragmentActivity {
 		public void onPageSelected(int arg0) {
 		}
 	}
+
+	private void show(){
+		String permission = "android.permission.RECORD_AUDIO"; //你要判断的权限名字
+		int res =_context.checkCallingOrSelfPermission(permission);
+		if (res == PackageManager.PERMISSION_GRANTED) {
+			ToastUtil.ToastMessage(_context,"有这个权限");
+		}else {
+			ToastUtil.ToastMessage(_context, "木有这个权限");
+		}
+
+	}
+	private boolean isCancel;
+	private class onRecordListener implements RecordButton.OnRecordListener {
+		@Override
+		public void onRecordStart() {
+			rb_voice.setText("松开 发送");
+			iv_record_volume.setBackgroundResource(R.drawable.record_volume1);
+			fl_record.setVisibility(View.VISIBLE);
+		}
+		@Override
+		public void onCancel() {
+			isCancel = true;
+			iv_record_volume.setBackgroundResource(R.drawable.record_cancel);
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(500);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					updateChatHandler.sendEmptyMessage(7);
+				}
+			}).start();
+
+		}
+
+		@Override
+		public void onSuccess(String path, int code) {
+			switch (code) {
+				case RecordButton.RECORD_LESS_THAN_MIN:
+					ToastUtil.ToastMessage(ChatActivity.this, "录音时间太短。");
+				case RecordButton.RECORD_CANCEL:
+					fl_record.setVisibility(View.GONE);
+					new File(path).deleteOnExit();
+					rb_voice.setText("按住 说话");
+					break;
+				case RecordButton.RECORD_TIMEOUT:
+					ToastUtil.ToastMessage(ChatActivity.this, "录音达到最大长度。");
+				case RecordButton.RECORD_NORMAL:
+					LogUtil.getInstance().log(TAG, "path =" + path, null);
+					sendVoice(path);
+					fl_record.setVisibility(View.GONE);
+					rb_voice.setText("按住 说话");
+					break;
+				default:
+					break;
+			}
+		}
+
+		@Override
+		public void onError(String msg) {
+			fl_record.setVisibility(View.GONE);
+		}
+
+		@Override
+		public void onVolumeChange(int volume) {
+			if (rb_voice.isCancel() || isCancel) {
+				// btn_voice.setBackgroundResource(R.drawable.record_cancel);
+				return;
+			}
+			switch (volume) {
+				case 0:
+					iv_record_volume.setBackgroundResource(R.drawable.record_volume1);
+					break;
+				case 1:
+					iv_record_volume.setBackgroundResource(R.drawable.record_volume1);
+					break;
+				case 2:
+					iv_record_volume.setBackgroundResource(R.drawable.record_volume2);
+					break;
+				case 3:
+					iv_record_volume.setBackgroundResource(R.drawable.record_volume3);
+					break;
+				case 4:
+					iv_record_volume.setBackgroundResource(R.drawable.record_volume4);
+					break;
+				case 5:
+					iv_record_volume.setBackgroundResource(R.drawable.record_volume5);
+					break;
+				case 6:
+					iv_record_volume.setBackgroundResource(R.drawable.record_volume6);
+					break;
+			}
+		}
+	}
+
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -431,7 +680,7 @@ public class ChatActivity extends FragmentActivity {
 		@Override
 		public boolean onTouch(View arg0, MotionEvent arg1) {
 			//scrollToBottom();
-			lv_message.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
+			lv_message.getRefreshableView().setTranscriptMode(AbsListView.TRANSCRIPT_MODE_ALWAYS_SCROLL);
 			rl_more.setVisibility(ViewPager.GONE);
 			return false;
 		}
@@ -448,8 +697,23 @@ public class ChatActivity extends FragmentActivity {
 			scrollToBottom();
 			vp_add.setVisibility(View.VISIBLE);
 			rl_more.setVisibility(View.VISIBLE);
+			ll_emoji_menu.setVisibility(View.GONE);
 			initMoreViewPager();
 		}
+	}
+
+	private void voiceOnclick(){
+		if(et_input.getVisibility() == View.VISIBLE){
+			et_input.setVisibility(View.GONE);
+			rb_voice.setVisibility(View.VISIBLE);
+			((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
+					.hideSoftInputFromWindow(et_input.getWindowToken(),
+							InputMethodManager.HIDE_NOT_ALWAYS);
+		}else{
+			et_input.setVisibility(View.VISIBLE);
+			rb_voice.setVisibility(View.GONE);
+		}
+
 	}
 
 	private void emojiOnclick(){
@@ -457,13 +721,18 @@ public class ChatActivity extends FragmentActivity {
 			vp_emoji.setVisibility(View.GONE);
 			rl_more.setVisibility(View.GONE);
 		}else{
+			((InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE))
+					.hideSoftInputFromWindow(et_input.getWindowToken(),
+							InputMethodManager.HIDE_NOT_ALWAYS);
 			vp_emoji.setVisibility(View.VISIBLE);
 			rl_more.setVisibility(View.VISIBLE);
+			ll_emoji_menu.setVisibility(View.VISIBLE);
 		}
+		chatEmoji.initExpressionViewPager();
 	}
 	public void initMoreViewPager() {
 		List<Fragment> fragmentList = new ArrayList<Fragment>();
-		Fragment firstFragment = MessageFragment.newInstance(this, _context,
+		Fragment firstFragment = MessageFragment.newInstance(this, _context,_session,
 				"add_first");
 		fragmentList.add(firstFragment);
 
@@ -484,7 +753,7 @@ public class ChatActivity extends FragmentActivity {
 	//发送文字消息
 	private void sendMessage(){
 		if(_session==null){
-			ToastUtil.ToastMessage(_context,"正在加载初始数据");
+			ToastUtil.ToastMessage(_context, "正在加载初始数据");
 			return;
 		}
 		String sendtext = et_input.getText().toString().trim();
@@ -495,16 +764,18 @@ public class ChatActivity extends FragmentActivity {
 		final MessageModel temp = _session.getMessages().createMessage(MessageCrypto.getInstance().encryText(sendtext), MessageType.Text);
 		messageList.add(temp);
 		scrollToBottom();
+		refreshComplete();
 		adapter.updateListView(messageList);
 		et_input.setText("");
 		_session.getMessages().getRemote().store(temp, new Back.Result<MessageModel>() {
 			@Override
 			public void onSuccess(MessageModel model) {
 				temp.getEntity().setId(model.getEntity().getId());
-				updatechatHandler.sendEmptyMessage(2);
+				updateChatHandler.sendEmptyMessage(2);
 			}
+
 			@Override
-			public void onError(int errorCode,String error) {
+			public void onError(int errorCode, String error) {
 				//model.getEntity().setStatus(MessageEntity.MessageState.storeFailed.toString());
 			}
 		});
@@ -516,33 +787,94 @@ public class ChatActivity extends FragmentActivity {
 			ToastUtil.ToastMessage(_context,"正在加载初始数据");
 			return;
 		}
-		final MessageModel temp = _session.getMessages().createMessage(filepath, MessageType.Image);
-		FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, filepath);
+		//压缩
+		String compressPath = SendUtil.compressOriginPicture(_context, filepath);
+
+		final MessageModel temp = _session.getMessages().createMessage(compressPath, MessageType.Image);
 		messageList.add(temp);
 		scrollToBottom();
+		refreshComplete();
 		adapter.updateListView(messageList);
-		_session.getMessages().getRemote().store(temp, new Back.Result<MessageModel>() {
-			@Override
-			public void onSuccess(MessageModel model) {
-				/*entity.setSessionId(temp.getSessionId());
-				entity.setType(temp.getType());
-				entity.setStatus(MessageEntity.MessageState.stored.toString());
-				session.getMessages().addMessage(entity);*/
-				updatechatHandler.sendEmptyMessage(2);
-			}
 
-			@Override
-			public void onError(int errorCode,String error) {
-
+		FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, compressPath);
+	}
+	//发送语音消息
+	private void sendVoice(final String voicePath) {
+		try {
+			if(StringUtil.isEmpty(voicePath)){
+				return;
 			}
-		});
-		//refreshViewHolderByIndex(final int index,final MessageModel model)
+			File file = new File(voicePath);
+			if (file.exists()) {
+				final MessageModel temp = _session.getMessages().createMessage(voicePath, MessageType.Audio);
+				messageList.add(temp);
+				scrollToBottom();
+				refreshComplete();
+				adapter.updateListView(messageList);
+				FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, voicePath);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	//发送小视频消息
+	private void sendMovie(final String moviePath) {
+		try {
+			File file = new File(moviePath);
+			if (file.exists()) {
+				final MessageModel temp = _session.getMessages().createMessage(moviePath, MessageType.Video);
+				messageList.add(temp);
+				scrollToBottom();
+				refreshComplete();
+				adapter.updateListView(messageList);
+				FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, moviePath);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	//发送地理位置消息
+	private void sendLocation(final String filePath) {
+		try {
+			String[] result = filePath.split(";");
+			if(result.length < 1){
+				return;
+			}
+			File file = new File(result[0]);
+			if (file.exists()) {
+				final MessageModel temp = _session.getMessages().createMessage(filePath, MessageType.Location);
+				messageList.add(temp);
+				scrollToBottom();
+				refreshComplete();
+				adapter.updateListView(messageList);
+				FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, file.getPath());
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void sendFile(final String filePath) {
+		try {
+			File file = new File(filePath);
+			if (file.exists()) {
+				final MessageModel temp = _session.getMessages().createMessage(filePath, MessageType.File);
+				messageList.add(temp);
+				scrollToBottom();
+				refreshComplete();
+				adapter.updateListView(messageList);
+				FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, filePath);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	private List<String> imagesChoose = new ArrayList<String>();
+	private List<String> fileChoose = new ArrayList<String>();
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		if (requestCode == 2) {// ͼƬ
+		if (requestCode == ResultCode.CODE_IMAGE) { //图片
 			if (data != null) {
 				imagesChoose = data.getStringArrayListExtra("result");
 				if (imagesChoose != null && imagesChoose.size() > 0) {
@@ -551,6 +883,26 @@ public class ChatActivity extends FragmentActivity {
 					}
 				}
 			}
+		}else if (requestCode == ResultCode.CODE_MOVIE){ //小视频
+			if(data != null) {
+				String moviePath = data.getStringExtra("result");
+				sendMovie(moviePath);
+				ToastUtil.ToastMessage(_context, "movie:" + moviePath);
+			}
+		}else if (requestCode == ResultCode.CODE_FILE){ //文档
+			if(data != null) {
+				fileChoose = data.getStringArrayListExtra("result");
+				for(String path : fileChoose){
+					sendFile(path);
+					LogUtil.getInstance().log(TAG,path,null);
+				}
+			}
+		}else if (requestCode == ResultCode.CODE_LOCATION){ //位置
+			if(data != null) {
+				String locationPath = data.getStringExtra("result");
+				sendLocation(locationPath);
+				LogUtil.getInstance().log(TAG,locationPath,null);
+			}
 		}
 	}
 	// 刷新消息列表
@@ -558,7 +910,11 @@ public class ChatActivity extends FragmentActivity {
 		this.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				lv_message.setTranscriptMode(AbsListView.TRANSCRIPT_MODE_DISABLED);
+				lv_message.getRefreshableView().setTranscriptMode(AbsListView.TRANSCRIPT_MODE_DISABLED);
+				//int position =lv_message.getRefreshableView().getSelectedItemPosition();
+				//position=position+messageList.size()-adapter.getCount();
+				//lv_message.getRefreshableView().setSelection(position);
+				refreshComplete();
 				adapter.updateListView(messageList);
 			}
 		});
@@ -567,116 +923,99 @@ public class ChatActivity extends FragmentActivity {
 		this.runOnUiThread(new Runnable() {
 			@Override
 			public void run() {
-				ListViewUtil.scrollToBottom(lv_message);
-			}
-		});
-	}
-	/**
-	 * 刷新单条消息
-	 *
-	 * @param index
-	 */
-	private void refreshViewHolderByIndex(final int index,final MessageModel model) {
-		this.runOnUiThread(new Runnable() {
-			@Override
-			public void run() {
-				if (index < 0) {
-					return;
-				}
-				Object tag = ListViewUtil.getViewHolderByIndex(lv_message, index);
-				if (tag instanceof MViewHolder) {
-					MViewHolder viewHolder = (MViewHolder) tag;
-					adapter. messagedisplay(model,viewHolder,index);
+				if (messageList != null && messageList.size() > 0) {
+					lv_message.getRefreshableView().setSelection(
+							messageList.size() - 1);
 				}
 			}
 		});
 	}
 
-	//消息自动刷新
-	private class MessageLoader implements AutoRefreshListView.OnRefreshListener {
+	private void refreshMore(){
+		localMore();
+		refreshComplete();
+	}
 
-		private QueryDirectionEnum direction = null;
-		private boolean firstLoad = true;
 
-		public MessageLoader() {
-			loadFromLocal(QueryDirectionEnum.QUERY_OLD);
-		}
-
-		private Back.Result<List<MessageModel>> callback = new Back.Result<List<MessageModel>>() {
-			@Override
-			public void onSuccess(List<MessageModel> messageModels) {
-				if (messageModels != null) {
-					onMessageLoaded(messageModels);
-				}
+	private void localMore(){
+		try {
+			if(messageList.size() < 1){
+				return ;
 			}
-			@Override
-			public void onError(int errorCode,String error) {
-			}
-		};
-
-		private void loadFromLocal(QueryDirectionEnum direction) {
-			this.direction = direction;
-			lv_message.onRefreshStart(direction == QueryDirectionEnum.QUERY_NEW ? AutoRefreshListView.Mode.END : AutoRefreshListView.Mode.START);
-          if(firstLoad&&messageList.size()>Config.LOAD_MESSAGE_COUNT){
-				  _session.getMessages().getMessages(anchor(), messageList.size(), callback);
-		  }else{
-			  _session.getMessages().getMessages(anchor(), Config.LOAD_MESSAGE_COUNT, callback);
-		  }
-		}
-
-		private MessageModel anchor() {
+			MessageModel firstModel;
 			if (messageList.size() == 0) {
-				return null;
+				firstModel = null;
 			} else {
-				return messageList.get(0);
+				firstModel = messageList.get(0);
 			}
-		}
+			List<MessageModel> list =_session.getMessages().getMessages(firstModel, Config.LOAD_MESSAGE_COUNT);
+            if(list.size()<Config.LOAD_MESSAGE_COUNT){
+				lv_message.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
+			}
+			if(list.size() > 0){
+				messageList.addAll(0, list);
+				lv_message.getRefreshableView().setTranscriptMode(AbsListView.TRANSCRIPT_MODE_DISABLED);
+				adapter.updateListView(messageList);
 
-		/**
-		 * 历史消息加载处理
-		 *
-		 * @param messages
-		 */
-		private void onMessageLoaded(List<MessageModel> messages) {
-			int count = messages.size();
-             String toptime = "",bottomtime ="";
-			if (firstLoad) {
-				messageList.clear();
-			}
-			if (direction == QueryDirectionEnum.QUERY_NEW) {
-				messageList.addAll(messages);
-			} else {
-				if(messageList!=null&&messageList.size()>0) {
-					toptime = messageList.get(0).getEntity().getUpdatedAt();
-				}
-				messageList.addAll(0, messages);
-				if(messages!=null&&messages.size()>0) {
-					bottomtime = messages.get(messages.size() - 1).getEntity().getUpdatedAt();
+				for (int i = 0; i < messageList.size(); i++) {
+					MessageModel mm = messageList.get(i);
+					if(firstVisibleMM != null){
+						if(firstVisibleMM.getEntity().getId().equals(mm.getEntity().getId())) {
+							lv_message.getRefreshableView().setSelection(i+2);
+							break;
+						}
+					}
 				}
 			}
-			refreshMessageList();
-			if (StringUtil.isTimeDisplay(bottomtime, toptime)) {
-				lv_message.onRefreshComplete(count, Config.LOAD_MESSAGE_COUNT, true, 0);
-			} else {
-				lv_message.onRefreshComplete(count, Config.LOAD_MESSAGE_COUNT, true, 100);
-			}
-			if(firstLoad) {
-				scrollToBottom();
-			}
-			firstLoad = false;
+		} catch (Exception e) {
+			Log.i("more", "e:"+e);
 		}
+	}
 
-		/**
-		 * *************** OnRefreshListener ***************
-		 */
-		@Override
-		public void onRefreshFromStart() {
-				loadFromLocal(QueryDirectionEnum.QUERY_OLD);
+	private void refreshComplete() {
+		if (lv_message != null) {
+			Commethod.setTimout(new Commethod.Action() {
+
+				@Override
+				public void exec() {
+					lv_message.onRefreshComplete();
+				}
+			}, 100);
+
+			new Thread(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(220);
+						scrollbool = false;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+				}
+			}).start();
 		}
+	}
 
-		@Override
-		public void onRefreshFromEnd() {
-				loadFromLocal(QueryDirectionEnum.QUERY_NEW);
+	private void updatelocal(int count){
+		MessageModel firstModel;
+		if (messageList.size() == 0) {
+			firstModel = null;
+		} else {
+			firstModel = messageList.get(0);
+		}
+		List<MessageModel> list =_session.getMessages().getMessages(firstModel,count);
+		messageList.addAll(0, list);
+		if(messageList.size()>0) {
+			this.runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					lv_message.getRefreshableView().setSelection(messageList.size() - 1);
+					refreshComplete();
+					adapter.updateListView(messageList);
+				}
+			});
 		}
 	}
 	private void setMessagenum(int count){
@@ -709,7 +1048,12 @@ public class ChatActivity extends FragmentActivity {
 					public void onSuccess(List<MessageModel> models) {
 						if (models.size() < Config.LOAD_MESSAGE_COUNT) {//同步完成
 							issyndate=false;
-							messageDisplay();
+							isfreshlist = true;
+							int count = messageList.size();
+							if(count<Config.LOAD_MESSAGE_COUNT)
+								count =Config.LOAD_MESSAGE_COUNT;
+							messageList.clear();
+							updatelocal(count);
 						} else {
 							run();
 						}
@@ -721,16 +1065,25 @@ public class ChatActivity extends FragmentActivity {
 				});
 		}
 	}
-
-	private void loadNewMessage(){
+     //是否重新清空刷新
+	private void loadNewMessage(final boolean isreload){
 			final int unread = 50;
 		    messageLoading = true;
 		    hasNewMessage = false;
 			_session.getMessages().getRemote().sync(!issyndate,_session.getMessages().getMessageUpdateAt(), unread, new Back.Result<List<MessageModel>>() {
 				@Override
 				public void onSuccess(List<MessageModel> models) {
+					if(isreload&&!issyndate){
+						int count = messageList.size();
+						if(count<Config.LOAD_MESSAGE_COUNT)
+							count =Config.LOAD_MESSAGE_COUNT;
+						messageLoading = false;
+						messageList.clear();
+						updatelocal(count);
+						return;
+					}
 					boolean istobottom =false;
-					int lastnum =lv_message.getLastVisiblePosition();
+					int lastnum =lv_message.getRefreshableView().getLastVisiblePosition();
 					if(lastnum >=(messageList.size()-1))
 						istobottom =true;
 					if(models!=null&&models.size()>0){
@@ -760,17 +1113,17 @@ public class ChatActivity extends FragmentActivity {
 					if(models==null||models.size()<unread){
 						messageLoading = false;
 						if(hasNewMessage){
-							loadNewMessage();
+							loadNewMessage(false);
 						}
 					}else{
-						loadNewMessage();
+						loadNewMessage(false);
 					}
 				}
 				@Override
 				public void onError(int errorCode,String error) {
 					messageLoading = false;
 					if(hasNewMessage){
-						loadNewMessage();
+						loadNewMessage(false);
 					}
 				}
 			});
@@ -781,12 +1134,30 @@ public class ChatActivity extends FragmentActivity {
 	@Override
 	public void finish() {
 		super.finish();
-		AppData.getInstance().getUpdateHashMap().remove(CallBackUpdate.updateType.chatting.toString());
-		AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.userConversation.toString()).updateUI();
-		if(synMessagedate!=null&& synMessagedate.isAlive()){
-			synMessagedate.interrupt();
-			synMessagedate=null;
+		try {
+			AppData.getInstance().getUpdateHashMap().remove(CallBackUpdate.updateType.chatting.toString());
+			AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.userConversation.toString()).updateUI();
+			if(synMessagedate!=null&& synMessagedate.isAlive()){
+				synMessagedate.interrupt();
+				synMessagedate=null;
+			}
+			rb_voice.stopRecording();
+		}catch(Exception e){
 		}
+	}
+
+	public static class ResultCode{
+		public static final int CODE_IMAGE = 1;
+		public static final int CODE_MOVIE = 2;
+		public static final int CODE_FILE = 3;
+		public static final int CODE_LOCATION = 4;
+		public static final int CODE_VIDEO_CALL = 5;
+	}
+
+	public static class RefreshCode{
+		public static final int CODE_EMOJI_ADD = 101;
+		public static final int CODE_EMOJI_DELETE = 102;
+		public static final int CODE_OTHER_AT = 103;
 
 	}
 }

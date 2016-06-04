@@ -20,8 +20,10 @@ import y2w.entities.UserConversationEntity;
 import y2w.manage.EnumManage;
 import y2w.manage.Users;
 import y2w.model.Session;
+import y2w.model.UserConversation;
 import y2w.service.Back;
 import y2w.ui.activity.ChatActivity;
+import y2w.ui.widget.emoji.Expression;
 
 import com.y2w.uikit.utils.StringUtil;
 
@@ -32,7 +34,7 @@ import org.w3c.dom.Text;
  */
 public class ConversationAdapter extends BaseAdapter {
 
-    private List<UserConversationEntity> conversations;
+    private List<UserConversation> conversations;
     private Context context;
     public ConversationAdapter(Context context){
         this.context = context;
@@ -41,7 +43,7 @@ public class ConversationAdapter extends BaseAdapter {
     public void updateListView() {
         notifyDataSetChanged();
     }
-    public  void setCOnversations(List<UserConversationEntity> list){
+    public  void setConversations(List<UserConversation> list){
         this.conversations = list;
     }
 
@@ -65,7 +67,7 @@ public class ConversationAdapter extends BaseAdapter {
         if(position > conversations.size() - 1){
             return view;
         }
-       final UserConversationEntity entity = conversations.get(position);
+       final UserConversation userConversation = conversations.get(position);
         HoldView holdView;
         if (null == view) {
             holdView = new HoldView();
@@ -88,26 +90,26 @@ public class ConversationAdapter extends BaseAdapter {
         } else {
             holdView = (HoldView) view.getTag();
         }
-        setTitle(holdView,entity,position);
+        setTitle(holdView,userConversation,position);
         return view;
     }
-    private void setTitle(HoldView holdView,UserConversationEntity entity,int position){
-        holdView.tv_title.setText(entity.getName());
-        holdView.tv_content.setText(entity.getLastContext());
-        holdView.tv_time.setText(entity.getFriendlyTime());
-        if(EnumManage.SessionType.p2p.toString().equals(entity.getType())) {
-            holdView.iv_header.loadBuddyAvatarbyurl(entity.getAvatarUrl(), R.drawable.default_person_icon);
-        }else if(EnumManage.SessionType.group.toString().equals(entity.getType())){
-            holdView.iv_header.loadBuddyAvatarbyurl(entity.getAvatarUrl(), R.drawable.default_group_icon);
+    private void setTitle(HoldView holdView,UserConversation userConversation,int position){
+        holdView.tv_title.setText(userConversation.getEntity().getName());
+        Expression.emojiDisplay(context, null, holdView.tv_content, userConversation.getEntity().getLastContext(), Expression.WH_1);
+        holdView.tv_time.setText(userConversation.getEntity().getFriendlyTime());
+        if(EnumManage.SessionType.p2p.toString().equals(userConversation.getEntity().getType())) {
+            holdView.iv_header.loadBuddyAvatarbyurl(userConversation.getEntity().getAvatarUrl(), R.drawable.default_person_icon);
+        }else if(EnumManage.SessionType.group.toString().equals(userConversation.getEntity().getType())){
+            holdView.iv_header.loadBuddyAvatarbyurl(userConversation.getEntity().getAvatarUrl(), R.drawable.default_group_icon);
         }else{
-            holdView.iv_header.loadBuddyAvatarbyurl(entity.getAvatarUrl(), R.drawable.circle_image_transparent);
+            holdView.iv_header.loadBuddyAvatarbyurl(userConversation.getEntity().getAvatarUrl(), R.drawable.circle_image_transparent);
         }
-        holdView.tv_header.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(entity.getTargetId())));
-        if(entity.getUnread()==0){
+        holdView.tv_header.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(userConversation.getEntity().getTargetId())));
+        if(userConversation.getEntity().getUnread()==0){
             holdView.tv_count.setVisibility(View.GONE);
         }else {
             holdView.tv_count.setVisibility(View.VISIBLE);
-            holdView.tv_count.setText(StringUtil.getMessageNum(entity.getUnread()));
+            holdView.tv_count.setText(StringUtil.getMessageNum(userConversation.getEntity().getUnread()));
         }
     }
 

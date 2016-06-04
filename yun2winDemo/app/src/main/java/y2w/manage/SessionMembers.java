@@ -73,6 +73,23 @@ public class SessionMembers implements Serializable {
             getRemote().sync(result);
         }
     }
+    /*
+     *
+    异步获取所有会话成员，根据搜索输入的name
+     *
+     */
+    public void getAllMembers(Back.Result<List<SessionMember>> result){
+        List<SessionMemberEntity> entities = SessionMemberDb.searchByName(session.getEntity().getMyId(),session.getEntity().getName());
+        List<SessionMember> memberList = new ArrayList<SessionMember>();
+        if(entities.size() > 0){
+            for(SessionMemberEntity entity:entities){
+                memberList.add(new SessionMember(this,entity));
+            }
+            result.onSuccess(memberList);
+        }else{
+            getRemote().sync(result);
+        }
+    }
     /**
      * 将会话成员列表保存到数据集
      * @param sessionMemberList 会话列表

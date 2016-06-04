@@ -77,4 +77,19 @@ public class SessionMemberDb {
         return count;
     }
 
+    public static List<SessionMemberEntity> searchByName(String myId,String name){
+        List<SessionMemberEntity> entities;
+        try {
+            entities = DaoManager.getInstance(AppContext.getAppContext()).dao_sessionMember.queryBuilder()
+                    .where()
+                    .like("name", name)
+                    .and()
+                    .eq("myId", myId).query();
+        } catch (Exception e) {
+            entities = new ArrayList<SessionMemberEntity>();
+        }
+        return entities;
+    }
+
+
 }

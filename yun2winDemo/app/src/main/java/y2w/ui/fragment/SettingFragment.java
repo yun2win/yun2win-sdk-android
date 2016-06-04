@@ -127,11 +127,10 @@ public class SettingFragment extends Fragment{
 	private void logout() {
 		try {
 			Users.getInstance().getCurrentUser().getImBridges().disConnect();
-			AppContext.getAppContext().logout();
-			activity.finish();
 		}catch (Exception e){
-
 		}
+		AppContext.getAppContext().logout();
+		activity.finish();
 	}
 
 	

@@ -106,16 +106,17 @@ public class IMBridges implements Serializable{
     /**
      * 消息发送
      * @param session 会话
-     * @param message 消息体
      * @param callback 回调
      */
-    public void sendMessage(Session session,String message,IMClient.SendCallback callback){
-        IMSession imSession = new IMSession();
-        String sessionId = session.getEntity().getType() + "_" + session.getEntity().getId();
-        imSession.setId(sessionId);
-        imSession.setMts(session.getMessages().getTimeStamp());
-        if(imBridge != null)
-        imBridge.getImClient().sendMessage(imSession, CmdBuilder.buildMessage(sessionId), callback);
+    public void sendMessage(Session session,IMClient.SendCallback callback){
+        if(session != null) {
+            IMSession imSession = new IMSession();
+            String sessionId = session.getEntity().getType() + "_" + session.getEntity().getId();
+            imSession.setId(sessionId);
+            imSession.setMts(session.getMessages().getTimeStamp());
+            if (imBridge != null)
+                imBridge.getImClient().sendMessage(imSession, CmdBuilder.buildMessage(sessionId), callback);
+        }
     }
     /**
      * 更新会话
@@ -127,5 +128,17 @@ public class IMBridges implements Serializable{
         if(imBridge != null)
         imBridge.getImClient().updateSession(imSession, members, callback);
     }
+
+    public void avCallMessage(Session session,String message,IMClient.SendCallback callback){
+        if(session != null) {
+            IMSession imSession = new IMSession();
+            String sessionId = session.getEntity().getType() + "_" + session.getEntity().getId();
+            imSession.setId(sessionId);
+            imSession.setMts(session.getMessages().getTimeStamp());
+            if (imBridge != null)
+                imBridge.getImClient().sendMessage(imSession, message, callback);
+        }
+    }
+
 
 }

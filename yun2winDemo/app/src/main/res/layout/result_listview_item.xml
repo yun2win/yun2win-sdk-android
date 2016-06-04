@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="5dp"
+    >
+    <com.y2w.uikit.customcontrols.imageview.HeadImageView
+        android:id="@+id/head_icon"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/icon_account"
+        android:layout_marginLeft="5dp"
+        />
+    <TextView
+        android:id="@+id/group_name_show"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="1234"
+        android:gravity="center"
+        android:layout_marginLeft="8dp"
+        android:textSize="@dimen/sp_18"
+        />
+</LinearLayout>

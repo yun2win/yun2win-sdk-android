@@ -18,4 +18,9 @@
     <string name="send">发送</string>
     <string name="unknow_size">未知大小</string>
 
+    <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
+    <string name="pull_to_refresh_release_label">Release to refresh…</string>
+    <string name="pull_to_refresh_refreshing_label">Loading…</string>
+
+
 </resources>

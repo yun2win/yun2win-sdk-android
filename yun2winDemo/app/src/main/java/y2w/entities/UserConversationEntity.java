@@ -69,13 +69,32 @@ public class UserConversationEntity implements Serializable {
         Json lastMessage = new Json(json.getStr("lastMessage"));
         entity.setLastSender(lastMessage.getStr("sender"));
         entity.setLastType(lastMessage.getStr("type"));
-        entity.setLastContext(MessageCrypto.getInstance().decryText(lastMessage.getStr("content")));
+        if(MessageType.Text.equals(lastMessage.getStr("type")) || MessageType.System.equals(lastMessage.getStr("type"))){
+            entity.setLastContext(MessageCrypto.getInstance().decryText(lastMessage.getStr("content")));
+        }else{
+            entity.setLastContext(getContent(lastMessage.getStr("type")));
+        }
         entity.setIsDelete(json.getBool("isDelete"));
         entity.setCreatedAt(json.getStr("createdAt"));
         entity.setUpdatedAt(json.getStr("updatedAt"));
         entity.setAvatarUrl(json.getStr("avatarUrl"));
         entity.setMyId(UserInfo.getUserId());
         return entity;
+    }
+
+    private static String getContent(String type){
+        if(MessageType.Image.equals(type)){
+            type = "[图片]";
+        }else if(MessageType.Audio.equals(type)){
+            type = "[语音]";
+        }else if(MessageType.Video.equals(type)){
+            type = "[小视频]";
+        }else if(MessageType.File.equals(type)){
+            type = "[文件]";
+        }else if(MessageType.Location.equals(type)){
+            type = "[位置]";
+        }
+        return type;
     }
 
     public static List<UserConversationEntity> parseList(List<Json> jsons){

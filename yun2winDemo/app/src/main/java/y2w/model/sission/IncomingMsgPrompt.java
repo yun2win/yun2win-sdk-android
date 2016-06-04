@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.y2w.uikit.customcontrols.listview.ListViewUtil;
-import com.y2w.uikit.customcontrols.listview.MessageListView;
+import com.y2w.uikit.customcontrols.listview.PullToRefreshListView;
 import com.y2w.uikit.utils.MoonUtil;
 import com.yun2win.demo.R;
 
@@ -28,10 +28,10 @@ public class IncomingMsgPrompt {
 
     private Context context;
     private View view;
-    private MessageListView messageListView;
+    private PullToRefreshListView messageListView;
     private Handler uiHandler;
 
-    public IncomingMsgPrompt(Context context, View view, MessageListView messageListView, Handler uiHandler) {
+    public IncomingMsgPrompt(Context context, View view, PullToRefreshListView messageListView, Handler uiHandler) {
         this.context = context;
         this.view = view;
         this.messageListView = messageListView;
@@ -69,8 +69,8 @@ public class IncomingMsgPrompt {
 
             @Override
             public void onClick(View v) {
-                ListViewUtil.scrollToBottom(messageListView);
-                newMessageTipLayout.setVisibility(View.GONE);
+
+
             }
         });
         newMessageTipTextView = (TextView) newMessageTipLayout.findViewById(R.id.new_message_tip_text_view);

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="5dip" >
+
+    <ImageView
+        android:id="@+id/ivOfGVItem"
+        android:layout_width="72dip"
+        android:layout_height="72dip"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="sdf"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:id="@+id/ivOfGVItem_flag"
+        android:layout_width="26dp"
+        android:layout_height="26dp"
+        android:layout_alignRight="@+id/ivOfGVItem"
+        android:layout_alignTop="@+id/ivOfGVItem"
+        android:contentDescription="sdf"
+        android:scaleType="centerCrop" />
+
+    <TextView
+        android:id="@+id/tvOfGVItem"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivOfGVItem"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:lines="2"
+        android:maxLines="2"
+        android:text="大小"
+        android:textColor="#101010"
+        android:textSize="15sp" />
+
+    <TextView
+        android:id="@+id/tvOfGVItem_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvOfGVItem"
+        android:layout_centerHorizontal="true"
+        android:gravity="center"
+        android:text="大小"
+        android:textColor="#999999"
+        android:textSize="12sp"
+        android:visibility="gone" />
+
+</RelativeLayout>

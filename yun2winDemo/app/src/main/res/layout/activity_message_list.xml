@@ -156,7 +156,7 @@
             </android.support.v4.view.ViewPager>
 
             <android.support.v4.view.ViewPager
-                android:id="@+id/vp_message_expression_viewPager"
+                android:id="@+id/vp_message_emoji_viewPager"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#f3f3f4"

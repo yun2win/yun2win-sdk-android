@@ -22,11 +22,13 @@ import android.graphics.Shader.TileMode;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.ExifInterface;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
+import android.view.View;
 
 import com.example.maa2.uikit.R;
 import com.y2w.uikit.common.AttachmentStore;
@@ -176,6 +178,10 @@ public class ImageUtils {
 	 * 消息图片最长边长为960像素
 	 */
 	private static final int SEND_BITMAP_MAX_SIDE = 1920;
+
+
+
+
 	/**
 	 * 发送消息是压缩图片
 	 * @param filePath
@@ -203,7 +209,7 @@ public class ImageUtils {
 	            // save file
 	            File myCaptureFile = new File(filePath);
 	            FileOutputStream out = new FileOutputStream(myCaptureFile);
-	            if(resizeBitmap.compress(CompressFormat.JPEG, 100, out)){
+	            if(resizeBitmap.compress(CompressFormat.JPEG, 80, out)){
 	                out.flush();
 	                out.close();
 	            }
@@ -235,6 +241,46 @@ public class ImageUtils {
 				scanPhoto(ctx, filePath);
 			}
 		}
+	}
+
+	/**
+	 * 获取缩略图
+	 * @param path
+	 * @param maxLength
+	 * @return
+	 */
+	public static Bitmap getImageThumbnail(String path, int maxLength) {
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		Bitmap bitmap = BitmapFactory.decodeFile(path, options);
+		int realWidth = options.outWidth;
+		int realHeight = options.outHeight;
+		//需要缩放
+		if(Math.max(realWidth, realHeight) > maxLength){
+			if(realWidth > realHeight){
+				int h = realHeight * maxLength / realWidth;
+				realHeight = h > maxLength ? maxLength : h;
+				realWidth = 400;
+			}
+			else{
+				int w = realWidth * maxLength / realHeight;
+				realWidth = w > 400 ? 400 : w;
+				realHeight = maxLength;
+			}
+		}
+
+		options.inJustDecodeBounds = false;
+		options.inDither = false;
+		options.inPreferredConfig = Bitmap.Config.RGB_565;
+		options.outWidth = realWidth;
+		options.outHeight = realHeight;
+		try{
+			bitmap = BitmapFactory.decodeFile(path, options);
+			return ThumbnailUtils.extractThumbnail(bitmap, realWidth, realHeight);
+		}
+		catch(OutOfMemoryError e){
+		}
+		return null;
 	}
 
 	/**
@@ -1140,5 +1186,42 @@ public class ImageUtils {
 				|| lowerCaseFilepath.toLowerCase().contains("png") || lowerCaseFilepath.toLowerCase().contains("bmp") || lowerCaseFilepath
 				.toLowerCase().contains("gif"));
 	}
+
+	/**
+	 * 获取视频缩略图
+	 * @param path
+	 * @param maxLength
+	 * @return
+	 */
+
+	public static Bitmap getVideoThumbnail(String path, int maxLength) {
+		Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(path, MediaStore.Images.Thumbnails.MINI_KIND);
+		if(bitmap == null){
+			return null;
+		}
+		int realWidth = bitmap.getWidth();
+		int realHeight = bitmap.getHeight();
+		//需要缩放
+		if(Math.max(realWidth, realHeight) > maxLength){
+			if(realWidth > realHeight){
+				realHeight = realHeight * maxLength / realWidth;
+				realWidth = maxLength;
+			}
+			else{
+				realWidth = realWidth * maxLength / realHeight;
+				realHeight = maxLength;
+			}
+		}
+
+		try{
+			return ThumbnailUtils.extractThumbnail(bitmap, realWidth, realHeight);
+		}
+		catch(OutOfMemoryError e){
+		}
+		return null;
+	}
+
+
+
 
 }

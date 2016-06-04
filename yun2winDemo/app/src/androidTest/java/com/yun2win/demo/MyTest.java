@@ -71,7 +71,7 @@ public class MyTest extends InstrumentationTestCase {
         signal.await();
         //B 注册
         for(int i=110;i<1010;i++) {
-            String emailB = StringUtil.getRandomString(7);
+            
             signal = new CountDownLatch(1);
             Users.getInstance().getRemote().register(emailB, passWord, emailB +"_"+ i, new Back.Result<User>() {
                 @Override

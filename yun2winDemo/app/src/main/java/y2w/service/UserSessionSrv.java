@@ -50,6 +50,10 @@ public class UserSessionSrv {
      * @param result
      */
     public void sync(String token,String syncTime, String userId, Back.Result<List<UserSessionEntity>> result){
-        ClientFactory.getInstance().getUserSessionsList(token,syncTime, userId, result);
+        ClientFactory.getInstance().getUserSessionsList(token, syncTime, userId, result);
+    }
+
+    public void updateUserSession(String token, String userId, String userSessionId, String sessionId, String name, String avatarUrl, Back.Result<UserSessionEntity> result) {
+        ClientFactory.getInstance().updateUserSession(token, userId, userSessionId, sessionId, name, avatarUrl, result);
     }
 }

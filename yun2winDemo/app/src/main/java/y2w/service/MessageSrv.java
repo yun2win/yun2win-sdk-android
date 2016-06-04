@@ -53,4 +53,8 @@ public class MessageSrv {
         ClientFactory.getInstance().getMessage(token, sessionId, syncTime, limit, result);
     }
 
+    public void messageUpdate(String token, String sessionId, String messageId, String sender, String content, String type, Back.Result<MessageEntity> result) {
+        ClientFactory.getInstance().messageUpdate(token, sessionId, messageId, sender, content, type, result);
+    }
+
 }

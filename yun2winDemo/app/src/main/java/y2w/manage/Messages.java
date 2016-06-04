@@ -97,9 +97,8 @@ public class Messages implements Serializable {
      * 获取某个会话 model消息 后面 maxRow 条消息
      * @param model 消息
      * @param maxRow 条数极限
-     * @param result 回调
      */
-    public void getMessages(MessageModel model,int maxRow,Back.Result<List<MessageModel>> result){
+    public List<MessageModel> getMessages(MessageModel model,int maxRow){
         List<MessageModel> models = new ArrayList<MessageModel>();
         List<MessageEntity> entities = null;
         if(model != null){
@@ -110,7 +109,7 @@ public class Messages implements Serializable {
         for(MessageEntity entity:entities){
             models.add(new MessageModel(this,entity));
         }
-        result.onSuccess(models);
+        return models;
     }
     /**
      * 发消息时，创建一条消息
@@ -206,15 +205,15 @@ public class Messages implements Serializable {
                     for (MessageEntity entity : entities) {
                         messageList.add(new MessageModel(messages, entity));
                     }
-                    if(isStore) {
+                    if (isStore) {
                         add(messageList);
                     }
                     result.onSuccess(messageList);
                 }
 
                 @Override
-                public void onError(int errorCode,String error) {
-                    result.onError(errorCode,error);
+                public void onError(int errorCode, String error) {
+                    result.onError(errorCode, error);
                 }
             });
         }
@@ -228,7 +227,7 @@ public class Messages implements Serializable {
             MessageSrv.getInstance().store(session.getSessions().getUser().getToken(), message.getEntity(), new Back.Result<MessageEntity>() {
                 @Override
                 public void onSuccess(MessageEntity entity) {
-                    MessageModel model = new MessageModel(messages,entity);
+                    MessageModel model = new MessageModel(messages, entity);
                     model.getEntity().setSessionId(message.getEntity().getSessionId());
                     model.getEntity().setType(message.getEntity().getType());
                     model.getEntity().setStatus(MessageEntity.MessageState.stored.toString());
@@ -252,7 +251,8 @@ public class Messages implements Serializable {
                                 case SendReturnCode.SRC_SESSION_MTS_INVALID:
                                     LogUtil.getInstance().log(TAG, "returnCode:" + code, null);
                                     break;
-                                default:break;
+                                default:
+                                    break;
                             }
                         }
                     });
@@ -260,8 +260,8 @@ public class Messages implements Serializable {
                 }
 
                 @Override
-                public void onError(int errorCode,String error) {
-                    result.onError(errorCode,error);
+                public void onError(int errorCode, String error) {
+                    result.onError(errorCode, error);
                 }
             });
         }
@@ -272,7 +272,7 @@ public class Messages implements Serializable {
          * @param callback
          */
         public void sendMessage(String message,IMClient.SendCallback callback){
-            session.getSessions().getUser().getImBridges().sendMessage(session,message,callback);
+            session.getSessions().getUser().getImBridges().sendMessage(session, callback);
            /* IMSession imSession = new IMSession();
             imSession.setId(session.getEntity().getType() + "_" + session.getEntity().getId());
             imSession.setMts(getTimeStamp());
@@ -282,6 +282,20 @@ public class Messages implements Serializable {
             Users.getInstance().getCurrentUser().getImBridges().getImBridge().getImClient().sendMessage(imSession, message, callback);*/
         }
 
+        public void updateMessage(MessageModel model, final Back.Result<MessageModel> result){
+            MessageSrv.getInstance().messageUpdate(session.getSessions().getUser().getToken(), model.getEntity().getSessionId(), model.getEntity().getId(), model.getEntity().getSender(), model.getEntity().getContent(), model.getEntity().getType(), new Back.Result<MessageEntity>() {
+                @Override
+                public void onSuccess(MessageEntity entity) {
+                    result.onSuccess(new MessageModel(messages,entity));
+                }
+
+                @Override
+                public void onError(int code, String error) {
+                    result.onError(code, error);
+                }
+            });
+
+        }
 
     }
 

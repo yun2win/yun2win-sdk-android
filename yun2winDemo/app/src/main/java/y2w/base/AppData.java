@@ -1,11 +1,16 @@
 package y2w.base;
 
 import android.app.Activity;
+import android.content.ClipboardManager;
+import android.content.Context;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import y2w.common.AsyncMultiPartPost;
 import y2w.common.CallBackUpdate;
+import y2w.ui.widget.storeage.files.FileItem;
 
 /**
  * Created by maa2 on 2016/2/29.
@@ -63,5 +68,24 @@ public class AppData {
 
     public void setMainActivity(Activity activity) {
         this.mActivity = activity;
+    }
+
+
+    private ClipboardManager clipboardManager;
+
+    public ClipboardManager getClipboardManager(Context context) {
+        if (null == clipboardManager) {
+            clipboardManager = (ClipboardManager) context
+                    .getSystemService(Context.CLIPBOARD_SERVICE);
+        }
+        return clipboardManager;
+    }
+
+    private static List<FileItem> fileItems;
+    public List<FileItem> getFileItems() {
+        if (fileItems == null) {
+            fileItems = new ArrayList<FileItem>();
+        }
+        return fileItems;
     }
 }

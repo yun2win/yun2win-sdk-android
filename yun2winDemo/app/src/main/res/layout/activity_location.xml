@@ -1,0 +1,23 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    >
+    <!--<ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" >-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <com.amap.api.maps2d.MapView
+                android:id="@+id/mv_location"
+                android:layout_width="fill_parent"
+                android:layout_height="@dimen/dp_360"
+                android:clickable="true"
+                />
+
+        </LinearLayout>
+   <!-- </ScrollView>-->
+
+</LinearLayout>
