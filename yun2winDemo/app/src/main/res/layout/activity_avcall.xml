@@ -9,10 +9,10 @@
         android:layout_height="match_parent"
         android:background="@drawable/av_default_bg"
         >
-         <!-- <com.y2w.av.rtc.PercentFrameLayout
+          <com.y2w.av.rtc.PercentFrameLayout
                 android:id="@+id/pfl_video"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" >-->
+                android:layout_height="match_parent" >
 
                 <org.webrtc.SurfaceViewRenderer
                     android:id="@+id/svr_video"
@@ -20,8 +20,9 @@
                     android:layout_height="match_parent"
                     android:visibility="gone"
                     />
+           </com.y2w.av.rtc.PercentFrameLayout>
 
-           <!-- </com.y2w.av.rtc.PercentFrameLayout>-->
+
         <ImageView
             android:id="@+id/iv_av_bg"
             android:layout_width="match_parent"
@@ -29,15 +30,19 @@
             android:visibility="visible"
             android:background="@drawable/av_default_bg"/>
 
-        <org.webrtc.SurfaceViewRenderer
-            android:id="@+id/svr_video_remote"
-            android:layout_width="@dimen/dp_120"
-            android:layout_height="@dimen/dp_160"
+
+        <LinearLayout
+            android:id="@+id/ll_member_me"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:visibility="gone"
+            android:visibility="visible"
             android:layout_marginTop="@dimen/dp_15"
             android:layout_marginRight="@dimen/dp_10"
-            />
+            android:orientation="vertical">
+
+        </LinearLayout>
+
 
         <RelativeLayout
             android:id="@+id/rl_av_header"

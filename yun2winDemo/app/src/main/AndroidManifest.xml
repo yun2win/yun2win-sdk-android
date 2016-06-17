@@ -75,36 +75,6 @@
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.RAISED_THREAD_PRIORITY"/>
 
-  <!--  &lt;!&ndash; 加入应用需要的权限 &ndash;&gt;
-    &lt;!&ndash; 网络相关 &ndash;&gt;
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-
-    &lt;!&ndash; 手机状态 &ndash;&gt;
-    <uses-permission android:name="android.permission.GET_TASKS" />
-    <uses-permission android:name="android.permission.FLASHLIGHT" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.CHANGE_CONFIGURATION" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-
-    &lt;!&ndash; 读写文件 &ndash;&gt;
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    &lt;!&ndash; 多媒体 &ndash;&gt;
-    <uses-permission android:name="android.permission.CAMERA" />
-    <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
-    <uses-permission android:name="android.permission.USE_SIP" />-->
 
     <application
         android:name="y2w.base.AppContext"
@@ -118,6 +88,27 @@
         <meta-data
             android:name="com.amap.api.v2.apikey"
             android:value="6afc1282af86d10a0992ceff0737fcd3" /> <!-- 高德地图 Key -->
+
+
+        <!-- 配置APP ID -->
+        <meta-data
+            android:name="BUGLY_APPID"
+            android:value="900014753" />
+        <!-- 配置APP版本号 -->
+        <meta-data
+            android:name="BUGLY_APP_VERSION"
+            android:value="1.0" />
+        <!-- 配置APP渠道号 -->
+        <meta-data
+            android:name="BUGLY_APP_CHANNEL"
+            android:value="yingyongbao" />
+        <!-- 配置Bugly调试模式（true或者false）-->
+        <meta-data
+            android:name="BUGLY_ENABLE_DEBUG"
+            android:value="false" />
+
+
+
         <!-- 定位需要的服务 -->
         <service android:name="com.amap.api.location.APSService" >
         </service>
@@ -198,9 +189,9 @@
         <!-- 图片发送选择界面 -->
         <activity
             android:name="y2w.ui.activity.ImageSendChooseActivity"
-            android:screenOrientation="portrait"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" >
+            android:screenOrientation="portrait">
         </activity>
+    <!--android:theme="@android:style/Theme.Translucent.NoTitleBar" >-->
 
         <!-- 小视频录制界面 -->
         <activity
@@ -243,6 +234,7 @@
         <activity
             android:name="y2w.ui.activity.AVCallActivity"
             android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="stateUnchanged|stateHidden" >
         </activity>
 

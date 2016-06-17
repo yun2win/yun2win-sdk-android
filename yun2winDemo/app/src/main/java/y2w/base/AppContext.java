@@ -6,6 +6,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 
 import com.alexbbb.pjsipandroid.PJSIPAndroid;
+import com.tencent.bugly.crashreport.CrashReport;
 import com.y2w.av.lib.AVClient;
 import com.yun2win.imlib.IMClient;
 
@@ -31,7 +32,7 @@ public class AppContext extends Application{
         //SDK初始化
         IMClient.init(this);
         AVClient.init(this);
-        PJSIPAndroid.initialize(this, "com.yun2win.demo");
+        CrashReport.initCrashReport(getApplicationContext());
         appKeyInit();
     }
 

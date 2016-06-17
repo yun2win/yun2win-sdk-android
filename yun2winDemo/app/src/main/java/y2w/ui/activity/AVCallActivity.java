@@ -36,8 +36,9 @@ import org.webrtc.EglBase;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoRenderer;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import y2w.Bridge.CmdBuilder;
 import y2w.common.Config;
@@ -67,13 +68,13 @@ public class AVCallActivity extends Activity{
     private Channel avChannel;
     private Context context;
     private SurfaceViewRenderer svr_video;
-    private SurfaceViewRenderer svr_remote_video;
     private EglBase rootEglBase;
     private HorizontalScrollView hs_preview;
     private List<SortModel> modelList;
     private RelativeLayout rl_av_offOn;
     private RelativeLayout rl_av_member;
     private LinearLayout ll_av_member;
+    private LinearLayout ll_member_me;
     private ImageView iv_av_bg;
     private ImageView iv_av_on;
     private ImageView iv_av_off;
@@ -90,6 +91,7 @@ public class AVCallActivity extends Activity{
     private String memberIds;
 
     private String curViewerId = "";
+    private String curTrackType = "";
     private AVMemberView curMemberView;
     private AVMember curBigMember;
     private VideoRenderer localRenderer;
@@ -103,7 +105,8 @@ public class AVCallActivity extends Activity{
 
     private CurrentUser currentUser;
     private Session _session;
-    private List<AVMember> avMemberList = new ArrayList<AVMember>();
+    private Map<String,AVMember> avMemberList = new HashMap<String,AVMember>();
+    private Map<String,AVMember> avMemberScreenList = new HashMap<String,AVMember>();
 
     class Oper{
         public final static int OpenVideo = 1;
@@ -112,6 +115,15 @@ public class AVCallActivity extends Activity{
         public final static int OpenAudioOk = 4;
         public final static int RefreshMember = 5;
         public final static int Toast = 99;
+    }
+    class MemberOper{
+        public final static int Join = 10;
+        public final static int OpenVideo = 11;
+        public final static int OpenAudio = 12;
+        public final static int OpenScreen = 13;
+        public final static int CloseVideo = 14;
+        public final static int CloseAudio = 15;
+        public final static int CloseScreen = 16;
     }
 
     Handler handler = new Handler(){
@@ -136,7 +148,7 @@ public class AVCallActivity extends Activity{
                 case Oper.RefreshMember://成员变更
                     refreshMemberViews();
                     break;
-                case Oper.Toast://成员变更
+                case Oper.Toast://提示
                     String toast = (String) msg.obj;
                     Toast.makeText(context, toast, Toast.LENGTH_SHORT).show();
                     break;
@@ -148,8 +160,6 @@ public class AVCallActivity extends Activity{
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        // Set window styles for fullscreen-window size. Needs to be done before
-        // adding content.
         getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
                         WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON |
@@ -170,7 +180,7 @@ public class AVCallActivity extends Activity{
                     ImagePool.getInstance(context).load(currentUser.getEntity().getAvatarUrl(),
                             civ_header, R.drawable.circle_image_transparent);
                     tv_av_notice.setText("视频开启中...");
-                    createRoom();
+                    createChannel();
                 }else{
                     iv_av_bg.setVisibility(View.GONE);
                     Users.getInstance().getUser(otherSideId, new Back.Result<User>() {
@@ -186,7 +196,7 @@ public class AVCallActivity extends Activity{
                         }
                     });
                     tv_av_notice.setText("视频开启中...");
-                    createRoom();
+                    createChannel();
                 }
             }else if(type.equals(EnumManage.AvType.agree.toString())){
                 iv_av_bg.setVisibility(View.VISIBLE);
@@ -205,7 +215,7 @@ public class AVCallActivity extends Activity{
                     ImagePool.getInstance(context).load(currentUser.getEntity().getAvatarUrl(),
                             civ_header, R.drawable.circle_image_transparent);
                     tv_av_notice.setText("语音开启中...");
-                    createRoom();
+                    createChannel();
                 }else{
                     iv_av_bg.setVisibility(View.GONE);
                     Users.getInstance().getUser(otherSideId, new Back.Result<User>() {
@@ -221,7 +231,7 @@ public class AVCallActivity extends Activity{
                         }
                     });
                     tv_av_notice.setText("语音开启中...");
-                    createRoom();
+                    createChannel();
                 }
 
             }else if(type.equals(EnumManage.AvType.agree.toString())){
@@ -250,7 +260,6 @@ public class AVCallActivity extends Activity{
         otherSideName = bundle.getString("otherSideName", "");
         memberIds = bundle.getString("memberIds", "");
         svr_video = (SurfaceViewRenderer) findViewById(R.id.svr_video);
-        svr_remote_video = (SurfaceViewRenderer) findViewById(R.id.svr_video_remote);
         rl_av_offOn = (RelativeLayout) findViewById(R.id.rl_av_offOn);
 
         iv_av_bg = (ImageView) findViewById(R.id.iv_av_bg);
@@ -265,6 +274,7 @@ public class AVCallActivity extends Activity{
         iv_av_off_middle = (ImageView) findViewById(R.id.iv_av_handup_middle);
         rl_av_member = (RelativeLayout) findViewById(R.id.rl_av_member);
         ll_av_member = (LinearLayout) findViewById(R.id.ll_av_member);
+        ll_member_me = (LinearLayout) findViewById(R.id.ll_member_me);
         iv_av_more.setVisibility(View.GONE);
         iv_av_min.setVisibility(View.GONE);
         // Check for mandatory permissions.
@@ -305,7 +315,7 @@ public class AVCallActivity extends Activity{
         iv_av_on.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                joinRoom(channelId);
+                getChannel(channelId);
             }
         });
         iv_av_off.setOnClickListener(new View.OnClickListener() {
@@ -326,13 +336,11 @@ public class AVCallActivity extends Activity{
         rootEglBase =  EglBase.create();
         svr_video.init(rootEglBase.getEglBaseContext(), null);
         svr_video.setZOrderMediaOverlay(false);
-        svr_remote_video.init(rootEglBase.getEglBaseContext(), null);
-        svr_remote_video.setZOrderMediaOverlay(false);
     }
 
 
     private void syncSession(){
-        Users.getInstance().getCurrentUser().getSessions().getSessionBySessionId(sessionId, new Back.Result<Session>() {
+        currentUser.getSessions().getSessionBySessionId(sessionId, new Back.Result<Session>() {
             @Override
             public void onSuccess(Session session) {
                 _session = session;
@@ -340,7 +348,7 @@ public class AVCallActivity extends Activity{
 
             @Override
             public void onError(int Code, String error) {
-
+                noticeShow("创建频道失败");
             }
         });
     }
@@ -349,21 +357,51 @@ public class AVCallActivity extends Activity{
         if(avChannel == null){
             return ;
         }
+        if(ll_av_member != null){
+            ll_av_member.removeAllViews();
+        }else{
+            return;
+        }
         if(chatType.equals(EnumManage.SessionType.group.toString())){
-            if(ll_av_member != null){
-                ll_av_member.removeAllViews();
-            }else{
-                return;
+            if(StringUtil.isEmpty(curViewerId)){
+                AVMember me = avMemberList.get(currentUser.getEntity().getId());
+                if(me != null && me.getVideoTrack() != null){
+                    localRenderer = new VideoRenderer(svr_video);
+                    me.getVideoTrack().addRenderer(localRenderer);
+                    curViewerId = currentUser.getEntity().getId();
+                }
+                curTrackType = AVMemberView.TrackType.video.toString();
+                curBigMember = me;
             }
-          /*  avMemberList.clear();
-            for(AVMember avMember : avChannel.getAvMembers()){
-                avMemberList.add(avMember);
-            }*/
+            for(Map.Entry<String,AVMember> entry : avMemberList.entrySet()){
+                AVMember avMember = entry.getValue();
+                if(avMember.getScreenTrack() != null){
+                    avMemberScreenList.put(avMember.getUid(),avMember);
+                }
+            }
+            for(Map.Entry<String,AVMember> entry : avMemberScreenList.entrySet()){//屏幕共享
+                AVMember avMember = entry.getValue();
+                AVMemberView avMemberView = new AVMemberView(context,rootEglBase,avMember,AVMemberView.TrackType.screen.toString());
+                if(curViewerId.equals(avMember.getUid()) && curTrackType.equals(avMemberView.getTrackType())){
+                    curMemberView = avMemberView;
+                    avMemberView.getViewHolder().getRl_bg().setBackgroundResource(R.drawable.bg_av_member_view_selected);
+                }else{
+                    avMemberView.getViewHolder().getRl_bg().setBackgroundResource(R.drawable.bg_av_member_view_normal);
+                }
+                avMemberView.setOnMemberViewClickListener(new AVMemberView.OnMemberViewClickListener() {
+                    @Override
+                    public void itemClick(AVMemberView memberView) {
+                        curViewChange(memberView);
+                    }
+                });
+                ll_av_member.addView(avMemberView.getView());
+            }
 
-            for(AVMember avMember : avChannel.getAvMembers()){
-                AVMemberView avMemberView = new AVMemberView(context,rootEglBase,avMember);
+            for(Map.Entry<String,AVMember> entry : avMemberList.entrySet()){//视频
+                AVMember avMember = entry.getValue();
+                AVMemberView avMemberView = new AVMemberView(context,rootEglBase,avMember,AVMemberView.TrackType.video.toString());
                 if(StringUtil.isEmpty(curViewerId)){
-                    curViewerId = Users.getInstance().getCurrentUser().getEntity().getId();
+                    curViewerId = currentUser.getEntity().getId();
                 }
                 if(curViewerId.equals(avMember.getUid())){
                     curMemberView = avMemberView;
@@ -377,11 +415,27 @@ public class AVCallActivity extends Activity{
                         curViewChange(memberView);
                     }
                 });
-
                 ll_av_member.addView(avMemberView.getView());
             }
         }else{
-            for(AVMember avMember : avChannel.getAvMembers()){
+            if(StringUtil.isEmpty(curViewerId)){
+                AVMember me = avMemberList.get(currentUser.getEntity().getId());
+                curViewerId = currentUser.getEntity().getId();
+                if(me != null && me.getVideoTrack() != null){
+                    AVMemberView avMemberView = new AVMemberView(context,rootEglBase,me,AVMemberView.TrackType.video.toString());
+                    curMemberView = avMemberView;
+                    avMemberView.getViewHolder().getRl_bg().setBackgroundResource(R.drawable.bg_av_member_view_selected);
+                    avMemberView.setOnMemberViewClickListener(new AVMemberView.OnMemberViewClickListener() {
+                        @Override
+                        public void itemClick(AVMemberView memberView) {
+                            //curViewChange(memberView);
+                        }
+                    });
+                    ll_member_me.addView(avMemberView.getView());
+                }
+            }
+            for(Map.Entry<String,AVMember> entry : avMemberList.entrySet()){
+                AVMember avMember = entry.getValue();
                 if(!currentUser.getEntity().getId().equals(avMember.getUid())){
                     if(avMember.getVideoTrack() != null){
                         localRenderer = new VideoRenderer(svr_video);
@@ -391,28 +445,39 @@ public class AVCallActivity extends Activity{
                     }
                 }
             }
-
-
         }
 
     }
 
     private void curViewChange(AVMemberView memberView){
-        if(curViewerId == memberView.getAvMember().getUid()){
+        if(curViewerId.equals(memberView.getAvMember().getUid()) && curTrackType.equals(memberView.getTrackType())){
             return ;
         }
-        if(curBigMember.getVideoTrack() == null || memberView.getAvMember().getVideoTrack() == null){
-            return ;
-        }
+       if(memberView.getTrackType().equals(AVMemberView.TrackType.video.toString())){
+           if(memberView.getAvMember().getVideoTrack() == null) return;
+       }else{
+           if(memberView.getAvMember().getScreenTrack() == null) return;
+       }
         curViewerId = memberView.getAvMember().getUid();
         memberView.getViewHolder().getRl_bg().setBackgroundResource(R.drawable.bg_av_member_view_selected);
         if(curMemberView != null){
             curMemberView.getViewHolder().getRl_bg().setBackgroundResource(R.drawable.bg_av_member_view_normal);
         }
-        curMemberView = memberView;
-        curBigMember.getVideoTrack().removeRenderer(localRenderer);
+        if(curTrackType.equals(AVMemberView.TrackType.video.toString())){
+            if(curBigMember.getVideoTrack() != null)
+            curBigMember.getVideoTrack().removeRenderer(localRenderer);
+        }else{
+            if(curBigMember.getScreenTrack() != null)
+            curBigMember.getScreenTrack().removeRenderer(localRenderer);
+        }
         localRenderer = new VideoRenderer(svr_video);
-        memberView.getAvMember().getVideoTrack().addRenderer(localRenderer);
+        if(memberView.getTrackType().equals(AVMemberView.TrackType.video.toString())){
+            memberView.getAvMember().getVideoTrack().addRenderer(localRenderer);
+        }else{
+            memberView.getAvMember().getScreenTrack().addRenderer(localRenderer);
+        }
+        curTrackType = memberView.getTrackType();
+        curMemberView = memberView;
         curBigMember = memberView.getAvMember();
     }
 
@@ -423,17 +488,6 @@ public class AVCallActivity extends Activity{
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
-        if(chatType.equals(EnumManage.SessionType.group.toString())){
-            iv_av_more.setVisibility(View.VISIBLE);
-            iv_av_min.setVisibility(View.VISIBLE);
-            rl_av_member.setVisibility(View.VISIBLE);
-            refreshMemberViews();
-        }else{
-            iv_av_more.setVisibility(View.GONE);
-            iv_av_min.setVisibility(View.GONE);
-            rl_av_member.setVisibility(View.GONE);
-        }
         if(chatType.equals(EnumManage.SessionType.group.toString())){
             iv_av_bg.setVisibility(View.GONE);
             rl_av_offOn.setVisibility(View.GONE);
@@ -441,13 +495,16 @@ public class AVCallActivity extends Activity{
             rl_av_header.setVisibility(View.GONE);
             iv_av_callType.setVisibility(View.GONE);
             iv_av_off_middle.setVisibility(View.GONE);
+            iv_av_min.setVisibility(View.VISIBLE);
+            iv_av_more.setVisibility(View.VISIBLE);
+            rl_av_member.setVisibility(View.VISIBLE);
             svr_video.setVisibility(View.VISIBLE);
         }else{
             iv_av_bg.setVisibility(View.VISIBLE);
             rl_av_header.setVisibility(View.VISIBLE);
-            svr_remote_video.setVisibility(View.VISIBLE);
             svr_video.setVisibility(View.VISIBLE);
         }
+        refreshMemberViews();
 
     }
     private synchronized void openAudioOk(){
@@ -491,6 +548,12 @@ public class AVCallActivity extends Activity{
         }else{
             memberP2PNotice();
         }
+    }
+    private void noticeShow(String content){
+        Message message = new Message();
+        message.what = Oper.Toast;
+        message.obj = content;
+        handler.sendMessage(message);
     }
 
     private void memberGroupNotice(String memberIds){
@@ -577,12 +640,58 @@ public class AVCallActivity extends Activity{
         }
     }
 
-    private void createRoom(){
+    private void memberAdd(AVMember avMember,int oper){
+        if(avMemberList.containsKey(avMember.getUid())){
+            AVMember origin = avMemberList.get(avMember.getUid());
+            switch (oper){
+                case MemberOper.OpenVideo:
+                    origin.setVideoTrack(avMember.getVideoTrack());
+                    origin.setVideoOpened(true);
+                    break;
+                case MemberOper.OpenAudio:
+                    origin.setAudioOpened(true);
+                    break;
+                case MemberOper.OpenScreen:
+                    origin.setScreenTrack(avMember.getScreenTrack());
+                    origin.setScreenOpened(true);
+                    break;
+                case MemberOper.CloseVideo:
+                    origin.setVideoTrack(null);
+                    origin.setVideoOpened(false);
+                    break;
+                case MemberOper.CloseAudio:
+                    origin.setAudioOpened(false);
+                    break;
+                case MemberOper.CloseScreen:
+                    origin.setScreenTrack(null);
+                    origin.setScreenOpened(false);
+                    break;
+                default:break;
+
+            }
+            avMemberList.remove(avMember.getUid());
+            avMemberList.put(avMember.getUid(), origin);
+        }else{
+            avMemberList.put(avMember.getUid(), avMember);
+        }
+    }
+
+    private void memberRemove(AVMember avMember){
+        if(avMemberList.containsKey(avMember.getUid())){
+            avMemberList.remove(avMember.getUid());
+        }
+    }
+
+    private void createChannel(){
         avClient = new AVClient(currentUser.getEntity().getId(), currentUser.getEntity().getName(), currentUser.getEntity().getAvatarUrl(),currentUser.getImToken().getAccessToken());
         avClient.createChannel(new AVBack.Result<Channel>() {
             @Override
             public void onSuccess(Channel channel) {
                 avChannel = channel;
+                avChannel.setOnMembersChangedListener(new MembersChangedListener());
+                avChannel.setOnVideoListener(new VideoListener());
+                avChannel.setOnAudioListener(new AudioListener());
+                avChannel.setOnScreenListener(new ScreenListener());
                 avChannel.join();//加入频道
                 memberNotice(memberIds);
                 if(callType.equals(EnumManage.AvCallType.video.toString())){
@@ -591,188 +700,147 @@ public class AVCallActivity extends Activity{
                 }else{
                     handler.sendEmptyMessage(Oper.OpenAudio);
                 }
-                avChannel.setOnMembersChangedListener(new Channel.OnMembersChangedListener() {
-                    @Override
-                    public void onJoin(AVMember member) {
-                        handler.sendEmptyMessage(Oper.RefreshMember);
-                    }
 
-                    @Override
-                    public void onLeave(AVMember member) {
-                        handler.sendEmptyMessage(Oper.RefreshMember);
-                    }
-                });
-
-                avChannel.setOnVideoListener(new Channel.OnVideoListener() {
-                    @Override
-                    public void onOpen(AVMember member) {
-                        if(Users.getInstance().getCurrentUser().getEntity().getId().equals(member.getUid())){
-                            if(chatType.equals(EnumManage.SessionType.group.toString())){
-                                VideoRenderer localRender = new VideoRenderer(svr_video);
-                                member.getVideoTrack().addRenderer(localRender);
-                            }else{
-                                VideoRenderer localRender = new VideoRenderer(svr_remote_video);
-                                member.getVideoTrack().addRenderer(localRender);
-
-                            }
-                            handler.sendEmptyMessage(Oper.OpenVideoOk);
-                        }else{
-                            handler.sendEmptyMessage(Oper.RefreshMember);
-                        }
-                    }
-
-                    @Override
-                    public void onClose(AVMember member) {
-                        handler.sendEmptyMessage(Oper.RefreshMember);
-                    }
-
-                    @Override
-                    public void onError(int code) {
-
-                    }
-                });
-
-                avChannel.setOnAudioListener(new Channel.OnAudioListener() {
-                    @Override
-                    public void onOpen(AVMember member) {
-                        if (currentUser.getEntity().getId().equals(member.getUid())) {
-                            curBigMember = member;
-                            handler.sendEmptyMessage(Oper.OpenAudioOk);
-                        } else {
-                            handler.sendEmptyMessage(Oper.RefreshMember);
-                        }
-                    }
-
-                    @Override
-                    public void onClose(AVMember member) {
-
-                    }
-
-                    @Override
-                    public void OnMute(AVMember member) {
-
-                    }
-
-                    @Override
-                    public void onError(int code) {
-
-                    }
-                });
             }
 
             @Override
             public void onError(Integer integer) {
-
+                noticeShow("创建频道失败");
             }
         });
     }
 
-    private void joinRoom(String channelId){
+    private void getChannel(String channelId){
         avClient = new AVClient(currentUser.getEntity().getId(),currentUser.getEntity().getName(), currentUser.getEntity().getAvatarUrl(), currentUser.getImToken().getAccessToken());
         avClient.getChannel(channelId, new AVBack.Result<Channel>() {
             @Override
             public void onSuccess(Channel channel) {
                 avChannel = channel;
-                avChannel.join();
+                avChannel.setOnMembersChangedListener(new MembersChangedListener());
+                avChannel.setOnVideoListener(new VideoListener());
+                avChannel.setOnAudioListener(new AudioListener());
+                avChannel.setOnScreenListener(new ScreenListener());
+                avChannel.join();//加入频道
                 if (callType.equals(EnumManage.AvCallType.video.toString())) {
                     handler.sendEmptyMessage(Oper.OpenVideo);
                     handler.sendEmptyMessage(Oper.OpenAudio);
                 } else {
                     handler.sendEmptyMessage(Oper.OpenAudio);
                 }
-                avChannel.setOnMembersChangedListener(new Channel.OnMembersChangedListener() {
-                    @Override
-                    public void onJoin(AVMember member) {
-                        handler.sendEmptyMessage(Oper.RefreshMember);
-                    }
-
-                    @Override
-                    public void onLeave(AVMember member) {
-                        handler.sendEmptyMessage(Oper.RefreshMember);
-                    }
-                });
-
-                avChannel.setOnVideoListener(new Channel.OnVideoListener() {
-                    @Override
-                    public void onOpen(AVMember member) {
-                        if (currentUser.getEntity().getId().equals(member.getUid())) {
-                            if(chatType.equals(EnumManage.SessionType.group.toString())){
-                                VideoRenderer localRender = new VideoRenderer(svr_video);
-                                member.getVideoTrack().addRenderer(localRender);
-                            }else{
-                                VideoRenderer localRender = new VideoRenderer(svr_remote_video);
-                                member.getVideoTrack().addRenderer(localRender);
-                            }
-                            handler.sendEmptyMessage(Oper.OpenVideoOk);
-                        } else {
-                            handler.sendEmptyMessage(Oper.RefreshMember);
-                        }
-                    }
-
-                    @Override
-                    public void onClose(AVMember member) {
-                        handler.sendEmptyMessage(Oper.RefreshMember);
-                    }
-
-                    @Override
-                    public void onError(int code) {
-
-                    }
-                });
-
-                avChannel.setOnAudioListener(new Channel.OnAudioListener() {
-                    @Override
-                    public void onOpen(AVMember member) {
-                        if (currentUser.getEntity().getId().equals(member.getUid())) {
-                            curBigMember = member;
-                            handler.sendEmptyMessage(Oper.OpenAudioOk);
-                        } else {
-                            handler.sendEmptyMessage(Oper.RefreshMember);
-                        }
-                    }
-
-                    @Override
-                    public void onClose(AVMember member) {
-
-                    }
-
-                    @Override
-                    public void OnMute(AVMember member) {
-
-                    }
-
-                    @Override
-                    public void onError(int code) {
-
-                    }
-                });
             }
 
             @Override
             public void onError(Integer integer) {
-                LogUtil.getInstance().log(TAG, "code:" + integer, null);
+                noticeShow("获取频道失败");
             }
         });
     }
+
+
+    private class MembersChangedListener implements Channel.OnMembersChangedListener{
+
+        @Override
+        public void onJoin(AVMember member) {
+            memberAdd(member,MemberOper.Join);
+            handler.sendEmptyMessage(Oper.RefreshMember);
+        }
+
+        @Override
+        public void onLeave(AVMember member) {
+            memberRemove(member);
+            handler.sendEmptyMessage(Oper.RefreshMember);
+        }
+    }
+
+    private class AudioListener implements Channel.OnAudioListener{
+
+        @Override
+        public void onOpen(AVMember member) {
+            memberAdd(member,MemberOper.OpenAudio);
+            if (currentUser.getEntity().getId().equals(member.getUid())) {
+                handler.sendEmptyMessage(Oper.OpenAudioOk);
+            } else {
+                handler.sendEmptyMessage(Oper.RefreshMember);
+            }
+        }
+
+        @Override
+        public void onClose(AVMember member) {
+            memberAdd(member,MemberOper.CloseAudio);
+        }
+
+        @Override
+        public void OnMute(AVMember member) {
+
+        }
+
+        @Override
+        public void onError(int code) {
+
+        }
+    }
+
+
+    private class VideoListener implements Channel.OnVideoListener{
+
+        @Override
+        public void onOpen(AVMember member) {
+            memberAdd(member,MemberOper.OpenVideo);
+            handler.sendEmptyMessage(Oper.OpenVideoOk);
+        }
+
+        @Override
+        public void onClose(AVMember member) {
+            memberAdd(member,MemberOper.CloseVideo);
+            handler.sendEmptyMessage(Oper.RefreshMember);
+        }
+
+        @Override
+        public void onError(int code) {
+
+        }
+    }
+
+    private class ScreenListener implements Channel.OnScreenListener{
+
+        @Override
+        public void onOpen(AVMember member) {
+            memberAdd(member,MemberOper.OpenScreen);
+            handler.sendEmptyMessage(Oper.OpenVideoOk);
+        }
+
+        @Override
+        public void onClose(AVMember member) {
+            memberAdd(member,MemberOper.CloseScreen);
+            handler.sendEmptyMessage(Oper.RefreshMember);
+        }
+
+        @Override
+        public void onError(int code) {
+
+        }
+    }
+
+
 
     private void avClose() {
         if(ll_av_member != null){
             ll_av_member.removeAllViews();
         }
-        if (svr_video != null) {
-            svr_video.release();
-            svr_video = null;
-        }
+        stopPlay();
+        finish();
+    }
+
+    @Override
+    protected void onDestroy() {
         if(avChannel != null){
             avChannel.closeAudio();
             avChannel.closeVideo();
             avChannel.leave();
             avChannel = null;
         }
-        stopPlay();
-        finish();
+        super.onDestroy();
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

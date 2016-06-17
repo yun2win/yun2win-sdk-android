@@ -208,7 +208,7 @@ public class MessageFragment extends Fragment {
 					bundle.putString("userIds", "");
 					bundle.putBoolean("isCreate", true);
 					intent.putExtras(bundle);
-					startActivity(intent);
+					_activity.startActivity(intent);
 				}else{
 					Intent intent = new Intent(_context, AVCallActivity.class);
 					Bundle bundle = new Bundle();
@@ -221,7 +221,7 @@ public class MessageFragment extends Fragment {
 					bundle.putString("userIds", "");
 					bundle.putBoolean("isCreate", true);
 					intent.putExtras(bundle);
-					_activity.startActivityForResult(intent, ChatActivity.ResultCode.CODE_VIDEO_CALL);
+					_activity.startActivity(intent);
 				}
 
 			}

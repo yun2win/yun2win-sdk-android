@@ -306,7 +306,7 @@ public class GroupChatTest extends InstrumentationTestCase {
 
         //B 根据session同步更新消息,查看A B最后一条消息id是否相同
 
-        sessionB.getMessages().getRemote().sync(true,"",20,new Back.Result<List<MessageModel>>() {
+       /* sessionB.getMessages().getRemote().sync(true,"",20,new Back.Result<List<MessageModel>>() {
             @Override
             public void onSuccess(List<MessageModel> models) {
                 sessionA.getMessages().getMessages(msgA, 10, new Back.Result<List<MessageModel>>() {
@@ -345,7 +345,7 @@ public class GroupChatTest extends InstrumentationTestCase {
                 signal.countDown();
             }
         });
-
+*/
 
     }
 

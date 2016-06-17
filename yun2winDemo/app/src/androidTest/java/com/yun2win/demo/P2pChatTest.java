@@ -273,7 +273,7 @@ public class P2pChatTest extends InstrumentationTestCase {
 
 
         //A 同步 与 B聊天的最新消息,并保存本地
-        signal = new CountDownLatch(1);
+       /* signal = new CountDownLatch(1);
         sessionA.getMessages().getRemote().sync(true,"",20,new Back.Result<List<MessageModel>>() {
             @Override
             public void onSuccess(List<MessageModel> models) {
@@ -312,7 +312,7 @@ public class P2pChatTest extends InstrumentationTestCase {
                 assertNull(errorCode);
                 signal.countDown();
             }
-        });
+        });*/
         signal.await();
     }
 

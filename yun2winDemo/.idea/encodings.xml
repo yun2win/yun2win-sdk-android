@@ -1,19 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Encoding">
-    <file url="file://$PROJECT_DIR$/app/libs" charset="GBK" />
-    <file url="file://$PROJECT_DIR$/app/libs/yun2win-0.1.jar" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/libs/bugly_crash_release__2.1.5.jar" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/app/libs/yun2win-av-0.1.jar" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/y2w/ui/activity/AVCallActivity.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/y2w/ui/activity/AVMemberSelectActivity.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/y2w/ui/adapter/GroupMemberSettingsAdapter.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/main/java/y2w/ui/dialog/AvDialog.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/bg_av_header_bg.xml" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/bg_av_member_view_normal.xml" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/main/res/drawable/bg_av_member_view_selected.xml" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/app/src/main/res/raw/chatvideo.mp3" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/y2wavlibrary/src/main/java/com/y2w/av/lib/AVBack.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/y2wavlibrary/src/main/java/com/y2w/av/lib/AVErrorCode.java" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/y2wavlibrary/src/main/java/com/y2w/av/lib/AVMember.java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/libs/yun2win-av-0.2.jar" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/app/libs/yun2win-av-0.2.jar" charset="UTF-8" />
   </component>
 </project>

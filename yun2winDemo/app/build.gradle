@@ -25,17 +25,17 @@ android {
     }
 }
 
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile 'com.android.support:appcompat-v7:22.1.1'
     compile files('libs/ormlite-android-4.48.jar')
     compile project(':uikit')
-    /*compile project(':y2wavlibrary')*/
+    //compile project(':y2wavlibrary')
     compile files('libs/httpmime-4.1.2.jar')
-    compile files('libs/yun2win-0.1.jar')
-    compile files('libs/mqtt-client-java1.4-uber-1.7.jar')
-    compile files('libs/wmqtt.jar')
     compile files('libs/AMap_Location_V2.4.1_20160414.jar')
     compile files('libs/AMap_2DMap_V2.8.1_20160202.jar')
-
+    compile files('libs/yun2win-0.1.jar')
+    compile files('libs/mqtt-client-java1.4-uber-1.7.jar')
+    compile files('libs/bugly_crash_release__2.1.5.jar')
 }

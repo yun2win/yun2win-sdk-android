@@ -25,12 +25,18 @@ public class AVMemberView {
     private EglBase rootEglBase;
     private AVMemberView avMemberView;
     private AVMember avMember;
+    private String trackType;
     private OnMemberViewClickListener onMemberViewClickListener;
 
-    public AVMemberView(final Context context,EglBase rootEglBase,AVMember avMember){
+    public static enum TrackType{
+        video,screen
+    }
+
+    public AVMemberView(final Context context,EglBase rootEglBase,AVMember avMember, String trackType){
         this.context = context;
         this.rootEglBase = rootEglBase;
         this.avMember = avMember;
+        this.trackType = trackType;
         convertView = LayoutInflater.from(context).inflate(R.layout.avcall_member_preview_item, null);
         viewHolder = new ViewHolder();
         viewHolder.sfv_video= (SurfaceViewRenderer)convertView.findViewById(R.id.svr_video_item);
@@ -52,15 +58,28 @@ public class AVMemberView {
     }
 
     private void setRenderer(){
-        if(avMember.getVideoTrack() != null){
-            VideoRenderer localRender = new VideoRenderer(viewHolder.sfv_video);
-            avMember.getVideoTrack().addRenderer(localRender);
-            viewHolder.iv_header.setVisibility(View.GONE);
-        }else{
+        if(TrackType.video.toString().equals(trackType)){
+            if(avMember.getVideoTrack() != null){
+                VideoRenderer localRender = new VideoRenderer(viewHolder.sfv_video);
+                avMember.getVideoTrack().addRenderer(localRender);
+                viewHolder.iv_header.setVisibility(View.GONE);
+            }else{
             /*ImagePool.getInstance().load(
                     viewHolder.iv_header, R.drawable.circle_image_transparent);*/
-            viewHolder.iv_header.setVisibility(View.VISIBLE);
+                viewHolder.iv_header.setVisibility(View.VISIBLE);
+            }
+        }else{
+            if(avMember.getScreenTrack() != null){
+                VideoRenderer localRender = new VideoRenderer(viewHolder.sfv_video);
+                avMember.getScreenTrack().addRenderer(localRender);
+                viewHolder.iv_header.setVisibility(View.GONE);
+            }else{
+            /*ImagePool.getInstance().load(
+                    viewHolder.iv_header, R.drawable.circle_image_transparent);*/
+                viewHolder.iv_header.setVisibility(View.VISIBLE);
+            }
         }
+
     }
 
     public View getView(){
@@ -73,6 +92,10 @@ public class AVMemberView {
 
     public ViewHolder getViewHolder() {
         return viewHolder;
+    }
+
+    public String getTrackType() {
+        return trackType;
     }
 
     public class ViewHolder {
