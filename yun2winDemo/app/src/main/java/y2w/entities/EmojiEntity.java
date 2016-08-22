@@ -2,6 +2,7 @@ package y2w.entities;
 
 import com.j256.ormlite.field.DatabaseField;
 import com.j256.ormlite.table.DatabaseTable;
+import com.y2w.uikit.utils.StringUtil;
 import com.yun2win.utils.Json;
 
 import java.io.Serializable;
@@ -90,7 +91,7 @@ public class EmojiEntity implements Serializable{
     }
 
     public void setCreatedAt(String createdAt) {
-        this.createdAt = createdAt;
+        this.createdAt =  StringUtil.getOPerTime(createdAt);
     }
 
     public String getUpdatedAt() {
@@ -98,7 +99,7 @@ public class EmojiEntity implements Serializable{
     }
 
     public void setUpdatedAt(String updatedAt) {
-        this.updatedAt = updatedAt;
+        this.updatedAt = StringUtil.getOPerTime(updatedAt);
     }
 
     public int getWidth() {

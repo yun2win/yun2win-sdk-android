@@ -244,6 +244,31 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateUnchanged|stateHidden" >
         </activity>
+
+
+        <!-- 白板界面 -->
+        <activity
+            android:name="y2w.ui.widget.whiteboard.WhiteBoardActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
+        </activity>
+
+        <!-- 白板文件选择界面 -->
+        <activity
+            android:name="y2w.ui.widget.whiteboard.MultiImageSelectorActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
+        </activity>
+
+        <!-- 网页打开界面 -->
+        <activity
+            android:name="y2w.ui.activity.WebViewActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" >
+        </activity>
+
     </application>
 
 </manifest>

@@ -33,6 +33,7 @@ import y2w.ui.adapter.MessageAddAdapter;
 import y2w.ui.adapter.MessageFragementDisplayPagerAdapter;
 import y2w.ui.widget.emoji.ChatEmoji;
 import y2w.ui.activity.MovieRecorderActivity;
+import y2w.ui.widget.whiteboard.WhiteBoardActivity;
 
 /**
  * Created by hejie on 2016/3/14.

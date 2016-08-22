@@ -2,10 +2,12 @@ package y2w.model.messages;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Message;
+import android.text.Html;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.RotateAnimation;
@@ -28,12 +30,15 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import y2w.base.Urls;
 import y2w.common.AsyncMultiPartGet;
 import y2w.common.CallBackUpdate;
 import y2w.common.Config;
 import y2w.common.SendUtil;
+import y2w.ui.activity.WebViewActivity;
 import y2w.ui.dialog.Y2wDialog;
 import y2w.entities.UserEntity;
 import y2w.manage.EnumManage;
@@ -67,6 +72,8 @@ public class MessageDisplay {
     private List<MessageModel> _models;
     private List<String> moviePlayPathList = new ArrayList<String>();
     private String currentUserId = UserInfo.getUserId();
+    private boolean urlbool,midbool;
+    private String first,middle,third;
     public MessageDisplay(Context context,List<MessageModel> models,Session session){
         this._context = context;
         this._models = models;
@@ -255,7 +262,7 @@ public class MessageDisplay {
         if(MessageEntity.MessageState.storing.toString().equals(model.getEntity().getStatus())){
             final RotateAnimation animation =new RotateAnimation(0f,360f,Animation.RELATIVE_TO_SELF,
                     0.5f, Animation.RELATIVE_TO_SELF,0.5f);
-            animation.setDuration(5000);//设置动画持续时间
+            animation.setDuration(1000*10);//设置动画持续时间
             /** 常用方法 */
             //animation.setRepeatCount(int repeatCount);//设置重复次数
             //animation.setFillAfter(boolean);//动画执行完后是否停留在执行完的状态
@@ -276,6 +283,8 @@ public class MessageDisplay {
                     .setBackgroundResource(R.drawable.message_text_myside_style);
         Expression.emojiDisplay(_context, null, viewHolder.tvMySideText, MessageCrypto.getInstance().decryText(model.getEntity().getContent()), Expression.WH_2);
         bindTextOnLongClickEvent(model, viewHolder, position);
+        bindOpenURLEvent(model,viewHolder);
+        setMessageURL(viewHolder.tvMySideText, MessageCrypto.getInstance().decryText(model.getEntity().getContent()), "normal");
         //viewHolder.tvMySideText.setText(MessageCrypto.getInstance().decryText(model.getEntity().getContent()));
     }
 
@@ -284,6 +293,8 @@ public class MessageDisplay {
                 .setBackgroundResource(R.drawable.message_text_otherside_style);
         Expression.emojiDisplay(_context, null, viewHolder.tvOtherSideText, MessageCrypto.getInstance().decryText(model.getEntity().getContent()), Expression.WH_2);
         bindTextOnLongClickEvent(model, viewHolder, position);
+        bindOpenURLEvent(model,viewHolder);
+        setMessageURL(viewHolder.tvOtherSideText, MessageCrypto.getInstance().decryText(model.getEntity().getContent()), "normal");
         //viewHolder.tvOtherSideText.setText(MessageCrypto.getInstance().decryText(model.getEntity().getContent()));
     }
 
@@ -303,11 +314,11 @@ public class MessageDisplay {
                         if (position == 0) {//复制
                             AppData.getInstance().getClipboardManager(_context)
                                     .setText(MessageCrypto.getInstance().decryText(model.getEntity().getContent()));
-                        }else if (position == 1) {
+                        } else if (position == 1) {
 
-                        }else if (position == 2) {//回撤
+                        } else if (position == 2) {//回撤
                             String name = Users.getInstance().getCurrentUser().getEntity().getName();
-                            model.getEntity().setContent(name+"回撤了一条消息");
+                            model.getEntity().setContent(name + "回撤了一条消息");
                             model.getEntity().setType(MessageType.System);
                             _session.getMessages().getRemote().updateMessage(model, new Back.Result<MessageModel>() {
                                 @Override
@@ -317,7 +328,7 @@ public class MessageDisplay {
 
                                 @Override
                                 public void onError(int code, String error) {
-                                    ToastUtil.ToastMessage(_context,error);
+                                    ToastUtil.ToastMessage(_context, error);
                                 }
                             });
                         }
@@ -328,6 +339,187 @@ public class MessageDisplay {
         });
     }
 
+    /**
+     * 判断是否以链接开头
+     *
+     * @param text
+     * @return
+     */
+    public static boolean isURL(String text) {
+        Pattern p = Pattern
+                .compile("((http://)|(https://)|(www.)){1}[\\w\\.\\-/:]+");
+        Matcher m = p.matcher(text);
+        return m.matches();
+    }
+
+    /**
+     * 设置消息链接
+     *
+     * @param textView
+     * @param text
+     * @param type
+     */
+    private void setMessageURL(TextView textView, String text, String type) {
+
+        boolean value = isURL(text);
+        if (value == true) {
+            urlbool = true;
+            midbool = true;
+            String context = null;
+            //text第一个不是连接的字符位置
+            int lastIndex = 0;
+            int leng = text.length();
+            while(lastIndex < leng){
+                char cha = text.charAt(lastIndex);
+                if(cha >= '#' && cha <='z'){
+                    lastIndex = lastIndex +1;
+                }else{
+                    break;
+                }
+            }
+            if ("normal".equals(type)) {
+                if (textView.getId() == R.id.tv_otherside_message_text) {
+                    context = "<u><font color=#1cc09f>" + text.substring(0, lastIndex) + "</font></u>" + text.substring(lastIndex);
+                } else {
+                    //context = "<u><font color=#ffef9f>" + text.substring(0, lastIndex) + "</font></u>"+ text.substring(lastIndex);
+                    context = "<u><font color=#20124d>" + text.substring(0, lastIndex) + "</font></u>"+ text.substring(lastIndex);
+                }
+            } else {
+                if (textView.getId() == R.id.tv_otherside_message_text) {
+                    context = "<u><font color=#189b7b>" + text.substring(0, lastIndex) + "</font></u>"+ text.substring(lastIndex);
+                }else{
+                    context = "<u><font color=#a61c00>" + text.substring(0, lastIndex) + "</font></u>"+ text.substring(lastIndex);
+                }
+            }
+            textView.setText(Html.fromHtml(context));
+            middle = text;
+        } else {
+            int start = text.indexOf("http://");
+            if(start <0 ){
+                start = text.indexOf("https://");
+            }
+            if(start <0 ){
+                start = text.indexOf("www.");
+            }
+            if (start >= 0) {
+
+                int lastIndex = start;
+                int leng = text.length();
+                while(lastIndex < leng){
+                    char cha = text.charAt(lastIndex);
+                    if(cha >= '#' && cha <='z'){
+                        lastIndex = lastIndex +1;
+                    }else{
+                        break;
+                    }
+                }
+                urlbool = true;
+                int blanket = lastIndex;
+                if (blanket > start) {
+                    midbool = true;
+                    first = text.substring(0, start);
+                    middle = text.substring(start, blanket);
+                    third = text.substring(blanket);
+                } else {
+                    midbool = false;
+                    first = text.substring(0, start);
+                    third = text.substring(start);
+                }
+                String context = null;
+                if (midbool == true) {
+                    if ("normal".equals(type)) {
+
+                        if (textView.getId() == R.id.tv_otherside_message_text) {
+                            context = "<font color=#101010>" + first
+                                    + "</font> " + "<u><font color=#1cc09f>"
+                                    + middle + "</font></u>"
+                                    + "<font color=#101010>" + third
+                                    + "</font> ";
+                        } else {
+                            context = "<font color=#101010>" + first
+                                    + "</font> " + "<u><font color=#20124d>"
+                                    + middle + "</font></u>"
+                                    + "<font color=#101010>" + third
+                                    + "</font> ";
+                        }
+
+                    } else {
+                        if (textView.getId() == R.id.tv_otherside_message_text) {
+                            context = "<font color=#101010>" + first
+                                    + "</font> " + "<u><font color=#189b7b>"
+                                    + middle + "</font></u>"
+                                    + "<font color=#101010>" + third
+                                    + "</font> ";
+                        } else {
+                            context = "<font color=#101010>" + first
+                                    + "</font> " + "<u><font color=#a61c00>"
+                                    + middle + "</font></u>"
+                                    + "<font color=#101010>" + third
+                                    + "</font> ";
+                        }
+                    }
+                } else {
+                    if ("normal".equals(type)) {
+                        if (textView.getId() == R.id.tv_otherside_message_text) {
+                            context = "<font color=#101010>" + first
+                                    + "</font> " + "<u><font color=#1cc09f>"
+                                    + third + "</font></u>";
+                        } else {
+                            context = "<font color=#101010>" + first
+                                    + "</font> " + "<u><font color=#20124d>"
+                                    + third + "</font></u>";
+                        }
+
+                    } else {
+                        if (textView.getId() == R.id.tv_otherside_message_text) {
+                            context = "<font color=#101010>" + first
+                                    + "</font> " + "<u><font color=#189b7b>"
+                                    + third + "</font></u>";
+                        } else {
+                            context = "<font color=#101010>" + first
+                                    + "</font> " + "<u><font color=#a61c00>"
+                                    + third + "</font></u>";
+                        }
+                    }
+                }
+                textView.setText(Html.fromHtml(context));
+            } else {
+                urlbool = false;
+                textView.setTextColor(Color.parseColor("#101010"));
+            }
+        }
+    }
+
+    private void bindOpenURLEvent(final MessageModel mm,
+                                  final MViewHolder viewHolder) {
+        final Boolean isFromOtherSide = currentUserId.equals(mm.getEntity().getSender()) ? false
+                : true;
+        final TextView textView = isFromOtherSide == true ? viewHolder.tvOtherSideText
+                : viewHolder.tvMySideText;
+
+        textView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setMessageURL(textView, MessageCrypto.getInstance().decryText(mm.getEntity().getContent()), "pressed");
+                if (urlbool == true) {
+                    String url = "";
+                    if (midbool == true) {
+                        url = middle;
+                    } else {
+                        url = third;
+                    }
+                    if (url != null) {
+                        Intent intent = new Intent();
+                        Bundle bundle = new Bundle();
+                        bundle.putString("url", url);
+                        intent.putExtras(bundle);
+                        intent.setClass(_context, WebViewActivity.class);
+                        _context.startActivity(intent);
+                    }
+                }
+            }
+        });
+    }
 
     /********************* 图片 *************************/
 
@@ -774,6 +966,7 @@ public class MessageDisplay {
             viewHolder.ivOtherSideImage.setVisibility(View.VISIBLE);
             viewHolder.llOtherSideImageItem.setVisibility(View.VISIBLE);
             ImagePool.getInstance(_context).load(Urls.User_Messages_File_DownLoad + thumbnail + "?access_token=" + _session.getSessions().getUser().getToken(), viewHolder.ivOtherSideImage, R.drawable.file_loading);
+            movieDownLoad(model);
         }
     }
 
@@ -793,6 +986,13 @@ public class MessageDisplay {
         } catch (IOException ioe) {
             //ignore
         }
+    }
+
+    private void movieDownLoad(final MessageModel model){
+        String videoName = new Json(model.getEntity().getContent()).getStr("name");
+        String url = new Json(model.getEntity().getContent()).getStr("src");
+        AsyncMultiPartGet get = new AsyncMultiPartGet(_session.getSessions().getUser().getToken(), Urls.User_Messages_File_DownLoad + url, Config.CACHE_PATH_MOVIE, videoName);
+        get.execute();
     }
 
     /********************* 文件 ************************/

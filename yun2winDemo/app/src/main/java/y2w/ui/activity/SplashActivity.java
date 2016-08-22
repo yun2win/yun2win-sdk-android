@@ -1,15 +1,26 @@
 package y2w.ui.activity;
 
+import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
+import android.os.Message;
 import android.view.animation.AlphaAnimation;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.y2w.uikit.utils.StringUtil;
 import com.yun2win.demo.R;
+
+import y2w.common.UserInfo;
+import y2w.db.DaoManager;
+import y2w.manage.CurrentUser;
+import y2w.manage.Users;
+import y2w.service.Back;
+import y2w.service.ErrorCode;
 
 
 /**
@@ -62,6 +73,13 @@ public class SplashActivity extends BaseActivity {
 					startActivity(new Intent(SplashActivity.this, MainActivity.class));
 					finish();
 				}else {*/
+				//如果本地帐号密码都存在，自动登录
+					if(!StringUtil.isEmpty(UserInfo.getAccount())&& !StringUtil.isEmpty(UserInfo.getPassWord())){
+						login(UserInfo.getAccount(), UserInfo.getPassWord());
+						//创建数据库
+						DaoManager.getInstance(SplashActivity.this);
+						return;
+					}
 					try {
 						Thread.sleep(sleepTime);
 					} catch (InterruptedException e) {
@@ -73,7 +91,33 @@ public class SplashActivity extends BaseActivity {
 		}).start();
 
 	}
-	
+	private void login(final String account, final String password){
+		Users.getInstance().getRemote().login(account, password, new Back.Result<CurrentUser>() {
+			@Override
+			public void onSuccess(CurrentUser currentUser) {
+				//同步会话联系人
+				Users.getInstance().getCurrentUser().getRemote().sync(new Back.Callback() {
+					@Override
+					public void onSuccess() {
+						startActivity(new Intent(SplashActivity.this, MainActivity.class));
+						finish();
+					}
+
+					@Override
+					public void onError(int errorCode, String error) {
+						startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+						finish();
+					}
+				});
+			}
+
+			@Override
+			public void onError(int errorCode, String error) {
+				startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+				finish();
+			}
+		});
+	}
 	/**
 	 * 获取当前应用程序的版本号
 	 */

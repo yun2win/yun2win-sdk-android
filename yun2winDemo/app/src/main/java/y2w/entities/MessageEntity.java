@@ -44,7 +44,7 @@ public class MessageEntity implements Serializable{
         entity.setCreatedAt(json.getStr("createdAt"));
         entity.setUpdatedAt(json.getStr("updatedAt"));
         entity.setType(json.getStr("type"));
-        entity.setStatus("");
+        entity.setStatus(MessageEntity.MessageState.stored.toString());
         entity.setSessionId(json.getStr("sessionId"));
         return entity;
     }

@@ -1,5 +1,8 @@
 package y2w.manage;
 
+import android.os.Handler;
+import android.os.Message;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +13,9 @@ import y2w.common.Config;
 import y2w.common.Constants;
 import y2w.db.ContactDb;
 import y2w.db.EmojiDb;
+import y2w.db.TimeStampDb;
 import y2w.entities.EmojiEntity;
+import y2w.entities.TimeStampEntity;
 import y2w.model.Emoji;
 import y2w.model.TimeStamp;
 import y2w.service.Back;
@@ -24,6 +29,7 @@ public class Emojis {
     private String TAG = Emojis.class.getSimpleName();
     private CurrentUser user;
     private Remote remote;
+    private String updatedAt;
     public Emojis(CurrentUser user){
         this.user = user;
     }
@@ -45,6 +51,20 @@ public class Emojis {
             remote = new Remote();
         }
         return remote;
+    }
+
+    /**
+     * 获取同步更新时间戳
+     * @return 返回结果
+     */
+    public String getUpdatedAt() {
+        TimeStampEntity entity= TimeStampDb.queryByType(user.getEntity().getId(), TimeStampEntity.TimeStampType.emoji.toString());
+        if(entity != null){
+            updatedAt = entity.getTime();
+        }else{
+            updatedAt = Constants.TIME_ORIGIN;
+        }
+        return updatedAt;
     }
 
     public List<Emoji> getEmojiList(){
@@ -97,7 +117,8 @@ public class Emojis {
         }
 
         public void sync(){
-            EmojiSrv.getInstance().getEmojiList(user.getToken(), Constants.TIME_ORIGIN, Constants.EMOJIS_SYNC_LIMIT, new Back.Result<List<EmojiEntity>>() {
+
+            EmojiSrv.getInstance().getEmojiList(user.getToken(), getUpdatedAt(), Constants.EMOJIS_SYNC_LIMIT, new Back.Result<List<EmojiEntity>>() {
                 @Override
                 public void onSuccess(List<EmojiEntity> emojiEntities) {
                     List<Emoji> emojiList = new ArrayList<Emoji>();
@@ -115,7 +136,7 @@ public class Emojis {
         }
 
         public void getEmojiList(final Back.Result<List<Emoji>> result){
-            EmojiSrv.getInstance().getEmojiList(user.getToken(), Constants.TIME_ORIGIN, Constants.EMOJIS_SYNC_LIMIT, new Back.Result<List<EmojiEntity>>() {
+            EmojiSrv.getInstance().getEmojiList(user.getToken(), getUpdatedAt(), Constants.EMOJIS_SYNC_LIMIT, new Back.Result<List<EmojiEntity>>() {
                 @Override
                 public void onSuccess(List<EmojiEntity> emojiEntities) {
                     List<Emoji> emojiList = new ArrayList<Emoji>();
@@ -123,6 +144,10 @@ public class Emojis {
                         emojiList.add(new Emoji(entity));
                     }
                     add(emojiList);
+                    if(emojiEntities != null && emojiEntities.size() > 0){
+                        TimeStampEntity entity = TimeStampEntity.parse(emojiEntities.get(0).getUpdatedAt(), TimeStampEntity.TimeStampType.emoji.toString() , "");
+                        TimeStampDb.addTimeStampEntity(entity);
+                    }
                     result.onSuccess(emojiList);
                 }
 

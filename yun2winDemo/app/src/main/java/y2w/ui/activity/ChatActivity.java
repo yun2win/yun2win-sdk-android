@@ -37,6 +37,7 @@ import com.y2w.uikit.customcontrols.listview.PullToRefreshListView;
 import com.y2w.uikit.customcontrols.record.RecordButton;
 import com.y2w.uikit.utils.Commethod;
 import com.y2w.uikit.utils.StringUtil;
+import com.y2w.uikit.utils.ThreadPool;
 import com.y2w.uikit.utils.ToastUtil;
 import com.yun2win.demo.R;
 import com.yun2win.utils.LogUtil;
@@ -67,6 +68,7 @@ import y2w.ui.adapter.MessageAdapter;
 import y2w.ui.fragment.MessageFragment;
 import y2w.ui.widget.emoji.ChatEmoji;
 import y2w.ui.widget.emoji.Expression;
+import y2w.ui.widget.movie.MovieRecorderView;
 
 /**
  * Created by hejie on 2016/3/14.
@@ -109,6 +111,19 @@ public class ChatActivity extends FragmentActivity {
 	public  int titleIndex = 0;
 	GestureDetector mGestureDetector;
 	MessageModel firstVisibleMM;
+	Handler userConversationHandeler = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+            if(msg.arg1 ==1){
+				UserConversation userConversation = (UserConversation) msg.obj;
+				getLastMessage(userConversation);
+			}else if(msg.arg1==2){
+				List<MessageModel> list  = (List<MessageModel>) msg.obj;
+				localMorerefresh(list);
+			}
+		}
+	};
 	//界面更新
 	Handler updateChatHandler= new Handler(){
 		@Override
@@ -125,7 +140,17 @@ public class ChatActivity extends FragmentActivity {
 					}
 					if(firstload) {
 						firstload =false;
-						getLastMessage();
+						final String targetId = EnumManage.SessionType.p2p.toString().equals(sessionType) ? otheruserID:sessionId;
+						ThreadPool.getThreadPool().executUI(new Runnable() {
+							@Override
+							public void run() {
+								UserConversation userConversation = Users.getInstance().getCurrentUser().getUserConversations().get(targetId);
+								Message msgconversation = new Message();
+								msgconversation.obj = userConversation;
+								msgconversation.arg1 = 1;
+								userConversationHandeler.sendMessage(msgconversation);
+							}
+						});
 					}
 					break;
 				case 1:
@@ -167,6 +192,10 @@ public class ChatActivity extends FragmentActivity {
 				case 7:
 					fl_record.setVisibility(View.GONE);
 					rb_voice.setText("按住 说话");
+					break;
+				case 8://消息推到底部
+					scrollToBottom();
+					refreshComplete();
 					break;
 				default:
 					break;
@@ -211,7 +240,6 @@ public class ChatActivity extends FragmentActivity {
 		}
 	}
 
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -229,6 +257,26 @@ public class ChatActivity extends FragmentActivity {
 		loadSession();
 		initEmoji();
 		new ChatThread().start();
+	}
+
+	private void initPermission(){
+		MovieRecorderView movieRecorderView = new MovieRecorderView(_context);
+		movieRecorderView.record(new MovieRecorderView.OnRecordFinishListener() {
+
+			@Override
+			public void onRecordFinish() {
+
+			}
+		});
+		/*if (movieRecorderView.getmVecordFile() != null)
+			movieRecorderView.getmVecordFile().delete();
+		movieRecorderView.stopRecord();*/
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+		//initPermission();
 	}
 
 	@Override
@@ -410,8 +458,7 @@ public class ChatActivity extends FragmentActivity {
 					firstVisibleMM = messageList.get(arg1);
 				}
 				if(arg1 == 0 && !scrollbool){
-					scrollbool = true;
-					refreshMore();
+					localMore();
 				}
 			}
 		});
@@ -460,13 +507,12 @@ public class ChatActivity extends FragmentActivity {
 	/*
 	***进入界面获得同步消息
 	*/
-	private void getLastMessage(){
+	private void getLastMessage(UserConversation userConversation){
 		if(_session.getMessages().getMessageUpdateAt().equals(Constants.TIME_ORIGIN)){//第一次同步消息
 			recentMessage();
 			return;
 		}
-		String targetId = EnumManage.SessionType.p2p.toString().equals(sessionType) ? otheruserID:sessionId;
-		UserConversation userConversation =Users.getInstance().getCurrentUser().getUserConversations().get(targetId);
+
 	 if(userConversation.getEntity()!=null){
 		int unread = userConversation.getEntity().getUnread();
 		if(unread>0) {
@@ -546,7 +592,7 @@ public class ChatActivity extends FragmentActivity {
 			}else if(v.getId() == ib_add.getId()){
 				addOnclick();
 			}else if(v.getId() == ib_voice.getId()){
-				show();
+				//show();
 				voiceOnclick();
 			}else if(v.getId() == ib_emoji.getId()){
 				emojiOnclick();
@@ -607,6 +653,11 @@ public class ChatActivity extends FragmentActivity {
 			switch (code) {
 				case RecordButton.RECORD_LESS_THAN_MIN:
 					ToastUtil.ToastMessage(ChatActivity.this, "录音时间太短。");
+					fl_record.setVisibility(View.GONE);
+					if(new File(path).exists()){
+						new File(path).deleteOnExit();
+					}
+					break;
 				case RecordButton.RECORD_CANCEL:
 					fl_record.setVisibility(View.GONE);
 					new File(path).deleteOnExit();
@@ -763,14 +814,15 @@ public class ChatActivity extends FragmentActivity {
 		}
 		final MessageModel temp = _session.getMessages().createMessage(MessageCrypto.getInstance().encryText(sendtext), MessageType.Text);
 		messageList.add(temp);
-		scrollToBottom();
-		refreshComplete();
+
 		adapter.updateListView(messageList);
 		et_input.setText("");
+		updateChatHandler.sendEmptyMessageDelayed(8, 200);
 		_session.getMessages().getRemote().store(temp, new Back.Result<MessageModel>() {
 			@Override
 			public void onSuccess(MessageModel model) {
 				temp.getEntity().setId(model.getEntity().getId());
+				temp.getEntity().setStatus(model.getEntity().getStatus());
 				updateChatHandler.sendEmptyMessage(2);
 			}
 
@@ -792,9 +844,9 @@ public class ChatActivity extends FragmentActivity {
 
 		final MessageModel temp = _session.getMessages().createMessage(compressPath, MessageType.Image);
 		messageList.add(temp);
-		scrollToBottom();
-		refreshComplete();
+
 		adapter.updateListView(messageList);
+		updateChatHandler.sendEmptyMessageDelayed(8,500);
 
 		FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, compressPath);
 	}
@@ -808,9 +860,9 @@ public class ChatActivity extends FragmentActivity {
 			if (file.exists()) {
 				final MessageModel temp = _session.getMessages().createMessage(voicePath, MessageType.Audio);
 				messageList.add(temp);
-				scrollToBottom();
-				refreshComplete();
+
 				adapter.updateListView(messageList);
+				updateChatHandler.sendEmptyMessageDelayed(8, 200);
 				FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, voicePath);
 			}
 		} catch (Exception e) {
@@ -824,9 +876,10 @@ public class ChatActivity extends FragmentActivity {
 			if (file.exists()) {
 				final MessageModel temp = _session.getMessages().createMessage(moviePath, MessageType.Video);
 				messageList.add(temp);
-				scrollToBottom();
-				refreshComplete();
+
 				adapter.updateListView(messageList);
+				updateChatHandler.sendEmptyMessageDelayed(8,200);
+
 				FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, moviePath);
 			}
 		} catch (Exception e) {
@@ -844,9 +897,9 @@ public class ChatActivity extends FragmentActivity {
 			if (file.exists()) {
 				final MessageModel temp = _session.getMessages().createMessage(filePath, MessageType.Location);
 				messageList.add(temp);
-				scrollToBottom();
-				refreshComplete();
+
 				adapter.updateListView(messageList);
+				updateChatHandler.sendEmptyMessageDelayed(8, 200);
 				FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, file.getPath());
 			}
 		} catch (Exception e) {
@@ -860,9 +913,9 @@ public class ChatActivity extends FragmentActivity {
 			if (file.exists()) {
 				final MessageModel temp = _session.getMessages().createMessage(filePath, MessageType.File);
 				messageList.add(temp);
-				scrollToBottom();
-				refreshComplete();
+
 				adapter.updateListView(messageList);
+				updateChatHandler.sendEmptyMessageDelayed(8,200);
 				FileSrv.getInstance().uploadMessagesFile(_context, Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_File_UpLoad, filePath);
 			}
 		} catch (Exception e) {
@@ -887,7 +940,7 @@ public class ChatActivity extends FragmentActivity {
 			if(data != null) {
 				String moviePath = data.getStringExtra("result");
 				sendMovie(moviePath);
-				ToastUtil.ToastMessage(_context, "movie:" + moviePath);
+				//ToastUtil.ToastMessage(_context, "movie:" + moviePath);
 			}
 		}else if (requestCode == ResultCode.CODE_FILE){ //文档
 			if(data != null) {
@@ -925,50 +978,89 @@ public class ChatActivity extends FragmentActivity {
 			public void run() {
 				if (messageList != null && messageList.size() > 0) {
 					lv_message.getRefreshableView().setSelection(
-							messageList.size() - 1);
+							messageList.size());
 				}
 			}
 		});
 	}
 
-	private void refreshMore(){
-		localMore();
-		refreshComplete();
-	}
-
-
 	private void localMore(){
-		try {
+
 			if(messageList.size() < 1){
 				return ;
 			}
+		   scrollbool = true;
 			MessageModel firstModel;
 			if (messageList.size() == 0) {
 				firstModel = null;
 			} else {
 				firstModel = messageList.get(0);
 			}
-			List<MessageModel> list =_session.getMessages().getMessages(firstModel, Config.LOAD_MESSAGE_COUNT);
-            if(list.size()<Config.LOAD_MESSAGE_COUNT){
-				lv_message.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
-			}
-			if(list.size() > 0){
-				messageList.addAll(0, list);
-				lv_message.getRefreshableView().setTranscriptMode(AbsListView.TRANSCRIPT_MODE_DISABLED);
-				adapter.updateListView(messageList);
+		final MessageModel mpfirstModel = firstModel;
+           ThreadPool.getThreadPool().executUI(new Runnable() {
+			   @Override
+			   public void run() {
+				   List<MessageModel> list =_session.getMessages().getMessages(mpfirstModel, Config.LOAD_MESSAGE_COUNT);
+				   if(list!=null&&list.size()>0) {
+					   if(messageList.size()>0){
+						   List<MessageModel> deletelist = new ArrayList<MessageModel>();
+						   for(int i = 0;i<list.size();i++){
+							   for(int j=0;j<list.size();j++){
+								   if(messageList.get(j).getEntity().getId().equals(list.get(i).getEntity().getId())){
+									   deletelist.add(list.get(i));
+								   }
+							   }
+						   }
+						   list.removeAll(deletelist);
+						   if(list.size()<=0)
+							   return;
+					   }
+					   }
+					   Message msg = new Message();
+					   msg.arg1 = 2;
+					   msg.obj = list;
 
-				for (int i = 0; i < messageList.size(); i++) {
-					MessageModel mm = messageList.get(i);
-					if(firstVisibleMM != null){
-						if(firstVisibleMM.getEntity().getId().equals(mm.getEntity().getId())) {
-							lv_message.getRefreshableView().setSelection(i+2);
-							break;
-						}
+					   userConversationHandeler.sendMessage(msg);
+				   }
+		   });
+	}
+	private void localMorerefresh(List<MessageModel> list){
+		try {
+		if(list.size()<Config.LOAD_MESSAGE_COUNT){
+			lv_message.setMode(PullToRefreshBase.Mode.PULL_FROM_END);
+		}
+		if(list.size() > 0){
+			messageList.addAll(0, list);
+			lv_message.getRefreshableView().setTranscriptMode(AbsListView.TRANSCRIPT_MODE_DISABLED);
+			adapter.updateListView(messageList);
+
+			for (int i = 0; i < messageList.size(); i++) {
+				MessageModel mm = messageList.get(i);
+				if(firstVisibleMM != null){
+					if(firstVisibleMM.getEntity().getId().equals(mm.getEntity().getId())) {
+						lv_message.getRefreshableView().setSelection(i+2);
+						break;
 					}
 				}
 			}
-		} catch (Exception e) {
-			Log.i("more", "e:"+e);
+		}
+	} catch (Exception e) {
+		Log.i("more", "e:"+e);
+	}
+		refreshComplete();
+		if (lv_message != null) {
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					try {
+						Thread.sleep(220);
+						scrollbool = false;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+				}
+			}).start();
 		}
 	}
 
@@ -982,19 +1074,7 @@ public class ChatActivity extends FragmentActivity {
 				}
 			}, 100);
 
-			new Thread(new Runnable() {
 
-				@Override
-				public void run() {
-					try {
-						Thread.sleep(220);
-						scrollbool = false;
-					} catch (Exception e) {
-						e.printStackTrace();
-					}
-
-				}
-			}).start();
 		}
 	}
 

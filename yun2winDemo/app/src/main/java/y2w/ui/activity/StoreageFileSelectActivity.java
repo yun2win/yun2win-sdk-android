@@ -1,5 +1,6 @@
 package y2w.ui.activity;
 
+import android.app.ActionBar;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,6 +8,9 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
 import com.yun2win.demo.R;
 
@@ -32,6 +36,7 @@ public class StoreageFileSelectActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_storeage_file);
+		initActionBar();
 		context = this;
 		mViewPager = (ViewPager) findViewById(R.id.vp_storeage_file);
 		init(this.getIntent().getExtras());
@@ -54,6 +59,24 @@ public class StoreageFileSelectActivity extends FragmentActivity {
 
 		mViewPager.setAdapter(new TabPagerAdapter(getSupportFragmentManager(),
 				mFragmentList));
+
+	}
+
+	private void initActionBar(){
+		ActionBar actionbar = getActionBar();
+		actionbar.setDisplayShowTitleEnabled(false);
+		actionbar.setDisplayShowHomeEnabled(false);
+		actionbar.setDisplayShowCustomEnabled(true);
+		actionbar.setCustomView(R.layout.actionbar_chat);
+		TextView texttitle = (TextView) actionbar.getCustomView().findViewById(R.id.text_title);
+		ImageButton imageButtonClose = (ImageButton) actionbar.getCustomView().findViewById(R.id.left_close);
+		texttitle.setText("文档");
+		imageButtonClose.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
 
 	}
 

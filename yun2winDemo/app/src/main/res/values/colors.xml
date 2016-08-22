@@ -104,4 +104,8 @@
     <!-- 深灰色 -->
     <color name="grey_more_dep">#7F7F7F</color>
     <color name="topbar_bg">#eee</color>
+
+
+    <color name="gray">#eeeeee</color>
+    <color name="com_bg_gray">#aaaaaaaa</color>
 </resources>

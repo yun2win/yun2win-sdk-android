@@ -136,4 +136,14 @@
     <dimen name="loading_dialog_width">180.0dip</dimen>
     <dimen name="loading_dialog_height">60.0dip</dimen>
 
+    <dimen name="space_size">2dp</dimen>
+    <dimen name="folder_cover_size">72dp</dimen>
+    <dimen name="grid_width">100dp</dimen>
+    <dimen name="bottom_marin">0dp</dimen>
+    <dimen name="right_margin">0dp</dimen>
+    <dimen name="control_btn_padding">2dp</dimen>
+    <dimen name="control_draw_padding">3dp</dimen>
+    <dimen name="control_layout_padding">15dp</dimen>
+    <dimen name="sketch_gv_padding">15dp</dimen>
+
 </resources>

@@ -1,5 +1,6 @@
 package y2w.manage;
 
+import com.y2w.uikit.utils.ThreadPool;
 import com.yun2win.utils.LogUtil;
 
 import java.io.Serializable;
@@ -89,15 +90,20 @@ public class Sessions implements Serializable {
      * @param result 回调
      */
     public void getSessionByTargetId(final String targetId, final String type, final Back.Result<Session> result){
-        if(EnumManage.SessionType.p2p.toString().equals(type)){
-            getSession(targetId, type, result);
-        }else{
-            if(sessionHashMap.containsKey(targetId)){
-                result.onSuccess(sessionHashMap.get(targetId));
-            }else {
-                getSession(targetId, type, result);
-            }
-        }
+       ThreadPool.getThreadPool().executUI(new Runnable() {
+           @Override
+           public void run() {
+               if(EnumManage.SessionType.p2p.toString().equals(type)){
+                   getSession(targetId, type, result);
+               }else{
+                   if(sessionHashMap.containsKey(targetId)){
+                       result.onSuccess(sessionHashMap.get(targetId));
+                   }else {
+                       getSession(targetId, type, result);
+                   }
+               }
+           }
+       });
     }
 
     /**
@@ -129,29 +135,35 @@ public class Sessions implements Serializable {
         if(sessionHashMap.containsKey(sessionId)){
             result.onSuccess(sessionHashMap.get(sessionId));
         }else {
-            SessionEntity entity = SessionDb.queryBySessionId(user.getEntity().getId(),sessionId);
-            if(entity != null){
-                if(EnumManage.SessionType.p2p.toString().equals(entity.getType())){
-                    if(sessionHashMap.containsKey(entity.getOtherSideId())){
-                        result.onSuccess(sessionHashMap.get(entity.getOtherSideId()));
-                    }else{
-                        Session session = new Session(this, entity);
-                        if(!sessionHashMap.containsKey(sessionId)){
-                            sessionHashMap.put(entity.getOtherSideId(),session);
+           final Sessions that = this;
+            ThreadPool.getThreadPool().executUI(new Runnable() {
+                @Override
+                public void run() {
+                    SessionEntity entity = SessionDb.queryBySessionId(user.getEntity().getId(),sessionId);
+                    if(entity != null){
+                        if(EnumManage.SessionType.p2p.toString().equals(entity.getType())){
+                            if(sessionHashMap.containsKey(entity.getOtherSideId())){
+                                result.onSuccess(sessionHashMap.get(entity.getOtherSideId()));
+                            }else{
+                                Session session = new Session(that, entity);
+                                if(!sessionHashMap.containsKey(sessionId)){
+                                    sessionHashMap.put(entity.getOtherSideId(),session);
+                                }
+                                result.onSuccess(session);
+                            }
+                        }else{
+                            Session session = new Session(that, entity);
+                            if(!sessionHashMap.containsKey(sessionId)) {
+                                sessionHashMap.put(sessionId, session);
+                            }
+                            result.onSuccess(session);
                         }
-                        result.onSuccess(session);
-                    }
-                }else{
-                    Session session = new Session(this, entity);
-                    if(!sessionHashMap.containsKey(sessionId)) {
-                        sessionHashMap.put(sessionId, session);
-                    }
-                    result.onSuccess(session);
-                }
 
-            }else{
-                getRemote().getSession(sessionId, EnumManage.SessionType.group.toString(), result);
-            }
+                    }else{
+                        getRemote().getSession(sessionId, EnumManage.SessionType.group.toString(), result);
+                    }
+                }
+            });
         }
     }
 

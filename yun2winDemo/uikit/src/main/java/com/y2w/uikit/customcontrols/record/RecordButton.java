@@ -21,7 +21,7 @@ public class RecordButton extends Button implements OnTouchListener{
 	OnRecordListener onRecordListener;
 	RecordUtil util;
 	private boolean isCancel = false;
-	private static final int MIN_INTERVAL_TIME = 1000; // 录音最短时间
+	private static final int MIN_INTERVAL_TIME = 2000; // 录音最短时间
 	private static final int MAX_INTERVAL_TIME = 60000; // 录音最长时间
 
 	public static final int RECORD_NORMAL = 1;
@@ -150,7 +150,7 @@ public class RecordButton extends Button implements OnTouchListener{
 				}
 				break;
 			case MotionEvent.ACTION_UP:
-				//if(!isTimeOut){
+				if(!isTimeOut){
 					if(thread!=null && thread.isAlive()){
 						thread.exit();
 					}
@@ -159,14 +159,21 @@ public class RecordButton extends Button implements OnTouchListener{
 						isCancel=false;
 						onRecordListener.onSuccess(util.getmAudioPath(),RECORD_CANCEL);
 					}else{
-						if(stopTime - mStartTime <= MIN_INTERVAL_TIME){
+						long count = stopTime - mStartTime;
+						if(count <= MIN_INTERVAL_TIME){
 							onRecordListener.onSuccess(util.getmAudioPath(),RECORD_LESS_THAN_MIN);
 			            }else{
 							onRecordListener.onSuccess(util.getmAudioPath(),RECORD_NORMAL);
 			            }
 					}
-				//}
+				}
 				isTimeOut = false;
+				break;
+			case MotionEvent.ACTION_CANCEL:
+				long count = stopTime - mStartTime;
+				if(count <= MIN_INTERVAL_TIME){
+					onRecordListener.onSuccess(util.getmAudioPath(),RECORD_LESS_THAN_MIN);
+				}
 				break;
 		}
 		return true;

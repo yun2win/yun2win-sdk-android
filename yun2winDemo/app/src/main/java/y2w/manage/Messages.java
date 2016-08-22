@@ -1,5 +1,6 @@
 package y2w.manage;
 
+import com.y2w.uikit.utils.ThreadPool;
 import com.yun2win.imlib.IMClient;
 import com.yun2win.imlib.SendReturnCode;
 import com.yun2win.imlib.IMSession;
@@ -54,6 +55,9 @@ public class Messages implements Serializable {
         SessionEntity entity = SessionDb.queryBySessionId(session.getEntity().getMyId(), session.getEntity().getId());
         if(entity != null){
             updateAt = entity.getCreateMTS();
+            if(StringUtil.isEmpty(updateAt)){
+                updateAt = entity.getCreatedAt();
+            }
         }else {
             updateAt = Constants.TIME_ORIGIN;
         }
@@ -143,7 +147,9 @@ public class Messages implements Serializable {
      */
     public void addMessage(MessageModel message){
         message.getEntity().setMyId(session.getEntity().getMyId());
+        message.getEntity().setSessionId(session.getEntity().getId());
         MessageDb.addMessageEntity(message.getEntity());
+
     }
 
     /**
@@ -231,6 +237,7 @@ public class Messages implements Serializable {
                     model.getEntity().setSessionId(message.getEntity().getSessionId());
                     model.getEntity().setType(message.getEntity().getType());
                     model.getEntity().setStatus(MessageEntity.MessageState.stored.toString());
+                    result.onSuccess(model);
                     sendMessage(message.getEntity().getContent(), new IMClient.SendCallback() {
 
                         @Override
@@ -256,7 +263,7 @@ public class Messages implements Serializable {
                             }
                         }
                     });
-                    result.onSuccess(model);
+
                 }
 
                 @Override

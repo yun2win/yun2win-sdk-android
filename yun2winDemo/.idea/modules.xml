@@ -3,8 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sdk_new.iml" filepath="$PROJECT_DIR$/sdk_new.iml" />
       <module fileurl="file://$PROJECT_DIR$/uikit/uikit.iml" filepath="$PROJECT_DIR$/uikit/uikit.iml" />
-      <module fileurl="file://$PROJECT_DIR$/y2wDemoNew.iml" filepath="$PROJECT_DIR$/y2wDemoNew.iml" />
     </modules>
   </component>
 </project>

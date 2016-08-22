@@ -34,7 +34,7 @@ public class TimeStampEntity implements Serializable {
     }
 
     public static enum TimeStampType{
-        contact,userConversation,userSession,
+        contact,userConversation,userSession,emoji
     }
 
     public String getTime() {

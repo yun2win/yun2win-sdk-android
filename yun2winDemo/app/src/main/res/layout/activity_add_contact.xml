@@ -12,7 +12,7 @@
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
-        android:text="查找理约云上用户"
+        android:text="查找yun2win上用户"
         android:textColor="#999999"
         android:textSize="@dimen/sp_14" />
 

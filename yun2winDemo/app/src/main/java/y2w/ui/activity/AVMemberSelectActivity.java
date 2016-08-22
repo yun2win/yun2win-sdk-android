@@ -189,6 +189,7 @@ public class AVMemberSelectActivity extends Activity{
                 pd = new ProgressDialog(context);
                 pd.setCanceledOnTouchOutside(false);
                 pd.setMessage("正在添加中...");
+                pd.show();
                 String names = "";
                 for (int i = 0; i < choiceMembers.size(); i++) {
                     names = names + choiceMembers.get(i).getUserId() + ";";
@@ -219,7 +220,7 @@ public class AVMemberSelectActivity extends Activity{
                     setResult(1,intent);
                     finish();
                 }
-                pd.show();
+
             }
         });
     }

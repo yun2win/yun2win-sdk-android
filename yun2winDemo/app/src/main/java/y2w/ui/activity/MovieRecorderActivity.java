@@ -1,14 +1,18 @@
 package y2w.ui.activity;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.yun2win.demo.R;
@@ -29,6 +33,7 @@ public class MovieRecorderActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movierecorder);
+        initActionBar();
         mRecorderView = (MovieRecorderView) findViewById(R.id.movieRecorderView);
         mShootBtn = (Button) findViewById(R.id.shoot_button);
 
@@ -37,6 +42,7 @@ public class MovieRecorderActivity extends Activity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // TODO Auto-generated method stub
+                Log.i("touch","----event.getAction() : getTimeCount="+event.getAction() + " : "+mRecorderView.getTimeCount());
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     mRecorderView.record(new MovieRecorderView.OnRecordFinishListener() {
 
@@ -46,7 +52,8 @@ public class MovieRecorderActivity extends Activity {
                         }
                     });
                 } else if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (mRecorderView.getTimeCount() > 1)
+                    //Toast.makeText(MovieRecorderActivity.this, "视频录制时间 UP:"+mRecorderView.getTimeCount(), Toast.LENGTH_SHORT).show();
+                    if (mRecorderView.getTimeCount() > 2)
                         handler.sendEmptyMessage(1);
                     else {
                         if (mRecorderView.getmVecordFile() != null)
@@ -59,7 +66,23 @@ public class MovieRecorderActivity extends Activity {
             }
         });
     }
+    private void initActionBar(){
+        ActionBar actionbar = getActionBar();
+        actionbar.setDisplayShowTitleEnabled(false);
+        actionbar.setDisplayShowHomeEnabled(false);
+        actionbar.setDisplayShowCustomEnabled(true);
+        actionbar.setCustomView(R.layout.actionbar_chat);
+        TextView texttitle = (TextView) actionbar.getCustomView().findViewById(R.id.text_title);
+        ImageButton imageButtonClose = (ImageButton) actionbar.getCustomView().findViewById(R.id.left_close);
+        texttitle.setText("小视频");
+        imageButtonClose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
+    }
 
     @Override
     public void onResume() {

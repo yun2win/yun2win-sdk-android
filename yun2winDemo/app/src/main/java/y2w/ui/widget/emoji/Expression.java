@@ -281,27 +281,7 @@ public class Expression {
 						} catch (Exception e) {
 							drawindex = -1;
 						}
-						/*if (drawindex > -1
-								&& drawindex <= Expression.expresion.length) {
-							start += 9;
-							Drawable drawable = zoomDrawable(
-									appContext
-											.getResources()
-											.getDrawable(
-													Expression.expresion[drawindex - 1]),
-									wh, wh);
-							drawable.setBounds(0, 0,
-									drawable.getIntrinsicWidth(),
-									drawable.getIntrinsicHeight());
-							// 要让图片替代指定的文字就要用ImageSpan
-							ImageSpan span = new ImageSpan(drawable,
-									ImageSpan.ALIGN_BASELINE);
-							// 开始替换，注意第2和第3个参数表示从哪里开始替换到哪里替换结束（start和end）
-							// 最后一个参数类似数学中的集合,[5,12)表示从5到12，包括5但不包括12
-							spannable.setSpan(span, index, index + 10,
-									Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
-							
-						}*/
+
 					}
 				} else {
 					value = false;
@@ -335,12 +315,7 @@ public class Expression {
 					} catch (Exception e) {
 						stringindex = -1;
 					}
-					/*if (stringindex > -1
-							&& stringindex <= Expression.expresion.length) {
-						contenttemp = contenttemp.replace(
-								expre[i].subSequence(0, 8),
-								Expression.expresion_mean[stringindex - 1]);
-					}*/
+
 				}
 			}
 			return contenttemp;

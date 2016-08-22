@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:id="@+id/rl_av_base"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
 
     <RelativeLayout
         android:id="@+id/rl_av_all"
@@ -23,13 +25,68 @@
            </com.y2w.av.rtc.PercentFrameLayout>
 
 
-        <ImageView
-            android:id="@+id/iv_av_bg"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="visible"
-            android:background="@drawable/av_default_bg"/>
+            <ImageView
+                android:id="@+id/iv_av_bg"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="visible"
+                android:background="@drawable/av_default_bg"/>
 
+            <com.y2w.uikit.customcontrols.view.WhiteBoardScrollView
+                android:id="@+id/sv_whiteboard"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+               <com.y2w.uikit.customcontrols.view.WBHorizontalScrollView
+                    android:id="@+id/hsv_whiteboard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    >
+                    <RelativeLayout
+                        android:id="@+id/rl_whiteboard"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="@dimen/dp_100"
+                        android:visibility="visible"
+                        android:background="@color/white"
+                        android:orientation="vertical">
+
+                    </RelativeLayout>
+
+               </com.y2w.uikit.customcontrols.view.WBHorizontalScrollView>
+            </com.y2w.uikit.customcontrols.view.WhiteBoardScrollView>
+
+
+        <RelativeLayout
+            android:id="@+id/rl_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_40"
+            android:layout_marginLeft="@dimen/dp_40"
+            android:visibility="gone"
+            >
+
+            <ImageView
+                android:id="@+id/iv_location"
+                android:layout_width="@dimen/dp_140"
+                android:layout_height="@dimen/dp_100"
+                android:visibility="visible"
+                android:background="#efefef"
+                android:orientation="vertical">
+
+            </ImageView>
+
+            <ImageView
+                android:id="@+id/iv_location_icon"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_40"
+                android:background="@drawable/button_whiteboard_location_icon"
+                android:visibility="visible"
+                android:orientation="vertical">
+
+            </ImageView>
+
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/ll_member_me"
@@ -216,4 +273,4 @@
         </RelativeLayout>
     </RelativeLayout>
 
-</LinearLayout>
+</RelativeLayout>

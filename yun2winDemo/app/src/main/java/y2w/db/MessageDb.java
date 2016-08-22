@@ -8,6 +8,7 @@ import java.util.List;
 import y2w.base.AppContext;
 import y2w.common.Constants;
 import y2w.entities.MessageEntity;
+import y2w.model.MessageModel;
 
 /**
  * 消息表管理类

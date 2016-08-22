@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,6 +42,9 @@ import com.y2w.uikit.utils.pinyinutils.CharacterParser;
 import com.y2w.uikit.utils.pinyinutils.PinyinComparator;
 import com.y2w.uikit.customcontrols.view.SideBar;
 import com.y2w.uikit.utils.pinyinutils.SortModel;
+import com.yun2win.imlib.IMClient;
+import com.yun2win.imlib.IMSession;
+
 import y2w.base.Urls;
 
 /**
@@ -242,16 +246,30 @@ public class SessionStartActivity extends Activity{
     private int membersCount = 0;
     private void addotherMembers(final Session session){
         membersCount = choiceContacts.size();
+        Log.i("SessionStartActivity", "----------=membersCount = "+ membersCount);
         for(int i =0;i<choiceContacts.size();i++){
             session.getMembers().getRemote().sessionMemberAdd(choiceContacts.get(i).getUserId(),
                     choiceContacts.get(i).getName(),EnumManage.GroupRole.user.toString(), choiceContacts.get(i).getAvatarUrl(), EnumManage.UserStatus.active.toString(), new Back.Result<SessionMember>(){
                         @Override
                         public void onSuccess(SessionMember sessionMember) {
                             membersCount--;
-                            if(membersCount==0 && !iscreate){
+                            Log.i("SessionStartActivity", "----------=sessionMemberAdd onSuccess");
+                            if(membersCount==0 && iscreate){
                                 pd.dismiss();
                                 setResult(100);
-                                finish();
+                                Log.i("SessionStartActivity", "----------=sessionMemberAdd iscreate");
+                                try {
+                                    Thread.sleep(400);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                                session.getMessages().getRemote().sendMessage("", new IMClient.SendCallback() {
+                                    @Override
+                                    public void onReturnCode(int i, IMSession imSession, String s) {
+                                        Log.i("SessionStartActivity", "----------=sendMessage = " + i);
+                                    }
+                                });
+                                //finish();
                             }
                         }
                         @Override
@@ -259,6 +277,7 @@ public class SessionStartActivity extends Activity{
                         }
                     });
         }
+
         if(iscreate) {
             Intent intent = new Intent(context, ChatActivity.class);
             Bundle bundle = new Bundle();

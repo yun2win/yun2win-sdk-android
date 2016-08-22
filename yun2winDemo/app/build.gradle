@@ -2,10 +2,19 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    buildToolsVersion '22.0.1'
     sourceSets {
         main {
             jniLibs.srcDirs = ['libs']
+        }
+    }
+
+    signingConfigs {
+        myConfig{
+            storeFile file("android.keystore")
+            storePassword "abcd1234"
+            keyAlias "android.keystore"
+            keyPassword "abcd1234"
         }
     }
 
@@ -14,7 +23,7 @@ android {
         minSdkVersion 14
         targetSdkVersion 22
         versionCode 1
-        versionName "1.0"
+        versionName "0.0.1"
         multiDexEnabled = true
     }
     buildTypes {
@@ -38,4 +47,6 @@ dependencies {
     compile files('libs/yun2win-0.1.jar')
     compile files('libs/mqtt-client-java1.4-uber-1.7.jar')
     compile files('libs/bugly_crash_release__2.1.5.jar')
+    compile 'com.squareup.picasso:picasso:2.4.0'
+    compile files('libs/yun2win-av-0.2.jar')
 }

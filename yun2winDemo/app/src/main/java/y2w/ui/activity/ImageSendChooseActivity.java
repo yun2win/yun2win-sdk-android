@@ -67,6 +67,7 @@ public class ImageSendChooseActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_feelchooseimg);
+		getActionBar().hide();
 		linehome = (LinearLayout) findViewById(R.id.home_lllist);
 		linehome.setOnClickListener(new OnClickListener() {
 			@Override

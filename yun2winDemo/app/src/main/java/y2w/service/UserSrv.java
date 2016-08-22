@@ -110,6 +110,7 @@ public class UserSrv {
                     @Override
                     public void onSuccess(List<UserConversation> userConversationList) {
                         Users.getInstance().getCurrentUser().getUserConversations().add(userConversationList);
+                        Users.getInstance().getCurrentUser().getEmojis().getRemote().sync();
                         callback.onSuccess();
                     }
 

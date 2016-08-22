@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.y2w.uikit.utils.ThreadPool;
 import com.yun2win.demo.R;
 import com.yun2win.utils.LogUtil;
 
@@ -51,10 +52,15 @@ public class ConversationFragment extends Fragment{
 			if(msg.what ==0){
 				conversationAdapter.updateListView();
 			}else if(msg.what==1){//更新全部
-				conversations = Users.getInstance().getCurrentUser().getUserConversations().getUserConversations();
-				DataSaveModuel.getInstance().conversations = conversations;
-				conversationAdapter.setConversations(conversations);
-				updatesessionHandler.sendEmptyMessage(0);
+			ThreadPool.getThreadPool().executUI(new Runnable() {
+				@Override
+				public void run() {
+					conversations = Users.getInstance().getCurrentUser().getUserConversations().getUserConversations();
+					DataSaveModuel.getInstance().conversations = conversations;
+					conversationAdapter.setConversations(conversations);
+					updatesessionHandler.sendEmptyMessage(0);
+				}
+			});
 			}else if(msg.what ==2){//添加一条
 				UserConversation conversation = (UserConversation) msg.obj;
 				 boolean find = false;

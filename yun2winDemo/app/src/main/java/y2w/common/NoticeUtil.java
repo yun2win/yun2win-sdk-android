@@ -19,6 +19,7 @@ import y2w.base.AppContext;
 
      public static final int NOTIFICATION_ID = 140506002;
      public static String WHOSE="NONE";//谁的通知栏
+     private static Context context = AppContext.getAppContext();
      /**
       * 消息通知栏
       *
@@ -26,32 +27,31 @@ import y2w.base.AppContext;
       *            标题
       * @param content
       *            消息內容
-      * @param msgtype
+      * @param msgType
       *            消息类型
       */
-     @SuppressWarnings("deprecation")
-     public static void notice(AppContext appContext,String title, String content, int msgtype,
-             String othersideid,String chattype) {
+     public static void notice(String title, String content, int msgType,
+             String otherSideId,String chatType) {
          try{
              // 定义NotificationManager
-             NotificationManager mNotificationManager = (NotificationManager) appContext
+             NotificationManager mNotificationManager = (NotificationManager) context
                      .getSystemService(Context.NOTIFICATION_SERVICE);
              // 定义通知栏展现的内容信息
-             int icon = R.drawable.ic_launcher;
-             Bitmap bitmap = BitmapFactory.decodeResource(appContext.getResources(),
+             int icon = R.drawable.lyy_icon;
+             Bitmap bitmap = BitmapFactory.decodeResource(AppContext.getAppContext().getResources(),
                      icon);
-             CharSequence tickerText = "理约云";
+             CharSequence tickerText = "yun2win";
              long when = System.currentTimeMillis();
              CharSequence contentTitle = title;
              CharSequence contentText = content;
 
              Notification notification;
              Intent notificationIntent = null;
-             WHOSE=othersideid;
+             WHOSE=otherSideId;
 
 
              if (VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                 notification = (new NotificationCompat.Builder(appContext)
+                 notification = (new NotificationCompat.Builder(context)
                          .setContentText(contentText).setContentTitle(contentTitle).setLargeIcon(bitmap)).getNotification()
                          ;
                  notification.icon = icon;

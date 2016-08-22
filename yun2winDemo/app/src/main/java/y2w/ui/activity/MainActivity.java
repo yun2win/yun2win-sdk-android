@@ -53,6 +53,7 @@ import y2w.ui.fragment.ContactFragment;
 import y2w.ui.fragment.ConversationFragment;
 import y2w.ui.fragment.SettingFragment;
 
+import com.y2w.uikit.utils.StringUtil;
 import com.y2w.uikit.utils.ToastUtil;
 import com.yun2win.demo.R;
 
@@ -78,10 +79,13 @@ public class MainActivity extends FragmentActivity {
 		@Override
 		public void handleMessage(Message msg) {
 			super.handleMessage(msg);
-			if(msg.what==1){//更新
+			if(msg.what == 1){//更新
 					int num = (int) msg.obj;
 					unread =num;
 					adapter.notifyDataSetChanged();
+			}else if(msg.what == 2){//下载表情
+				List<Emoji> emojiList = (List<Emoji>) msg.obj;
+				emojiDownLoad(emojiList);
 			}
 		}
 	};
@@ -111,29 +115,10 @@ public class MainActivity extends FragmentActivity {
 		Users.getInstance().getCurrentUser().getEmojis().getRemote().getEmojiList(new Back.Result<List<Emoji>>() {
 			@Override
 			public void onSuccess(List<Emoji> emojiList) {
-				File file = new File(Config.CACHE_PATH_EMOJI+"base");
-				if(!file.exists()){
-					file.mkdirs();
-				}
-				for(int i = 0;i < emojiList.size();i++){
-					Emoji emoji = emojiList.get(i);
-					String emojiName = emoji.getEntity().getName()+".png";
-					File file1 = new File(file.getPath()+"/"+emojiName);
-					if(!file1.exists()) {
-						try {
-							AsyncMultiPartGet get = new AsyncMultiPartGet(Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_EMOJI_DownLoad + emoji.getEntity().getUrl(),Config.CACHE_PATH_EMOJI+"base/", emojiName);
-							get.execute();
-							if ((i + 1) % 5 == 0) {
-								try {
-									Thread.sleep(200);
-								} catch (InterruptedException e) {
-									e.printStackTrace();
-								}
-							}
-						}catch (Exception e){
-						}
-					}
-				}
+				Message msg = new Message();
+				msg.what = 2;
+				msg.obj = emojiList;
+				updatenumHandler.sendMessage(msg);
 			}
 
 			@Override
@@ -143,6 +128,36 @@ public class MainActivity extends FragmentActivity {
 		});
 		//toast初始化
 		ToastUtil.initToast(context);
+	}
+
+
+	private void emojiDownLoad(List<Emoji> emojiList){
+		if(emojiList == null || emojiList.size() < 1)
+			return;
+		File file = new File(Config.CACHE_PATH_EMOJI+"base");
+		if(!file.exists()){
+			file.mkdirs();
+		}
+		for(int i = 0;i < emojiList.size();i++) {
+			Emoji emoji = emojiList.get(i);
+			String emojiName = emoji.getEntity().getName() + ".png";
+			File file1 = new File(file.getPath() + "/" + emojiName);
+			if (!file1.exists()) {
+				try {
+					AsyncMultiPartGet get = new AsyncMultiPartGet(Users.getInstance().getCurrentUser().getToken(), Urls.User_Messages_EMOJI_DownLoad + emoji.getEntity().getUrl(), Config.CACHE_PATH_EMOJI + "base/", emojiName);
+					get.execute();
+					if ((i + 1) % 5 == 0) {
+						try {
+							Thread.sleep(200);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
    /*
    **更新消息数量
@@ -155,6 +170,7 @@ public class MainActivity extends FragmentActivity {
 	}
 	private void inittopMenu(){
 		imgbutton_search = (ImageButton) findViewById(R.id.right_search);
+		imgbutton_search.setVisibility(View.GONE);
 		getImgbutton_more = (ImageButton) findViewById(R.id.right_add);
 		imgbutton_search.setOnClickListener(controlsclick);
 		getImgbutton_more.setOnClickListener(controlsclick);
@@ -304,7 +320,8 @@ public class MainActivity extends FragmentActivity {
 				   getImgbutton_more.setVisibility(View.GONE);
 			   }
 			   else{
-				   imgbutton_search.setVisibility(View.VISIBLE);
+				   //imgbutton_search.setVisibility(View.VISIBLE);//搜索功能完善后，可见
+				   imgbutton_search.setVisibility(View.GONE);
 				   getImgbutton_more.setVisibility(View.VISIBLE);
 			   }
 			}else{
@@ -466,6 +483,7 @@ public class MainActivity extends FragmentActivity {
 	@Override
 	protected void onResume() {
 		super.onResume();
+
 	}
 
 	@Override

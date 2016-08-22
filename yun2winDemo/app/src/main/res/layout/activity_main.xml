@@ -72,9 +72,9 @@
             android:layout_height="@dimen/dp_49"
             android:descendantFocusability="blocksDescendants"
             android:background="@color/white"
-            android:listSelector="@android:color/transparent"
-            />
 
+            />
+       <!-- android:listSelector="@android:color/transparent"-->
     </LinearLayout>
 
     <RelativeLayout

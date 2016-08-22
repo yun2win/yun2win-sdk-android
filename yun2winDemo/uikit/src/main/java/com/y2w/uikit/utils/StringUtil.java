@@ -247,6 +247,12 @@ public class StringUtil {
      * @return
      */
     public static String getOPerTime(String sDate) {
+        if(StringUtil.isEmpty(sDate)){
+            return "";
+        }
+        if(sDate.length()==19){
+            return sDate;
+        }
         sDate = sDate.replace("Z", " UTC");//注意是空格+UTC
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");//注意格式化的表达式
         SimpleDateFormat target = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");//目标格式
@@ -735,4 +741,25 @@ public class StringUtil {
         }
         return fileSizeString;
     }
+
+    public static String getTopActivityName(Context context) {
+        if(context == null){
+            return "";
+        }
+        String topActivityClassName = null;
+        try {
+            ActivityManager activityManager = (ActivityManager) (context
+                    .getSystemService(android.content.Context.ACTIVITY_SERVICE));
+            List<ActivityManager.RunningTaskInfo> runningTaskInfos = activityManager
+                    .getRunningTasks(1);
+            if (runningTaskInfos != null) {
+                ComponentName f = runningTaskInfos.get(0).topActivity;
+                topActivityClassName = f.getClassName();
+            }
+        } catch (Exception e) {
+        }
+        return topActivityClassName;
+
+    }
+
 }

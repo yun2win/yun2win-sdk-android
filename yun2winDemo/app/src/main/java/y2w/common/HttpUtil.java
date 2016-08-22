@@ -26,7 +26,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 /**
- * Created by maa2 on 2016/1/20.
+ * Created by yangrongfang on 2016/1/20.
  */
 public class HttpUtil {
 

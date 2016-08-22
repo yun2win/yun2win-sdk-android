@@ -151,7 +151,7 @@ public class GroupListActivity extends Activity{
                 finish();
             }
         });
-        imageButtonright.setVisibility(View.VISIBLE);
+        imageButtonright.setVisibility(View.GONE);
         imageButtonSearch.setVisibility(View.GONE);
         imageButtonright.setImageResource(R.drawable.lyy_main_add);
         imageButtonright.setOnClickListener(new View.OnClickListener() {

@@ -183,7 +183,7 @@ public class GroupInfoActivity extends Activity{
             }
         });
 
-        gv_member_preview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+        /*gv_member_preview.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 if (EnumManage.GroupRole.master.toString().equals(mysessionMember.getEntity().getRole())) {
@@ -199,7 +199,7 @@ public class GroupInfoActivity extends Activity{
                 }
                 return false;
             }
-        });
+        });*/
         gv_member_preview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
