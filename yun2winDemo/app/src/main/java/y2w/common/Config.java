@@ -7,7 +7,6 @@ import android.os.Environment;
  */
 public class Config {
     public static final String Host_Port = "http://112.74.210.208:8080";
-    //public static final String Host_Port = "http://im.yun2win.com";
     public static final String Token_Get = "http://console.yun2win.com/oauth/token";
     private static String PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
     public static final String CACHE_PATH_FILE = PATH + "/y2w/file/";
