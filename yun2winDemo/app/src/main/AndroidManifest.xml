@@ -1,18 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.yun2win.demo" >
+    package="com.yun2win.demo">
 
-
-    <uses-feature android:name="android.hardware.camera"/>
-    <uses-feature android:name="android.hardware.camera.autofocus"/>
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
     <uses-feature
         android:glEsVersion="0x00020000"
-        android:required="true"
-        />
+        android:required="true" />
+
+    <uses-permission android:name="android.permission.AUTHENTICATE_ACCOUNTS" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
     <uses-permission android:name="android.permission.READ_LOGS" />
+    <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="com.android.alarm.permission.SET_ALARM" />
     <uses-permission android:name="com.google.android.apps.photos.permission.GOOGLE_PHOTOS" />
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS" />
@@ -33,11 +35,10 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.WRITE_CONTACTS" />
     <uses-permission android:name="android.permission.GET_TASKS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.DEVICE_POWER" />
-    <uses-permission android:name="android.permission.WRITE_APN_SETTINGS" />
     <uses-permission android:name="android.permission.INSTALL_SHORTCUT" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_SETTINGS" />
@@ -49,15 +50,13 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <uses-permission android:name="android.permission.FLASHLIGHT" />
-    <uses-permission android:name="android.permission.DELETE_PACKAGES" />
 
     <!-- Frontia框架的公共权限 -->
     <uses-permission android:name="android.permission.ACCESS_DOWNLOAD_MANAGER" />
     <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION" />
 
     <!-- FrontiaPush 和FrontiaStatistics 需要的权限 -->
-    <uses-permission android:name="android.permission.WRITE_SETTINGS" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS" />
 
     <!-- FrontiaPush 需要的权限 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -65,29 +64,28 @@
     <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
     <!-- 可选的权限 -->
     <!-- 使用GPS获取用户精确定位信息 -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" >
-    </uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="com.android.email.permission.ACCESS_PROVIDER" />
     <uses-permission android:name="com.android.email.permission.READ_ATTACHMENT" />
-
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
     <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
-    <uses-permission android:name="android.permission.RAISED_THREAD_PRIORITY"/>
-
+    <uses-permission android:name="android.permission.RAISED_THREAD_PRIORITY" />
 
     <application
         android:name="y2w.base.AppContext"
         android:allowBackup="true"
         android:icon="@drawable/lyy_icon"
         android:label="@string/app_name"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="YUN2WIN_APP_KEY"
-            android:value="CerAgk970T8MlUmz" /> <!-- 您自己的App Key -->
+            android:value="CerAgk970T8MlUmz" />
+        <!-- 您自己的App Key -->
         <meta-data
             android:name="com.amap.api.v2.apikey"
-            android:value="6afc1282af86d10a0992ceff0737fcd3" /> <!-- 高德地图 Key -->
+            android:value="6afc1282af86d10a0992ceff0737fcd3" />
+        <!-- 高德地图 Key -->
 
 
         <!-- 配置APP ID -->
@@ -102,29 +100,25 @@
         <meta-data
             android:name="BUGLY_APP_CHANNEL"
             android:value="yingyongbao" />
-        <!-- 配置Bugly调试模式（true或者false）-->
+        <!-- 配置Bugly调试模式（true或者false） -->
         <meta-data
             android:name="BUGLY_ENABLE_DEBUG"
             android:value="false" />
 
-
-
         <!-- 定位需要的服务 -->
-        <service android:name="com.amap.api.location.APSService" >
-        </service>
+        <service android:name="com.amap.api.location.APSService" />
         <!-- 主界面 -->
         <activity
             android:name="y2w.ui.activity.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan" >
-        </activity>
+            android:windowSoftInputMode="adjustPan" />
 
         <!-- 开屏页 -->
         <activity
             android:name="y2w.ui.activity.SplashActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/horizontal_slide" >
+            android:theme="@style/horizontal_slide">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -137,138 +131,245 @@
             android:name="y2w.ui.activity.LoginActivity"
             android:screenOrientation="portrait"
             android:theme="@style/horizontal_slide"
-            android:windowSoftInputMode="stateVisible" >
-        </activity>
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="stateVisible" />
 
         <!-- 注册界面 -->
         <activity
             android:name="y2w.ui.activity.RegisterActivity"
             android:screenOrientation="portrait"
             android:theme="@style/horizontal_slide"
-            android:windowSoftInputMode="stateVisible" >
-        </activity>
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
 
         <!-- 添加好友 -->
         <activity
             android:name="y2w.ui.activity.AddContactActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
-        </activity>
+            android:windowSoftInputMode="adjustResize|stateVisible" />
 
-        <!-- 聊天界面 -->
+        <!-- 交流界面 -->
         <activity
             android:name="y2w.ui.activity.ChatActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize|stateVisible" >
+            android:windowSoftInputMode="adjustResize|stateVisible" />
+        <!-- 转发界面 -->
+        <activity
+            android:name="y2w.ui.activity.ChooseSessionActivity"
+            android:screenOrientation="portrait" >
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
         </activity>
+        <!-- @选人界面 -->
+        <activity
+            android:name="y2w.ui.activity.ChooseAnswerActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateVisible" />
         <!-- 群列表界面 -->
         <activity
             android:name="y2w.ui.activity.GroupListActivity"
-            android:screenOrientation="portrait" >
-        </activity>
+            android:screenOrientation="portrait" />
         <!-- 通讯录用户基本信息界面 -->
         <activity
             android:name="y2w.ui.activity.ContactInfoActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
         <!-- 群信息界面 -->
         <activity
             android:name="y2w.ui.activity.GroupInfoActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
         <!-- 发起群聊界面 -->
         <activity
             android:name="y2w.ui.activity.SessionStartActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
+        <!-- 选择联系人 -->
+        <activity
+            android:name="y2w.ui.activity.SelectContactActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden"></activity>
+        <!-- 选择有数据源的人员选择 -->
+        <activity
+            android:name="y2w.ui.activity.SelectSoucePersonActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden"></activity>
 
         <!-- 图片发送选择界面 -->
         <activity
             android:name="y2w.ui.activity.ImageSendChooseActivity"
-            android:screenOrientation="portrait">
-        </activity>
-    <!--android:theme="@android:style/Theme.Translucent.NoTitleBar" >-->
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="y2w.ui.activity.SingleImageActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="y2w.ui.activity.MoreImageBrowseActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity
+            android:name="y2w.ui.activity.ReadMessageActivity"
+            android:screenOrientation="portrait"></activity>
+        <!-- android:theme="@android:style/Theme.Translucent.NoTitleBar" > -->
+        <activity
+            android:name="y2w.ui.activity.WebLogActivity"
+            android:screenOrientation="portrait"></activity>
 
         <!-- 小视频录制界面 -->
         <activity
             android:name="y2w.ui.activity.MovieRecorderActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
         <!-- 文件选择界面 -->
         <activity
             android:name="y2w.ui.activity.StoreageFileSelectActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
         <!-- 地理位置界面 -->
         <activity
             android:name="y2w.ui.activity.LocationActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
 
         <!-- 群名称修改界面 -->
         <activity
             android:name="y2w.ui.activity.GroupNameActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
         <activity
             android:name="y2w.ui.activity.SearchActivity"
-            android:screenOrientation="portrait" >
-        </activity>
-
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="y2w.ui.activity.SearchMoreActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name="y2w.ui.activity.SearchMessageActivity"
+            android:screenOrientation="portrait" />
         <!-- 群成员界面 -->
         <activity
             android:name="y2w.ui.activity.GroupMemberActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
 
-        <!-- 音视频界面 -->
         <activity
-            android:name="y2w.ui.activity.AVCallActivity"
-            android:screenOrientation="portrait"
+            android:name="y2w.ui.activity.AVCallP2PActivity"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
+        <activity
+            android:name="y2w.ui.activity.AVCallGroupActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
 
         <!-- 音视频选择群成员界面 -->
         <activity
             android:name="y2w.ui.activity.AVMemberSelectActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
-
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
 
         <!-- 白板界面 -->
         <activity
             android:name="y2w.ui.widget.whiteboard.WhiteBoardActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
 
         <!-- 白板文件选择界面 -->
         <activity
             android:name="y2w.ui.widget.whiteboard.MultiImageSelectorActivity"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
 
         <!-- 网页打开界面 -->
         <activity
             android:name="y2w.ui.activity.WebViewActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" >
-        </activity>
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
+        <activity
+            android:name="y2w.ui.activity.StrongWebViewActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden"></activity>
 
+        <!-- 图片消息浏览界面 -->
+        <activity
+            android:name="y2w.ui.activity.ImageBrowseActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
+
+        <!-- 头像上传界面 -->
+        <activity
+            android:name="y2w.ui.activity.HeadSculptureActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
+
+        <!-- 个人信息修改界面 -->
+        <activity
+            android:name="y2w.ui.activity.PersonalInfoModifyActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateUnchanged|stateHidden" />
+        <!-- 一个像素的界面 -->
+        <activity
+            android:name="y2w.ui.activity.ScreenActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize|navigation|keyboard"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:finishOnTaskLaunch="false"
+            android:launchMode="singleInstance"
+            android:theme="@style/ScreenActivityStyle" />
+        <!-- 系统广播拉活 -->
+        <receiver
+            android:name="y2w.receiver.WakeReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.USER_PRESENT" />
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+                <action android:name="android.intent.action.MEDIA_MOUNTED" />
+                <action android:name="android.intent.action.MEDIA_UNMOUNTED" />
+                <action android:name="android.net.wifi.RSSI_CHANGED" />
+                <action android:name="android.net.wifi.STATE_CHANGE" />
+                <action android:name="android.net.wifi.WIFI_STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name="y2w.base.PushService"
+            android:enabled="true"
+            android:label="PushService"
+            android:persistent="true"
+            android:priority="1000" />
+        <service
+            android:name="y2w.service.FloatService"
+            android:enabled="true"
+            android:exported="true" />
+        <!-- 帐号同步 -->
+        <service
+            android:name="y2w.Account.AuthenticationService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accounts.AccountAuthenticator" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accounts.AccountAuthenticator"
+                android:resource="@xml/authenticator" />
+        </service>
+        <service
+            android:name="y2w.Account.SyncService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.content.SyncAdapter" />
+            </intent-filter>
+            <meta-data
+                android:name="android.content.SyncAdapter"
+                android:resource="@xml/syncadapter" />
+        </service>
+        <service
+            android:name="y2w.service.AotoLoginService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>

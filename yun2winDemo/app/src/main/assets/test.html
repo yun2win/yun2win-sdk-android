@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body style="padding: 0; margin: 0;">
+<div style="height: 100px; background: #c00; color:#fff; padding: 20px;">
+    <span id="bt11" onclick="getmyuser()">
+     获取个人信息
+    </span>
+    <span id="bt22" onclick="getfiles()">
+     获取文件
+    </span>
+    <span id="bt33" onclick="getcameras()">
+    拍照
+    </span>
+    <span id="bt44" onclick="getlocloction()">
+    获取位置
+    </span>
+     <span id="bt55" onclick="getchoosedate()">
+     选择日期
+    </span>
+    <span id="bt66" onclick="openNew()">
+     跳到下一页
+    </span>
+    <span id="bt77" onclick="setData()">
+     请求本地存储
+    </span>
+      <span id="bt88" onclick="syncData()">
+     同步会话联系人群组
+    </span>
+     <span id="bt99" onclick="select()">
+     选择使用人
+    </span>
+    <span id="bt1010" onclick="chooseImage()">
+     选择图片
+    </span>
+     <span id="bt1111" onclick="openImage()">
+     打开图片
+    </span>
+ <span id="bt1212" onclick="changeUrl()">
+     内部打开新页面
+    </span>
+ <span id="bt1313" onclick="selectContact()">
+     选择联系人
+    </span>
+ <span id="bt1414" onclick="downloadFile()">
+    下载文件
+    </span>
+     <span id="bt1515" onclick="setData()">
+    存数据
+    </span>
+     <span id="bt1616" onclick="getData()">
+    取数据
+    </span>
+    <a href="http://www.w3school.com.cn">W3School</a>
+</div>
+<div id="u"></div>
+<div id="btn"></div>
+
+<script type="text/javascript" src="js/actionConnect.js" ></script>
+<script type="text/javascript" language="javascript">
+        var host={
+            alert:function(msg,cb){
+                console.log(msg);
+            },
+            onMenuClick:function(data,cb){
+                console.log(data);
+                document.getElementById('btn').innerHTML=JSON.stringify(data);
+            }
+        };
+
+        var connect=new ActionConnect(host,androidmethods);
+        connect.ready(function(){
+
+            connect.changeTitle("是的,没错",function(error,obj){
+                console.log('back...success');
+            });
+            connect.changeToolbarColor("#22C0C1","#a00","#fff",function(error,obj){
+                console.log('color back...success');
+            });
+            connect.setMenus([
+                {name:'获取个人信息',type:'text',id:1}
+            ],function(error,obj){
+                console.log("set menus back");
+            });
+            setTimeout(function () {
+    connect.didShow(function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+    }, 1000);
+        });
+      function getmyuser(){
+        connect.getCurrentUser(function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+
+        function getfiles(){
+        connect.chooseFile(function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+          function getcameras(){
+           connect.getCamera(function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+          function getlocloction(){
+           connect.getLocation(function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+         function getchoosedate(){
+          connect.chooseDate(true,"2001-02-03 11:22",function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+
+       function openNew(){
+          connect.openNew("https:www.baidu.com",function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+   function chooseImage(){
+          connect.chooseImage(function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+         function openImage(){
+          connect.openImage({ index: 0, list: [{ url:'http://cn.agora.io/wp-content/themes/kyma-child/images/icon_search.png', thumbnailUrl:'http://cn.agora.io/wp-content/themes/kyma-child/images/icon_search.png' },
+          { url:'http://cn.agora.io/wp-content/themes/kyma-child/images/icon_search.png', thumbnailUrl:'http://cn.agora.io/wp-content/themes/kyma-child/images/icon_search.png' }] },function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+
+     function setData(){
+          connect.setData("1111","大家好啊",function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+
+function syncData(){
+          connect.syncData([{type:0}],function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+
+        var opts = { mode: 'multiple',
+                        selected: [ 'kfb', 'zs', 'ls' ],
+                        avatar: false,
+                        title: '选择人员',
+                        folder: true,
+                        dataSource: [
+                            {
+                                id: 'kfb',
+                                avatarUrl: '',
+                                name: '开发部',
+                                folder: true,
+                                children: [
+                                    {
+                                        id: 'kfyb',
+                                        avatarUrl: '',
+                                        name: '开发一部',
+                                        folder: true,
+                                        children: [
+                                            {
+                                                id: 'zl',
+                                                avatarUrl: '',
+                                                name: '赵六'
+                                            },
+                                            {
+                                                id: 'xq',
+                                                avatarUrl: '',
+                                                name: '徐七'
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        id: 'ls',
+                                        avatarUrl: '',
+                                        name: '李四'
+                                    },
+                                    {
+                                        id: 'ww',
+                                        avatarUrl: '',
+                                        name: '王五'
+                                    }
+                                ]
+                            },
+                            {
+                                id: 'zs',
+                                avatarUrl: '',
+                                name: '张三'
+                            },
+                            {
+                                id: 'ls',
+                                avatarUrl: '',
+                                name: '李四'
+                            },
+                            {
+                                id: 'ww',
+                                avatarUrl: '',
+                                name: '王五'
+                            }
+                        ]
+                    };
+function select(){
+          connect.select(opts,function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+
+
+       function changeUrl(){
+          connect.changeUrl("http://blog.csdn.net/beyond0525/article/details/9374301",function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+   var opts11 = { mode: 'multiple',
+                        selected: [ 'kfb', 'zs', 'ls' ],
+                        avatar: false,
+                        title: '选择人员',
+                        folder: false
+                    };
+   function selectContact(){
+          connect.selectContact(opts11,function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+
+ function downloadFile(){
+          connect.downloadFile("http://cn.agora.io/wp-content/themes/kyma-child/images/icon_search.png","icon_search","png",function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+        var messssss ="000000000000";
+        function setData(){
+          connect.setData("11111111111111111",messssss,function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+    function getData(){
+          connect.getData("11111111111111111",function(error,obj){
+               document.getElementById('btn').innerHTML=JSON.stringify(obj);
+            });
+      }
+
+
+
+    </script>
+</body>
+</html>
