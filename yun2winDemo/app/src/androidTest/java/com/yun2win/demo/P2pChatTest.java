@@ -147,7 +147,7 @@ public class P2pChatTest extends InstrumentationTestCase {
         });
         signal.await();
 
-        //A 获取与B聊天的Session，先从本地获取，本地没有服务器获取，获取成功后保存本地
+        //A 获取与B交流的Session，先从本地获取，本地没有服务器获取，获取成功后保存本地
         signal = new CountDownLatch(1);
         contactB.getSession(new Back.Result<Session>() {
             @Override
@@ -167,18 +167,18 @@ public class P2pChatTest extends InstrumentationTestCase {
         signal = new CountDownLatch(1);
         msgA = sessionA.getMessages().createMessage("你好", MessageType.Text);
         sessionA.getMessages().getRemote().store(msgA, new Back.Result<MessageModel>() {
-            @Override
-            public void onSuccess(MessageModel model) {
-                msgA = model;
-                signal.countDown();
-            }
+                    @Override
+                    public void onSuccess(MessageModel model) {
+                        msgA = model;
+                        signal.countDown();
+                    }
 
-            @Override
-            public void onError(int errorCode,String error) {
-                assertNull(errorCode);
-                signal.countDown();
-            }
-        }
+                    @Override
+                    public void onError(int errorCode,String error) {
+                        assertNull(errorCode);
+                        signal.countDown();
+                    }
+                }
         );
         signal.await();
         //B 同步 useConversations,保存到数据库，再根据Session从数据库获取对应UserConversation,判断unread是否等于1
@@ -186,7 +186,7 @@ public class P2pChatTest extends InstrumentationTestCase {
         curB.getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
             @Override
             public void onSuccess(List<UserConversation> userConversations) {
-                userConB = curB.getUserConversations().get(curA.getEntity().getId());
+                userConB = curB.getUserConversations().get(curA.getEntity().getId(),"p2p");
                 if (userConB == null || userConB.getEntity().getUnread() == 1) {
                     assertEquals(1, 2);
                 }
@@ -200,7 +200,7 @@ public class P2pChatTest extends InstrumentationTestCase {
             }
         });
         signal.await();
-        //B 获取与A 聊天的session
+        //B 获取与A 交流的session
         signal = new CountDownLatch(1);
         userConB.getSession(new Back.Result<Session>() {
             @Override
@@ -217,20 +217,9 @@ public class P2pChatTest extends InstrumentationTestCase {
         });
         signal.await();
 
-        //B 同步 与 A聊天的最新消息,并保存本地
+        //B 同步 与 A交流的最新消息,并保存本地
         signal = new CountDownLatch(1);
-        sessionB.getMessages().getRemote().sync(true,"",20,new Back.Result<List<MessageModel>>() {
-            @Override
-            public void onSuccess(List<MessageModel> models) {
-                signal.countDown();
-            }
 
-            @Override
-            public void onError(int errorCode,String error) {
-                assertNull(errorCode);
-                signal.countDown();
-            }
-        });
 
         //B 给 A 回个消息
         signal = new CountDownLatch(1);
@@ -255,7 +244,7 @@ public class P2pChatTest extends InstrumentationTestCase {
         curA.getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
             @Override
             public void onSuccess(List<UserConversation> userConversations) {
-                userConA = curA.getUserConversations().get(curB.getEntity().getId());
+                userConA = curA.getUserConversations().get(curB.getEntity().getId(),"p2p");
                 //TODO 服务器返回unread为0，正常情况为userConA.getEntity().getUnread() ！= 1
                 if(userConA == null || userConA.getEntity().getUnread() == 1){
                     assertEquals(1, 2);
@@ -272,7 +261,7 @@ public class P2pChatTest extends InstrumentationTestCase {
         signal.await();
 
 
-        //A 同步 与 B聊天的最新消息,并保存本地
+        //A 同步 与 B交流的最新消息,并保存本地
        /* signal = new CountDownLatch(1);
         sessionA.getMessages().getRemote().sync(true,"",20,new Back.Result<List<MessageModel>>() {
             @Override

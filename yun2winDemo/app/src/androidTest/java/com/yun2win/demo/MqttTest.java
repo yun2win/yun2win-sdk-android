@@ -131,7 +131,7 @@ public class MqttTest extends InstrumentationTestCase {
         });
         signal.await();
 
-        //A 获取与B聊天的Session，先从本地获取，本地没有服务器获取，获取成功后保存本地
+        //A 获取与B交流的Session，先从本地获取，本地没有服务器获取，获取成功后保存本地
         signal = new CountDownLatch(1);
         contactB.getSession(new Back.Result<Session>() {
             @Override

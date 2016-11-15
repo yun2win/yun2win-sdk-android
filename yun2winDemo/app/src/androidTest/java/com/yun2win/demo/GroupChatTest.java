@@ -218,7 +218,7 @@ public class GroupChatTest extends InstrumentationTestCase {
         curB.getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
             @Override
             public void onSuccess(List<UserConversation> userConversations) {
-                userConB = curB.getUserConversations().get(sessionA.getEntity().getId());
+                userConB = curB.getUserConversations().get(sessionA.getEntity().getId(),sessionA.getEntity().getType());
                 if (userConB.getEntity() == null || userConB.getEntity().getUnread() == 1) {
                     assertEquals(1, 2);
                 }
@@ -290,18 +290,6 @@ public class GroupChatTest extends InstrumentationTestCase {
         });
 
         //A 根据session同步更新消息
-        sessionA.getMessages().getRemote().sync(true,"",20,new Back.Result<List<MessageModel>>() {
-            @Override
-            public void onSuccess(List<MessageModel> models) {
-                signal.countDown();
-            }
-
-            @Override
-            public void onError(int errorCode,String error) {
-                assertNull(errorCode);
-                signal.countDown();
-            }
-        });
 
 
         //B 根据session同步更新消息,查看A B最后一条消息id是否相同
