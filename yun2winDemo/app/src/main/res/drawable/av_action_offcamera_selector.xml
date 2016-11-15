@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--默认-->
+    <item
+        android:drawable="@drawable/av_action_offcamera_right" />
+    <!--按下时-->
+    <item android:state_pressed="true"
+        android:drawable="@drawable/av_action_offcamera_right_pressed" />
+    <!--被选择-->
+    <item android:state_selected="true"
+        android:state_pressed="false"
+        android:drawable="@drawable/av_action_offcamera_right_selected" />
+</selector>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<!-- 修改姓名  -->
+    <item android:state_enabled="false">
+        <shape android:shape="rectangle">
+            <stroke 
+                android:width="@dimen/dp_1" 
+                android:color="@color/border_line" />
+
+            <solid android:color="#e1e1e1" />
+
+            <corners android:radius="@dimen/dp_3" />
+
+            <padding 
+                android:bottom="@dimen/dp_5" 
+                android:left="@dimen/dp_5" 
+                android:right="@dimen/dp_5" 
+                android:top="@dimen/dp_5" />
+        </shape>
+    </item>
+    
+    <item android:state_focused="false">
+        <shape android:shape="rectangle">
+            <stroke 
+                android:width="@dimen/dp_1" 
+                android:color="@color/border_line" />
+
+            <solid android:color="@color/white" />
+
+            <corners android:radius="@dimen/dp_3" />
+
+            <padding 
+                android:bottom="@dimen/dp_5" 
+                android:left="@dimen/dp_5" 
+                android:right="@dimen/dp_5" 
+                android:top="@dimen/dp_5" />
+        </shape>
+    </item>
+    
+    <item android:state_focused="true">
+        <shape android:shape="rectangle">
+            <stroke 
+                android:width="@dimen/dp_1" 
+                android:color="@color/border_line" />
+
+            <solid android:color="@color/white" />
+
+            <corners android:radius="@dimen/dp_3" />
+
+            <padding 
+                android:bottom="@dimen/dp_5" 
+                android:left="@dimen/dp_5" 
+                android:right="@dimen/dp_5" 
+                android:top="@dimen/dp_5" />
+        </shape>
+    </item>
+    
+    
+
+</selector>
