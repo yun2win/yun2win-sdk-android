@@ -13,6 +13,8 @@ import com.yun2win.demo.R;
 
 import java.util.List;
 
+import y2w.base.AppContext;
+
 public class MessageAddAdapter extends BaseAdapter{
 
 
@@ -25,7 +27,11 @@ public class MessageAddAdapter extends BaseAdapter{
 	public MessageAddAdapter(Activity activity, Context context, List<String> _items){
 		this._activity = activity;
 		this._items=_items;
-		this.mInflater=LayoutInflater.from(context);
+		if(context!=null) {
+			this.mInflater = LayoutInflater.from(context);
+		}else{
+			this.mInflater = LayoutInflater.from(AppContext.getAppContext());
+		}
 	}
 
 	@Override
@@ -78,6 +84,8 @@ public class MessageAddAdapter extends BaseAdapter{
 			return R.drawable.message_add_voice_normal;
 		}else if("视频".equals(_items.get(arg0))){
 			return R.drawable.message_add_video_normal;
+		}else if("任务".equals(_items.get(arg0))){
+			return R.drawable.message_add_tast_normal;
 		}
 		return 0;
 	}

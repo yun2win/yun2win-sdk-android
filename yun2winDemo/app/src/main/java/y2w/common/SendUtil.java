@@ -4,7 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 
-import com.y2w.uikit.utils.ImageUtils;
+import com.y2w.uikit.utils.ImageUtil;
 
 import java.io.File;
 
@@ -27,15 +27,15 @@ public class SendUtil {
             String filename = file.getName();
             int lastIndex = filename.lastIndexOf(".");
             String tFileName = filename.substring(0, lastIndex) + ".jpg";
-            filePathTemp = Config.CACHE_PATH_IMAGE + "origin_" + tFileName;
+            filePathTemp = Config.DEFAULT_PATH_FILE + ".origin_" + tFileName;
             Bitmap originBitmap = BitmapFactory.decodeFile(filePath);
             if(originBitmap != null){
                 //确定保存目录存在
-                file = new File(Config.CACHE_PATH_IMAGE);
+                file = new File(Config.DEFAULT_PATH_FILE);
                 if(!file.exists()){
                     file.mkdirs();
                 }
-                ImageUtils.saveImageForSendMeg(filePathTemp, originBitmap, context);
+                ImageUtil.saveImageForSendMeg(filePathTemp, originBitmap, context);
             }
 
         } catch (Exception e) {
@@ -51,16 +51,16 @@ public class SendUtil {
             String fileName = file.getName();
             int lastIndex = fileName.lastIndexOf(".");
             String tFileName = fileName.substring(0, lastIndex) + ".jpg";
-            filePathTemp = Config.CACHE_PATH_IMAGE + "thumb_" + tFileName;
-            Bitmap thumbnail = ImageUtils.getImageThumbnail(filePath, IMAGE_MAX_LENGTH);
+            filePathTemp = Config.DEFAULT_PATH_FILE + ".thumb_" + tFileName;
+            Bitmap thumbnail = ImageUtil.getImageThumbnail(filePath, IMAGE_MAX_LENGTH);
             //保存缩略图
             if(thumbnail != null){
                 //确定保存目录存在
-                file = new File(Config.CACHE_PATH_IMAGE);
+                file = new File(Config.DEFAULT_PATH_FILE);
                 if(!file.exists()){
                     file.mkdirs();
                 }
-                ImageUtils.saveImageToSD(null, filePathTemp, thumbnail, 70);
+                ImageUtil.saveImageToSD(null, filePathTemp, thumbnail, 70);
             }
         } catch (Exception e) {
         }
@@ -75,16 +75,16 @@ public class SendUtil {
             String fileName = file.getName();
             int lastIndex = fileName.lastIndexOf(".");
             String tFileName = fileName.substring(0, lastIndex) + ".jpg";
-            filePathTemp = Config.CACHE_PATH_IMAGE + "thumb_" + tFileName;
-            Bitmap thumbnail = ImageUtils.getVideoThumbnail(filePath, IMAGE_MAX_LENGTH);
+            filePathTemp = Config.DEFAULT_PATH_FILE + ".thumb_" + tFileName;
+            Bitmap thumbnail = ImageUtil.getVideoThumbnail(filePath, IMAGE_MAX_LENGTH);
             //保存缩略图
             if(thumbnail != null){
                 //确定保存目录存在
-                file = new File(Config.CACHE_PATH_IMAGE);
+                file = new File(Config.DEFAULT_PATH_FILE);
                 if(!file.exists()){
                     file.mkdirs();
                 }
-                ImageUtils.saveImageToSD(null,filePathTemp, thumbnail, 70);
+                ImageUtil.saveImageToSD(null, filePathTemp, thumbnail, 70);
             }
         } catch (Exception e) {
         }

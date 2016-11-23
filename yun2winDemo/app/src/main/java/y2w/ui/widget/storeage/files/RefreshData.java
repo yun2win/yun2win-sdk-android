@@ -211,7 +211,7 @@ public class RefreshData {
 										.getColumnIndexOrThrow(Audio.Media.SIZE));
 						int num1 = countSum(path, '/');
 						File file = new File(path);
-						if (file != null && file.length() >= 100 * 1024) {
+						if (file != null && file.length() >= 5 * 1024) {
 							if (num1 <= 10) {
 								i++;
 								getFileItem(file, i, null, "music");
@@ -250,7 +250,7 @@ public class RefreshData {
 										.getColumnIndexOrThrow(Video.Media.SIZE));
 						int num1 = countSum(path, '/');
 						File file = new File(path);
-						if (file != null && file.length() >= 500 * 1024) {
+						if (file != null && file.length() >= 5 * 1024) {
 							if (num1 <= 10) {
 								i++;
 								getFileItem(file, i, null, "video");
@@ -286,24 +286,16 @@ public class RefreshData {
 						String path = cursor
 								.getString(cursor
 										.getColumnIndexOrThrow(Images.Media.DATA));
-						String displayName = cursor
-								.getString(cursor
-										.getColumnIndexOrThrow(Images.Media.DISPLAY_NAME));
-						String opername = cursor
-								.getString(cursor
-										.getColumnIndexOrThrow(Images.Media.BUCKET_DISPLAY_NAME));
-						String mimeType = cursor
-								.getString(cursor
-										.getColumnIndexOrThrow(Images.Media.MIME_TYPE));
-						long size = cursor
-								.getLong(cursor
-										.getColumnIndexOrThrow(Images.Media.SIZE));
+						String filename="";
+						int pos = path.lastIndexOf('/');
+						if (pos != -1) {
+							filename= path.substring(pos + 1);
+						}
 						int num1 = countSum(path, '/');
 						File file = new File(path);
-						if (file != null && file.length() >= 10 * 1024) {
+						if (file != null && file.length() >= 5 * 1024) {
 							if (num1 <= 10) {
-								int num2 = countSum(path, '.');
-								if (num2 == 1) {
+								if (!filename.startsWith(".")) {
 									getImgFileItem(file, newwork, "image");
 								}
 							}
@@ -323,12 +315,16 @@ public class RefreshData {
 						String opername = cursor1
 								.getString(cursor1
 										.getColumnIndexOrThrow(Images.Media.BUCKET_DISPLAY_NAME));
+						String filename="";
+						int pos = path.lastIndexOf('/');
+						if (pos != -1) {
+							filename= path.substring(pos + 1);
+						}
 						int num1 = countSum(path, '/');
 						File file = new File(path);
-						if (file != null && file.length() >= 10 * 1024) {
+						if (file != null && file.length() >= 5 * 1024) {
 							if (num1 <= 10) {
-								int num2 = countSum(path, '.');
-								if (num2 == 1) {
+								if (!filename.startsWith(".")) {
 									if (opername != null
 											&& !opername.startsWith("drawable")) {
 										getImgFileItem(file, opername, "image");
@@ -369,7 +365,7 @@ public class RefreshData {
 								.getLong(cursor
 										.getColumnIndexOrThrow(FileColumns.SIZE));
 						int num1 = countSum(path, '/');
-						if (num1 <= 10) {
+						if (num1 <= 20) {
 							i++;
 							getFileItem(new File(path), i, null, "oa");
 						}

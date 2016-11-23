@@ -15,23 +15,23 @@
          android:background="@android:drawable/presence_busy"
            android:visibility="gone" /><!-- android:background="@android:drawable/presence_busy" -->
 
-       <!--<TextView
-           android:id="@+id/tv_myside_message_text_time"
-           android:layout_width="@dimen/dp_42"
+       <TextView
+           android:id="@+id/tv_myside_message_text_read"
+           android:layout_width="@dimen/dp_55"
            android:layout_height="@dimen/dp_42"
            android:layout_marginRight="@dimen/dp_5"
            android:background="@drawable/button_transparent"
            android:gravity="right|center"
            android:textColor="#999999"
            android:textSize="@dimen/sp_10"
-           android:visibility="visible"/>-->
-    <ImageView
+           android:visibility="gone"/>
+
+    <ProgressBar
         android:id="@+id/iv_myside_message_text_loading"
         android:layout_width="@dimen/dp_20"
         android:layout_height="@dimen/dp_20"
         android:layout_marginRight="@dimen/dp_5"
         android:layout_marginTop="15dp"
-        android:background="@drawable/loading_small_white"
         android:gravity="right|center"
         android:textColor="#999999"
         android:textSize="@dimen/sp_10"

@@ -33,6 +33,16 @@
                     android:divider="@null" >
                 </ListView>
 
+                <TextView
+                    android:id="@+id/nocontact"
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="2"
+                    android:gravity="center"
+                    android:textSize="@dimen/sp_15"
+                    android:textColor="#999999"
+                    android:visibility="gone"
+                    android:text="您还没有任何联系人，赶紧去添加好友吧"/>
                 <LinearLayout
                     android:id="@+id/ll_iv"
                     android:layout_width="match_parent"

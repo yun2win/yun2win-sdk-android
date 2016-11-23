@@ -5,18 +5,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.y2w.uikit.utils.HeadTextBgProvider;
 import com.y2w.uikit.utils.StringUtil;
 import com.yun2win.demo.R;
 
 import java.util.List;
 
+import y2w.base.Urls;
+import y2w.common.HeadImageView;
 import y2w.entities.ContactEntity;
-import y2w.manage.EnumManage;
 
 /**
  * Created by maa2 on 2016/1/29.
@@ -80,7 +79,9 @@ public class ContactSearchAdapter extends BaseAdapter {
         holdView.tv_title.setText(entity.getName());
         holdView.tv_time.setVisibility(View.GONE);
         holdView.tv_content.setText("账号:"+entity.getEmail());
-        holdView.iv_header.loadBuddyAvatarbyurl(entity.getAvatarUrl(), R.drawable.default_person_icon);
+
+        holdView.iv_header.loadBuddyAvatarbyurl(entity.getAvatarUrl() , R.drawable.default_person_icon);
+
         holdView.tv_header.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(entity.getId())));
     }
 

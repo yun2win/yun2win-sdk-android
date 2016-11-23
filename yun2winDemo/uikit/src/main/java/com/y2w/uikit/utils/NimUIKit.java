@@ -68,12 +68,12 @@ public class NimUIKit {
     }
 
     *//**
-     * 打开一个聊天窗口，开始聊天
+     * 打开一个交流窗口，开始交流
      *
      * @param context       上下文
-     * @param id            聊天对象ID（用户帐号account或者群组ID）
+     * @param id            交流对象ID（用户帐号account或者群组ID）
      * @param sessionType   会话类型
-     * @param customization 定制化信息。针对不同的聊天对象，可提供不同的定制化。
+     * @param customization 定制化信息。针对不同的交流对象，可提供不同的定制化。
      *//*
     public static void startChatting(Context context, String id, SessionTypeEnum sessionType, SessionCustomization customization) {
         if (sessionType == SessionTypeEnum.P2P) {
@@ -84,12 +84,12 @@ public class NimUIKit {
     }
 
     *//**
-     * 打开一个聊天窗口（用于从聊天信息中创建群聊时，打开群聊）
+     * 打开一个交流窗口（用于从交流信息中创建群聊时，打开群聊）
      *
      * @param context       上下文
-     * @param id            聊天对象ID（用户帐号account或者群组ID）
+     * @param id            交流对象ID（用户帐号account或者群组ID）
      * @param sessionType   会话类型
-     * @param customization 定制化信息。针对不同的聊天对象，可提供不同的定制化。
+     * @param customization 定制化信息。针对不同的交流对象，可提供不同的定制化。
      * @param backToClass   返回的指定页面
      *//*
     public static void startChatting(Context context, String id, SessionTypeEnum sessionType, SessionCustomization customization,
@@ -185,7 +185,7 @@ public class NimUIKit {
     }
 
     *//**
-     * 获取聊天界面事件监听器
+     * 获取交流界面事件监听器
      *
      * @return
      *//*
@@ -194,7 +194,7 @@ public class NimUIKit {
     }
 
     *//**
-     * 设置聊天界面的事件监听器
+     * 设置交流界面的事件监听器
      *
      * @param sessionListener
      *//*

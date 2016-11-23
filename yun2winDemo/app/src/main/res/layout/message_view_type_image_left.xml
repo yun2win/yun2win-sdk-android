@@ -42,9 +42,9 @@
                      android:layout_width="wrap_content"
                      android:layout_height="wrap_content"
                      android:layout_centerInParent="true"
-                     android:background="@drawable/file_loading"
                      android:layout_marginLeft="@dimen/dp_10"
-                     android:scaleType="fitStart"
+                     android:scaleType="centerInside"
+                    android:background="#6ce5dc"
                      android:maxWidth="@dimen/dp_120"
                      android:maxHeight="@dimen/dp_160"
                      android:visibility="visible" />

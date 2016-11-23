@@ -6,20 +6,27 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.y2w.uikit.utils.StringUtil;
 import com.y2w.uikit.utils.ThreadPool;
+import com.y2w.uikit.utils.ToastUtil;
 import com.yun2win.demo.R;
 import com.yun2win.utils.LogUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import y2w.base.AppContext;
+import y2w.ui.activity.StrongWebViewActivity;
 import y2w.ui.dialog.Y2wDialog;
 import y2w.manage.Users;
 import y2w.base.AppData;
@@ -45,6 +52,23 @@ public class ConversationFragment extends Fragment{
     private static Context context;
 	private CallBackUpdate callBackUpdate;
 	private boolean isGetSession = false;
+	private LinearLayout ll_notice_net ;
+	private TextView tv_notice_net;
+	Handler mqttConnectHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg) {
+			super.handleMessage(msg);
+			if(msg.what==1){//没有网络
+				tv_notice_net.setText("网络不可用,检查设置");
+				ll_notice_net.setVisibility(View.VISIBLE);
+			}else if(msg.what==2){//连接中
+				tv_notice_net.setText("网络不给力,正在重连服务器..");
+				ll_notice_net.setVisibility(View.VISIBLE);
+			}else if(msg.what==3){//连接成功
+				ll_notice_net.setVisibility(View.GONE);
+			}
+		}
+	};
 	Handler updatesessionHandler= new Handler(){
 		@Override
 		public void handleMessage(Message msg) {
@@ -52,15 +76,34 @@ public class ConversationFragment extends Fragment{
 			if(msg.what ==0){
 				conversationAdapter.updateListView();
 			}else if(msg.what==1){//更新全部
-			ThreadPool.getThreadPool().executUI(new Runnable() {
-				@Override
-				public void run() {
-					conversations = Users.getInstance().getCurrentUser().getUserConversations().getUserConversations();
-					DataSaveModuel.getInstance().conversations = conversations;
-					conversationAdapter.setConversations(conversations);
-					updatesessionHandler.sendEmptyMessage(0);
-				}
-			});
+				ThreadPool.getThreadPool().executLow(new Runnable() {
+					@Override
+					public void run() {
+						List<UserConversation>  tempconversations = Users.getInstance().getCurrentUser().getUserConversations().getUserConversations();
+						List<UserConversation>  topconversations = new ArrayList<UserConversation>();
+						List<UserConversation>  bottomconversations = new ArrayList<UserConversation>();
+						if(tempconversations!=null&&tempconversations.size()>0){
+                             for(int i =0;i<tempconversations.size();i++){
+								if(tempconversations.get(i).getEntity().isTop()){
+									topconversations.add(tempconversations.get(i));
+								}else{
+									bottomconversations.add(tempconversations.get(i));
+								}
+							}
+							lv_conversation.setVisibility(View.VISIBLE);
+							noConversation.setVisibility(View.GONE);
+						}else{
+							lv_conversation.setVisibility(View.GONE);
+							noConversation.setVisibility(View.VISIBLE);
+							return;
+						}
+						conversations =topconversations;
+						conversations.addAll(bottomconversations);
+						DataSaveModuel.getInstance().conversations = conversations;
+						conversationAdapter.setConversations(conversations);
+						updatesessionHandler.sendEmptyMessage(0);
+					}
+				});
 			}else if(msg.what ==2){//添加一条
 				UserConversation conversation = (UserConversation) msg.obj;
 				 boolean find = false;
@@ -124,8 +167,9 @@ public class ConversationFragment extends Fragment{
 	       // type = args != null ? args.getString("type") : DEFAULT;
 	        View view = null;
 		    view = inflater.inflate(R.layout.fragment_conversation_list, container, false);
-		   conversaionInit(view);
+		    conversaionInit(view);
 		    addCallBackUpdate();
+		    Users.getInstance().getCurrentUser().getImBridges().setHandler(mqttConnectHandler);
 	        return view;
 	}
    private void addCallBackUpdate(){
@@ -137,45 +181,84 @@ public class ConversationFragment extends Fragment{
 	}
 
 	private ListView lv_conversation;
+	private TextView noConversation;
 	private ConversationAdapter conversationAdapter;
 	private List<UserConversation> conversations =new ArrayList<UserConversation>();
 	public void conversaionInit(View view){
+		ll_notice_net = (LinearLayout)view.findViewById(R.id.ll_notice_net);
+		tv_notice_net = (TextView) view.findViewById(R.id.tv_notice_net);
+		ll_notice_net.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				//跳转安卓系统设置界面
+				Intent intent =  new Intent(Settings.ACTION_SETTINGS);
+				startActivity(intent);
+			}
+		});
 		lv_conversation = (ListView) view.findViewById(R.id.lv_conversation);
-		conversationAdapter = new ConversationAdapter(context);
+		noConversation = (TextView) view.findViewById(R.id.noconversation);
+		conversationAdapter = new ConversationAdapter(activity,context);
 		lv_conversation.setAdapter(conversationAdapter);
 		callBackUpdate = new CallBackUpdate(updatesessionHandler);
+
+		Users.getInstance().getCurrentUser().getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
+			@Override
+			public void onSuccess(List<UserConversation> userConversationList) {
+				Users.getInstance().getCurrentUser().getUserConversations().add(userConversationList);
+				if(userConversationList!=null&&userConversationList.size()>0){
+					callBackUpdate.updateUI();
+				}
+			}
+
+			@Override
+			public void onError(int errorCode,String error) {
+
+			}
+		});
 
 		lv_conversation.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 			@Override
 			public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-				//ToastUtil.ToastMessage(context,"点了");
 				if (isGetSession) {
+					isGetSession = false;
 					return;
 				}
 				isGetSession = true;
 				if (conversations != null && conversations.size() > position){
 					final UserConversation userConversation = conversations.get(position);
-				   Users.getInstance().getCurrentUser().getSessions().getSessionByTargetId(userConversation.getEntity().getTargetId(), userConversation.getEntity().getType(), new Back.Result<Session>() {
-					@Override
-					public void onSuccess(final Session session) {
-						Intent intent = new Intent(context, ChatActivity.class);
-						Bundle bundle = new Bundle();
-						bundle.putString("sessionid", session.getEntity().getId());
-						bundle.putString("sessiontype", session.getEntity().getType());
-						bundle.putString("otheruserId", session.getEntity().getOtherSideId());
-						bundle.putString("name", userConversation.getEntity().getName());
-						intent.putExtras(bundle);
-						startActivity(intent);
+					if(userConversation.getEntity().getType().equals("app")){
 						isGetSession = false;
-						//ToastUtil.ToastMessage(context,"成功");
-					}
+						String url = userConversation.getEntity().getTargetId();
+						if(StringUtil.isEmpty(url) || !url.startsWith("http")) {
+							ToastUtil.ToastMessage(AppContext.getAppContext(),"参数不可用");
+						}else {
+							Intent intent = new Intent(context, StrongWebViewActivity.class);
+							intent.putExtra("webUrl", url);
+							activity.startActivity(intent);
+						}
+					}else{
+						Users.getInstance().getCurrentUser().getSessions().getSessionByTargetId(userConversation.getEntity().getTargetId(), userConversation.getEntity().getType(), new Back.Result<Session>() {
+							@Override
+							public void onSuccess(final Session session) {
+								Intent intent = new Intent(context, ChatActivity.class);
+								Bundle bundle = new Bundle();
+								bundle.putString("sessionid", session.getEntity().getId());
+								bundle.putString("sessiontype", session.getEntity().getType());
+								bundle.putString("otheruserId", session.getEntity().getOtherSideId());
+								bundle.putString("name", userConversation.getEntity().getName());
+								intent.putExtras(bundle);
+								activity.startActivityForResult(intent, MainActivity.MainResultCode.CODE_CONVERSATION_REFRESH);
+								isGetSession = false;
+								//ToastUtil.ToastMessage(context,"成功");
+							}
 
-					@Override
-					public void onError(int errorCode, String error) {
-						isGetSession = false;
-						//ToastUtil.ToastMessage(context,"失败");
+							@Override
+							public void onError(int errorCode, String error) {
+								isGetSession = false;
+								//ToastUtil.ToastMessage(context,"失败");
+							}
+						});
 					}
-					});
 		     	}else{
 					isGetSession = false;
 				}
@@ -189,7 +272,11 @@ public class ConversationFragment extends Fragment{
 					final UserConversation userConversation = conversations.get(position);
 					Y2wDialog dialog = new Y2wDialog(context);
 					dialog.addOption("删除");
-					dialog.addOption("置顶");
+					if(userConversation.getEntity().isTop()){
+						dialog.addOption("取消置顶");
+					}else {
+						dialog.addOption("置顶");
+					}
 					dialog.show();
 					dialog.setOnOptionClickListener(new Y2wDialog.onOptionClickListener() {
 						@Override
@@ -219,7 +306,7 @@ public class ConversationFragment extends Fragment{
 									}
 								});
 							}else if(position == 1){
-								userConversation.getEntity().setTop(true);
+								userConversation.getEntity().setTop(!userConversation.getEntity().isTop());
 								Users.getInstance().getCurrentUser().getUserConversations().getRemote().updateUserConversation(userConversation, new Back.Result<UserConversation>() {
 									@Override
 									public void onSuccess(UserConversation userConversation) {
@@ -251,7 +338,10 @@ public class ConversationFragment extends Fragment{
 		});
 	}
 
-
+	public void refreshAll(){
+		if(updatesessionHandler != null)
+		updatesessionHandler.sendEmptyMessage(1);
+	}
 
 	@Override
 	public void onDestroy() {
@@ -262,6 +352,9 @@ public class ConversationFragment extends Fragment{
 	@Override
 	public void onResume() {
 		super.onResume();
+		if(AppData.isRefreshConversation)
+			refreshAll();
+		AppData.isRefreshConversation = false;
 
 	}
 

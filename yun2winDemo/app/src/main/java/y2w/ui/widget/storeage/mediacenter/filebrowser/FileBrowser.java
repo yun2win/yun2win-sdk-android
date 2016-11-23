@@ -1216,8 +1216,8 @@ public class FileBrowser extends Browser {
 		String notiContent = mContext.getText(contentId).toString();
 		Notification notification = new Notification(moodId, notiContent,
 				System.currentTimeMillis());
-		notification.setLatestEventInfo(mContext, "理约云", notiContent,
-				makeMoodIntent());
+		/*notification.setLatestEventInfo(mContext, "理约云", notiContent,
+				makeMoodIntent());*/
 		nm.notify(R.layout.file_browser, notification);
 	}
 

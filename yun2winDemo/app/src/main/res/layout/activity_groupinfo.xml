@@ -3,6 +3,7 @@
     android:layout_height="fill_parent"
     android:background="#e3efef" >
     <LinearLayout
+        android:id="@+id/ll_group_info"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -10,14 +11,13 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="@dimen/dp_20"
             android:background="@color/white">
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/dp_10"
                 android:orientation="horizontal">
-                <com.y2w.uikit.customcontrols.imageview.HeadImageView
+                <y2w.common.HeadImageView
                     android:id="@+id/group_head_image"
                     android:layout_width="@dimen/avatar_size_default"
                     android:layout_height="@dimen/avatar_size_default"
@@ -81,7 +81,7 @@
                     android:paddingLeft="@dimen/dp_10"
                     android:paddingRight="@dimen/dp_10"
                     android:orientation="vertical">
-                    <com.y2w.uikit.customcontrols.imageview.HeadImageView
+                    <y2w.common.HeadImageView
                         android:id="@+id/add_membaer_image"
                         android:layout_width="@dimen/dp_35"
                         android:layout_height="@dimen/dp_35"
@@ -102,6 +102,64 @@
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rela_groupfiles"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_40"
+        android:background="@drawable/nim_semitransparency_selector"
+        android:layout_below="@+id/ll_group_info">
+
+        <TextView
+            android:id="@+id/tv_group_files"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#353535"
+            android:layout_centerVertical="true"
+            android:textSize="@dimen/sp_16"
+            android:singleLine="true"
+            android:text="群文件"/>
+        <ImageView
+            android:id="@+id/setting_item_indicator"
+            android:layout_width="wrap_content"
+            android:layout_height="44dip"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/empty"
+            android:scaleType="center"
+            android:src="@drawable/nim_arrow_right"/>
+
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/savecotactRe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_20"
+        android:background="@color/white"
+        android:layout_below="@+id/rela_groupfiles">
+
+        <TextView
+            android:id="@+id/tv_save_to_contacts"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#353535"
+            android:layout_centerVertical="true"
+            android:textSize="@dimen/sp_16"
+            android:singleLine="true"
+            android:text="保存到通讯录"/>
+
+        <com.y2w.uikit.customcontrols.view.SwitchButton
+            android:id="@+id/sb_to_contacts"
+            android:layout_width="@dimen/dp_60"
+            android:layout_height="@dimen/dp_35"
+            android:layout_alignParentRight="true"
+            android:layout_marginRight="@dimen/dp_20"
+            android:layout_centerVertical="true"
+            />
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="fill_parent"

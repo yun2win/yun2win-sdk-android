@@ -14,7 +14,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
@@ -23,38 +22,26 @@ import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.view.ViewTreeObserver;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.Animation.AnimationListener;
-import android.view.animation.AnimationSet;
-import android.view.animation.ScaleAnimation;
-import android.view.animation.TranslateAnimation;
 import android.webkit.MimeTypeMap;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.y2w.uikit.utils.ImagePool;
 
 import y2w.base.AppData;
+import y2w.entities.LocalFileEntity;
 import y2w.ui.activity.ChatActivity;
 import y2w.ui.adapter.SeletFileAdapter;
-import y2w.ui.widget.storeage.files.FileItemForOperation;
-import y2w.ui.widget.storeage.files.FileOperSet;
-import y2w.ui.widget.storeage.mediacenter.filebrowser.Browser.ItemLongClick;
 
 import com.y2w.uikit.utils.ToastUtil;
 import com.yun2win.demo.R;
 
-import java.io.File;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -380,14 +367,20 @@ public class StoreageFileSelectFragment extends Fragment {
 					if (AppData.getInstance().getFileItems().size() > 0
 							&& AppData.getInstance().getFileItems()
 							.size() <= 6) {
-						List<String> fileList = new ArrayList<String>();
-						for(FileItem item : AppData.getInstance().getFileItems()){
-							fileList.add(item.getFilePath());
+						ArrayList<LocalFileEntity> fileList = new ArrayList<LocalFileEntity>();
+						for(FileItem fileItem : AppData.getInstance().getFileItems()){
+							LocalFileEntity localFileEntity = new LocalFileEntity();
+							localFileEntity.setExtraName(fileItem.getExtraName());
+							localFileEntity.setFileName(fileItem.getFileName());
+							localFileEntity.setFilePath(fileItem.getFilePath());
+							localFileEntity.setFileSize(fileItem.getFileSize());
+							fileList.add(localFileEntity);
 						}
 						AppData.getInstance().getFileItems().clear();
 						Intent intent = new Intent();
-						intent.putStringArrayListExtra("result",
-								(ArrayList<String>) fileList);
+						Bundle bundle = new Bundle();
+						bundle.putSerializable("localFileEntity",fileList);
+						intent.putExtras(bundle);
 						activity.setResult(ChatActivity.ResultCode.CODE_FILE,intent);
 						activity.finish();
 					} else if (AppData.getInstance().getFileItems()

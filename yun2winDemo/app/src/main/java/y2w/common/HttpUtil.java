@@ -1,6 +1,8 @@
 package y2w.common;
 
 
+import com.y2w.uikit.utils.StringUtil;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -93,14 +95,28 @@ public class HttpUtil {
         HttpGet httpGet = null;
         String result = null;
         httpClient = new DefaultHttpClient();
-        httpGet = new HttpGet(url);
-        httpGet.addHeader("Authorization", Config.Token_Prefix+token);
+
         List<NameValuePair> list = new ArrayList<NameValuePair>();
         Iterator iterator = map.entrySet().iterator();
+        String paramet="";
         while(iterator.hasNext()){
             Map.Entry<String,String> elem = (Map.Entry<String, String>) iterator.next();
-            list.add(new BasicNameValuePair(elem.getKey(),elem.getValue()));
+            if(paramet.equals("")){
+                paramet = paramet +"?";
+            }else{
+                paramet = paramet +"&";
+            }
+            paramet = paramet+elem.getKey()+"="+elem.getValue();
         }
+        if(paramet.length()>0){
+            url = url+ paramet;
+        }
+
+        httpGet = new HttpGet(url);
+        if(!StringUtil.isEmpty(token)) {
+            httpGet.addHeader("Authorization", Config.Token_Prefix + token);
+        }
+
         HttpResponse response = httpClient.execute(httpGet);
         if(response != null){
             HttpEntity resEntity = response.getEntity();
@@ -119,15 +135,27 @@ public class HttpUtil {
         String result = null;
         try{
             httpClient = new DefaultHttpClient();
+
+            List<NameValuePair> list = new ArrayList<NameValuePair>();
+            Iterator iterator = map.entrySet().iterator();
+            String paramet="";
+            while(iterator.hasNext()){
+                Map.Entry<String,String> elem = (Map.Entry<String, String>) iterator.next();
+                if(paramet.equals("")){
+                    paramet = paramet +"?";
+                }else{
+                    paramet = paramet +"&";
+                }
+                paramet = paramet+elem.getKey()+"="+elem.getValue();
+            }
+            if(paramet.length()>0){
+                url = url+ paramet;
+            }
+
             httpGet = new HttpGet(url);
             httpGet.addHeader("Authorization", Config.Token_Prefix+token);
             httpGet.addHeader("Client-Sync-Time",updateAt);
-            List<NameValuePair> list = new ArrayList<NameValuePair>();
-            Iterator iterator = map.entrySet().iterator();
-            while(iterator.hasNext()){
-                Map.Entry<String,String> elem = (Map.Entry<String, String>) iterator.next();
-                list.add(new BasicNameValuePair(elem.getKey(),elem.getValue()));
-            }
+
             HttpResponse response = httpClient.execute(httpGet);
             if(response != null){
                 HttpEntity resEntity = response.getEntity();
@@ -146,18 +174,26 @@ public class HttpUtil {
         HttpDelete httpDelete = null;
         String result = null;
         httpClient = new DefaultHttpClient();
-        httpDelete = new HttpDelete(url);
-        httpDelete.addHeader("Authorization", Config.Token_Prefix+token);
+
         List<NameValuePair> list = new ArrayList<NameValuePair>();
         Iterator iterator = map.entrySet().iterator();
+        String paramet="";
         while(iterator.hasNext()){
             Map.Entry<String,String> elem = (Map.Entry<String, String>) iterator.next();
-            list.add(new BasicNameValuePair(elem.getKey(),elem.getValue()));
+            if(paramet.equals("")){
+                paramet = paramet +"?";
+            }else{
+                paramet = paramet +"&";
+            }
+            paramet = paramet+elem.getKey()+"="+elem.getValue();
         }
-       /* if(list.size() > 0){
-            UrlEncodedFormEntity entity = new UrlEncodedFormEntity(list,charset);
-            httpDelete.setEntity(entity);
-        }*/
+        if(paramet.length()>0){
+            url = url+ paramet;
+        }
+
+        httpDelete = new HttpDelete(url);
+        httpDelete.addHeader("Authorization", Config.Token_Prefix+token);
+
         HttpResponse response = httpClient.execute(httpDelete);
         if(response != null){
             HttpEntity resEntity = response.getEntity();

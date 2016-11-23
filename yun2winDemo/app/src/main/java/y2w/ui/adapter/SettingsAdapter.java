@@ -1,7 +1,10 @@
 package y2w.ui.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,14 +15,23 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.y2w.uikit.customcontrols.view.SwitchButton;
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
+import com.y2w.uikit.utils.HeadTextBgProvider;
+import com.y2w.uikit.utils.StringUtil;
 import com.yun2win.demo.R;
 
 import java.util.List;
 
+import y2w.base.AppContext;
+import y2w.base.Urls;
+import y2w.common.HeadImageView;
+import y2w.common.ImagePool;
+import y2w.manage.EnumManage;
 import y2w.manage.Users;
 import y2w.model.SettingTemplate;
 import y2w.model.SettingType;
+import y2w.ui.activity.HeadSculptureActivity;
+import y2w.ui.activity.MainActivity;
+import y2w.ui.activity.PersonalInfoModifyActivity;
 
 /**
  * Created by maa2 on 2016/1/22.
@@ -27,17 +39,17 @@ import y2w.model.SettingType;
 public class SettingsAdapter extends BaseAdapter{
 
     protected List<SettingTemplate> items;
+    protected Activity activity;
     protected Context context;
     private int layoutID;
     protected int itemHeight;
-
     private SwitchButton.OnChangedListener onchangeListener;
-
-    public SettingsAdapter(Context context,List<SettingTemplate> items) {
-        this(context, items,R.layout.setting_item_base);
+    public SettingsAdapter(Activity activity,Context context,List<SettingTemplate> items) {
+        this(activity,context, items,R.layout.setting_item_base);
     }
 
-    public SettingsAdapter(Context context,List<SettingTemplate> items, int layoutID) {
+    public SettingsAdapter(Activity activity,Context context,List<SettingTemplate> items, int layoutID) {
+        this.activity = activity;
         this.context = context;
         this.items = items;
         this.layoutID = layoutID;
@@ -57,6 +69,7 @@ public class SettingsAdapter extends BaseAdapter{
             viewHolder = new ViewHolder();
             viewHolder.root = convertView;
             viewHolder.headImageView = (HeadImageView) convertView.findViewById(R.id.head_image);
+            viewHolder.headTextView = (TextView) convertView.findViewById(R.id.tv_contact_header);
             viewHolder.relativeLayout = (RelativeLayout) convertView.findViewById(R.id.relativeLayout11);
             viewHolder.titleView = (TextView)  convertView.findViewById(R.id.title_label);
             viewHolder.detailView = (TextView) convertView.findViewById(R.id.detail_label);
@@ -93,15 +106,8 @@ public class SettingsAdapter extends BaseAdapter{
      * @param position
      */
     private void updateDefaultItem(ViewHolder viewHolder, SettingTemplate item, int position) {
-        ViewGroup.LayoutParams lp = viewHolder.root.getLayoutParams();
-        if(lp != null) {
-            if (itemHeight > 0) {
-                lp.height = itemHeight;
-            } else {
-                lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            }
-            viewHolder.root.setLayoutParams(lp);
-        }
+
+        viewHolder.relativeLayout.setVisibility(View.GONE);
         setTextView(viewHolder.titleView, item.getTitle());
         setTextView(viewHolder.detailView, item.getDetail());
     }
@@ -113,15 +119,8 @@ public class SettingsAdapter extends BaseAdapter{
      * @param position
      */
     private void updateFeatherItem(ViewHolder viewHolder, SettingTemplate item, int position) {
-        ViewGroup.LayoutParams lp = viewHolder.root.getLayoutParams();
-        if(lp != null) {
-            if (itemHeight > 0) {
-                lp.height = itemHeight;
-            } else {
-                lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-            }
-            viewHolder.root.setLayoutParams(lp);
-        }
+
+        viewHolder.relativeLayout.setVisibility(View.GONE);
         setTextView(viewHolder.titleView, item.getTitle());
         setTextView(viewHolder.detailView, item.getDetail());
         viewHolder.indicator.setImageResource(R.drawable.nim_arrow_right);
@@ -143,20 +142,30 @@ public class SettingsAdapter extends BaseAdapter{
      * @param viewHolder
      */
     private void updateHeadItem(ViewHolder viewHolder) {
-        ViewGroup.LayoutParams lp = viewHolder.root.getLayoutParams();
-        if(lp != null) {
-            lp.height = 200;
-            viewHolder.root.setLayoutParams(lp);
-        }
+
         viewHolder.relativeLayout.setVisibility(View.VISIBLE);
         viewHolder.headTitleView.setVisibility(View.VISIBLE);
         viewHolder.headTitleView.setText(Users.getInstance().getCurrentUser().getEntity().getName());
         viewHolder.headDetailView.setVisibility(View.VISIBLE);
         viewHolder.headDetailView.setText(String.format("帐号:%s", Users.getInstance().getCurrentUser().getEntity().getAccount()));
         viewHolder.titleView.setVisibility(View.GONE);
-        viewHolder.headImageView.loadBuddyAvatarbyurl(Users.getInstance().getCurrentUser().getEntity().getAvatarUrl(), R.drawable.setting_default_icon);
+
+        viewHolder.headImageView.loadBuddyAvatarbyurl(Users.getInstance().getCurrentUser().getEntity().getAvatarUrl(), R.drawable.default_person_icon);
+        viewHolder.headTextView.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(Users.getInstance().getCurrentUser().getEntity().getId())));
         viewHolder.indicator.setImageResource(R.drawable.nim_arrow_right);
         viewHolder.indicator.setVisibility(View.VISIBLE);
+        viewHolder.headImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent headSculpture1 = new Intent(context,
+                        HeadSculptureActivity.class);
+                Bundle bundle1 = new Bundle();
+                bundle1.putString("type", EnumManage.SessionType.p2p.toString());
+                headSculpture1.putExtras(bundle1);
+                activity.startActivityForResult(headSculpture1, MainActivity.MainResultCode.CODE_PERSON_INFO_CHANGE);
+
+            }
+        });
     }
 
     /**
@@ -165,7 +174,7 @@ public class SettingsAdapter extends BaseAdapter{
     private void updateSeperatorItem(ViewHolder viewHolder) {
         ViewGroup.LayoutParams lp = viewHolder.root.getLayoutParams();
         if(lp != null) {
-            lp.height = 60;
+            lp.height = dip2px(context, 20);
             viewHolder.root.setLayoutParams(lp);
             viewHolder.root.setBackgroundColor(Color.TRANSPARENT);
         }
@@ -182,7 +191,7 @@ public class SettingsAdapter extends BaseAdapter{
     private void addLineItem(ViewHolder viewHolder) {
         ViewGroup.LayoutParams lp = viewHolder.root.getLayoutParams();
         if(lp != null) {
-            lp.height = 2;
+           lp.height = dip2px(context, 1);
             viewHolder.root.setLayoutParams(lp);
         }
         viewHolder.relativeLayout.setVisibility(View.GONE);
@@ -205,6 +214,7 @@ public class SettingsAdapter extends BaseAdapter{
         if(textView == null || TextUtils.isEmpty(value)) {
             return;
         }
+
         if(textView.getVisibility() != View.VISIBLE) {
             textView.setVisibility(View.VISIBLE);
         }
@@ -238,6 +248,7 @@ public class SettingsAdapter extends BaseAdapter{
     private class ViewHolder {
         private View root;
         private HeadImageView headImageView;
+        private TextView headTextView;
         private RelativeLayout relativeLayout;
         private TextView titleView;
         private TextView detailView;
@@ -246,5 +257,9 @@ public class SettingsAdapter extends BaseAdapter{
         private ImageView indicator;
         private TextView headTitleView;
         private TextView headDetailView;
+    }
+    public static int dip2px(Context context, float dpValue) {
+        final float scale = context.getResources().getDisplayMetrics().density;
+        return (int) (dpValue * scale + 0.5f);
     }
 }

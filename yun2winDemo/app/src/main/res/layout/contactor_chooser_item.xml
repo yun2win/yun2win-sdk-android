@@ -25,7 +25,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1.0"
-        android:background="#fff"
+        android:background="@drawable/list_item_press_bg_change"
         android:paddingBottom="@dimen/dp_8"
         android:paddingRight="5dp"
         android:paddingTop="@dimen/dp_8" >
@@ -54,11 +54,11 @@
 	            android:layout_marginTop="@dimen/dp_2"
 	            android:background="@drawable/circle_name_3"
 	            android:gravity="center"
-	            android:text="刘"
+	            android:text=""
 	            android:textColor="#fff"
 	            android:textSize="@dimen/sp_18" />
 	
-	        <com.y2w.uikit.customcontrols.imageview.HeadImageView
+	        <y2w.common.HeadImageView
 	            android:id="@+id/hiv_image"
 	            android:layout_width="@dimen/dp_36"
 	            android:layout_height="@dimen/dp_36"
@@ -78,7 +78,17 @@
             android:gravity="center_vertical"
             android:textColor="#101010"
             android:textSize="@dimen/sp_16" />
-
+        <TextView
+            android:id="@+id/tv_sign"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_toRightOf="@+id/tv_name"
+            android:gravity="center_vertical"
+            android:textColor="#999999"
+            android:visibility="gone"
+            android:textSize="@dimen/sp_12" />
     </RelativeLayout>
 
     <View

@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.y2w.uikit.utils.HeadTextBgProvider;
 import com.yun2win.demo.R;
 
@@ -16,7 +15,8 @@ import java.util.List;
 import com.y2w.uikit.utils.StringUtil;
 import com.y2w.uikit.utils.pinyinutils.SortModel;
 
-import y2w.manage.EnumManage;
+import y2w.base.Urls;
+import y2w.common.HeadImageView;
 
 /**
  * Created by maa2 on 2016/1/22.
@@ -30,7 +30,9 @@ public class ContactAdapter extends BaseAdapter {
     }
 
     public void updateListView() {
-        notifyDataSetChanged();
+       try {
+           notifyDataSetChanged();
+       }catch (Exception e){}
     }
 
     public void setListViewdate(List<SortModel> list){
@@ -89,7 +91,8 @@ public class ContactAdapter extends BaseAdapter {
         }
 
         holdView.tv_name.setText(model.getName());
-        holdView.img_header.loadBuddyAvatarbyurl(model.getAvatarUrl(), R.drawable.default_person_icon);
+        holdView.img_header.loadBuddyAvatarbyurl(model.getAvatarUrl() , R.drawable.default_person_icon);
+
         holdView.tv_header.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(model.getUserId())));
         if(position==1){
             holdView.tv_chart.setVisibility(View.VISIBLE);

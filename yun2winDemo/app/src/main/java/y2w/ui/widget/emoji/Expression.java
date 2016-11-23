@@ -1,5 +1,6 @@
 package y2w.ui.widget.emoji;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +13,9 @@ import android.text.Editable;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ImageSpan;
+import android.util.DisplayMetrics;
+import android.view.Display;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -24,6 +28,7 @@ import java.util.Map;
 
 import y2w.base.AppContext;
 import y2w.common.Config;
+import y2w.common.Constants;
 import y2w.manage.Users;
 import y2w.model.Emoji;
 
@@ -39,6 +44,8 @@ public class Expression {
 	public static int WH_0 = 56;
 	public static int WH_1 = 80;
 	public static int WH_2 = 140;
+	public static int WH_3 = 280;
+	public static int WH_4 = 400;
 
 	public static class ExprMenu {
 		private String name;
@@ -93,6 +100,83 @@ public class Expression {
 			"喷嚏", "鼓掌", "鄙视", "惊", "抠鼻", "剪刀", "拳头", "布", "赞", "玫瑰", "电话",
 			"西瓜", "咖啡" };
 
+
+	/**
+	 * 获取表情显示大小
+	 * @param activity
+	 * @param type 会话：1；消息：2；
+	 * @return
+	 */
+	public static int getEmojiScale(Activity activity,int type){
+		int resolution = getPhoneResolution(activity);
+		int value = 0;
+		if(resolution <= 480){
+			if(type == 1){
+				value = WH_0/2;
+			}else if(type == 2){
+				value = WH_0;
+			}else{
+				value = WH_0/2;
+			}
+		}else if(resolution <= 960){
+			if(type == 1){
+				value = WH_1/2;
+			}else if(type == 2){
+				value = WH_1;
+			}else{
+				value = WH_1/2;
+			}
+		}else if(resolution <= 1280){
+			if(type == 1){
+				value = WH_1;
+			}else if(type == 2){
+				value = WH_2;
+			}else{
+				value = WH_1;
+			}
+
+		}else if(resolution <= 1920){
+			if(type == 1){
+				value = WH_2;
+			}else if(type == 2){
+				value = WH_3;
+			}else{
+				value = WH_2;
+			}
+		}else if(resolution <= 2560){
+			if(type == 1){
+				value = WH_3;
+			}else if(type == 2){
+				value = WH_4;
+			}else{
+				value = WH_3;
+			}
+		}else{
+			if(type == 1){
+				value = 400;
+			}else if(type == 2){
+				value = 600;
+			}else{
+				value = 400;
+			}
+		}
+		return value;
+	}
+
+	public static int getPhoneResolution(Activity activity){
+		if(activity == null){
+			return 0;
+		}
+
+		WindowManager windowManager = activity.getWindowManager();
+		Display display = windowManager.getDefaultDisplay();
+		int screenWidth = display.getWidth();
+		int screenHeight = display.getHeight();
+
+		return screenHeight;
+	}
+
+
 	/**
 	 * EditText or TextView 表情显示 某一控件显示,另一控件参数为null
 	 * 
@@ -112,18 +196,28 @@ public class Expression {
 				if (!StringUtil.isEmpty(expre[i])) {
 					int lastIndex = expre[i].indexOf("]");
 					if(lastIndex > 0){
-						String emojiName = expre[i].substring(0, lastIndex) + ".png" ;
+						String emojiName = expre[i].substring(0, lastIndex) + Constants.IMAGE_SUFFIXES_ENCRYPT ;
 						String filePath = Config.CACHE_PATH_EMOJI + "base/" + emojiName;
 						if (new File(filePath).exists()) {
 							ImageSpan span = new ImageSpan(getDiskBitmap(filePath, wh),
 									ImageSpan.ALIGN_BASELINE);
 							// 开始替换，注意第2和第3个参数表示从哪里开始替换到哪里替换结束（start和end）
 							// 最后一个参数类似数学中的集合,[5,12)表示从5到12，包括5但不包括12
-							spannable.setSpan(span, lengnum, lengnum + 4,
-									Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+							int length = spannable.length();
+							if(lengnum + 4 > length){
+								spannable.setSpan(span, lengnum, length,
+										Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+							}else{
+								spannable.setSpan(span, lengnum, lengnum + 4,
+										Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+							}
+
 						}
+						lengnum = lengnum + expre[i].length() + 1;
+					}else{
+						lengnum = lengnum + expre[i].length();
 					}
-					lengnum = lengnum + expre[i].length() + 1;
+
 				} else {
 					if (!StringUtil.isEmpty(expre[i])) {
 						if (i == 0) {
@@ -165,15 +259,19 @@ public class Expression {
 			if (text.endsWith(EMOJI_END)) {
 				int lastIndex = text.indexOf("]");
 				if(lastIndex > 0){
-					String emojiName = text.substring(1, lastIndex)+".png";
+					String emojiName = text.substring(1, lastIndex)+ Constants.IMAGE_SUFFIXES_ENCRYPT;
 					String filePath = Config.CACHE_PATH_EMOJI + "base/" + emojiName;
 					if (new File(filePath).exists()) {
 						ImageSpan span = new ImageSpan(getDiskBitmap(filePath, wh),
 								ImageSpan.ALIGN_BASELINE);
 						// 开始替换，注意第2和第3个参数表示从哪里开始替换到哪里替换结束（start和end）
 						// 最后一个参数类似数学中的集合,[5,12)表示从5到12，包括5但不包括12
-						spannable.setSpan(span, 0, 4,
-								Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+						try {
+							spannable.setSpan(span, 0, text.length(),
+									Spannable.SPAN_INCLUSIVE_EXCLUSIVE);
+						}catch (Exception e){
+
+						}
 						edit.insert(select, spannable);
 						editText.setSelection(select + text.length());
 					}

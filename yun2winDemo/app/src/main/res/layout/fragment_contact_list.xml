@@ -61,6 +61,16 @@
             android:layout_gravity="right|center"
             android:layout_marginBottom="10dp"
             android:layout_marginTop="10dp"/>
+
+        <TextView
+            android:id="@+id/nocontact"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center"
+            android:textSize="@dimen/sp_15"
+            android:textColor="#999999"
+            android:visibility="gone"
+            android:text="您还没有任何联系人\n赶快点击上方加号，添加好友"/>
     </FrameLayout>
 
 </RelativeLayout>

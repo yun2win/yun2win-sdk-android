@@ -169,7 +169,7 @@ public class MusicsAdapter extends BaseAdapter {
 					.showImageForEmptyUri(null).showImageOnFail(null)
 					.cacheInMemory(true).considerExifParams(true)
 					.bitmapConfig(Bitmap.Config.RGB_565).build();
-			getImageLoader().displayImage("file://" + fileItem.getFilePath(),
+			getImageLoader().displayImage("file://" + fileItem.getFilePath(),null,
 					iv, options);
 		} else if (iconId == R.drawable.file_video) {
 			int w = mScreenWidth / 5;

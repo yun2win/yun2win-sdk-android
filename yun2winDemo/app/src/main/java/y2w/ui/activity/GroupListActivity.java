@@ -33,8 +33,10 @@ import y2w.ui.adapter.GroupAdapter;
 public class GroupListActivity extends Activity{
     private Context context;
     private ListView lv_groups;
+    private TextView noGroups;
     private GroupAdapter groupAdapter;
     private List<UserSession> listgroups;
+
     Handler handUiupdate = new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -42,6 +44,13 @@ public class GroupListActivity extends Activity{
             if(msg.what==1){
                 if(groupAdapter == null)
                     return;
+                if(listgroups!=null&&listgroups.size()>0){
+                    lv_groups.setVisibility(View.VISIBLE);
+                    noGroups.setVisibility(View.GONE);
+                }else{
+                    lv_groups.setVisibility(View.GONE);
+                    noGroups.setVisibility(View.VISIBLE);
+                }
                 groupAdapter.updateListView(listgroups);
                 groupAdapter.notifyDataSetChanged();
             }
@@ -55,6 +64,7 @@ public class GroupListActivity extends Activity{
         context = this;
         initActionBar();
         lv_groups = (ListView) findViewById(R.id.lv_groups);
+        noGroups = (TextView) findViewById(R.id.nogroup);
         groupAdapter = new GroupAdapter(context);
         lv_groups.setAdapter(groupAdapter);
         lv_groups.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -76,7 +86,6 @@ public class GroupListActivity extends Activity{
                         bundle.putString("name", userSession.getEntity().getName());
                         intent.putExtras(bundle);
                         startActivity(intent);
-                        finish();
                     }
 
                     @Override

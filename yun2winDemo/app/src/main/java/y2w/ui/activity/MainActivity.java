@@ -13,12 +13,9 @@
  */
 package y2w.ui.activity;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,21 +38,30 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.y2w.uikit.utils.StringUtil;
+import com.y2w.uikit.utils.ToastUtil;
+import com.yun2win.demo.R;
+import com.yun2win.utils.Json;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
 import y2w.base.AppData;
 import y2w.base.Urls;
 import y2w.common.AsyncMultiPartGet;
 import y2w.common.Config;
+import y2w.common.Constants;
+import y2w.common.UpdateManager;
 import y2w.manage.Users;
 import y2w.model.Emoji;
+import y2w.receiver.WakeReceiver;
 import y2w.service.Back;
+import y2w.service.GrayService;
 import y2w.ui.adapter.FragmentAdapter;
 import y2w.ui.fragment.ContactFragment;
 import y2w.ui.fragment.ConversationFragment;
 import y2w.ui.fragment.SettingFragment;
-
-import com.y2w.uikit.utils.StringUtil;
-import com.y2w.uikit.utils.ToastUtil;
-import com.yun2win.demo.R;
 
 /**
  * Created by hejie on 2016/3/14.
@@ -75,6 +81,10 @@ public class MainActivity extends FragmentActivity {
 	private ControlsOnClick controlsclick;
 	private int unread =0;
 	private int index = -1;
+
+	public static MainActivity activity = null;
+	private WakeReceiver myReceiver;
+
 	Handler updatenumHandler= new Handler(){
 		@Override
 		public void handleMessage(Message msg) {
@@ -93,7 +103,9 @@ public class MainActivity extends FragmentActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		activity = this;
 		context = this;
+		UpdateManager.getUpdateManager().checkAppUpdate(this, false);//检测版本更新
 		AppData.getInstance().setMainActivity(this);
 		vp_pager = (ViewPager) findViewById(R.id.vp_stock);
 		gv_menu = (GridView) findViewById(R.id.gv_main_menu);
@@ -104,32 +116,83 @@ public class MainActivity extends FragmentActivity {
 		controlsclick =  new ControlsOnClick();
 		rl_menu_top.setOnClickListener(controlsclick);
 		context = this;
-		InitViewPager();
-		initMenu();
+		try {
+			InitViewPager();
+			initMenu();
+			getActionBar().hide();
+			inittopMenu();
+			Users.getInstance().getCurrentUser().getEmojis().getRemote().getEmojiList(new Back.Result<List<Emoji>>() {
+				@Override
+				public void onSuccess(List<Emoji> emojiList) {
+					Message msg = new Message();
+					msg.what = 2;
+					msg.obj = emojiList;
+					updatenumHandler.sendMessage(msg);
+				}
 
-		getActionBar().hide();
-        inittopMenu();
+				@Override
+				public void onError(int code, String error) {
 
-		//理约云消息通道服务器连接
-		Users.getInstance().getCurrentUser().getImBridges().connect();
-		Users.getInstance().getCurrentUser().getEmojis().getRemote().getEmojiList(new Back.Result<List<Emoji>>() {
-			@Override
-			public void onSuccess(List<Emoji> emojiList) {
-				Message msg = new Message();
-				msg.what = 2;
-				msg.obj = emojiList;
-				updatenumHandler.sendMessage(msg);
-			}
+				}
+			});
+			ToastUtil.initToast(context);
 
-			@Override
-			public void onError(int code, String error) {
+		}catch (Exception e){
+		}
 
-			}
-		});
-		//toast初始化
-		ToastUtil.initToast(context);
+		//利用系统漏洞，提升优先级，灰色保活手段（API < 18 和 API >= 18 两种情况）
+		Intent grayIntent = new Intent(getApplicationContext(), GrayService.class);
+		startService(grayIntent);
+		//1像素activity提升优先级
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(Intent.ACTION_SCREEN_OFF);
+		filter.addAction(Intent.ACTION_SCREEN_ON);
+		myReceiver = new WakeReceiver();
+		registerReceiver(myReceiver, filter);
+	/*	Intent intent = new Intent(this, AotoLoginService.class);
+		intent.putExtra("messenger", new Messenger(syncHandler));
+		startService(intent);*/
 	}
-
+    boolean resumefirst = true;
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if(resumefirst) {
+			resumefirst = false;
+			String skipActivity = getIntent().getStringExtra("skipActivity");
+			if (!StringUtil.isEmpty(skipActivity)) {
+				Json json = new Json(skipActivity);
+				String activitytype = json.getStr("activity");
+				Json jsonresult = json.get("result");
+				if (!StringUtil.isEmpty(activitytype)) {
+					if (activitytype.equals("chooseSessionActivity")) {
+						String context = jsonresult.getStr("context");
+						String type = jsonresult.getStr("type");
+						Intent intent = new Intent(this, ChooseSessionActivity.class);
+						Bundle bundle = new Bundle();
+						bundle.putString("type", "conversation");
+						bundle.putString("sharecontext", context);
+						bundle.putString("sharetype", type);
+						intent.putExtras(bundle);
+						startActivity(intent);
+					}else if(activitytype.equals("chatActivity")){
+						String sessionid = jsonresult.getStr("sessionid");
+						String sessiontype = jsonresult.getStr("sessiontype");
+						String otheruserId = jsonresult.getStr("otheruserId");
+						String name = jsonresult.getStr("name");
+						Intent intent = new Intent(this, ChatActivity.class);
+						Bundle bundle = new Bundle();
+						bundle.putString("sessionid", sessionid);
+						bundle.putString("sessiontype", sessiontype);
+						bundle.putString("otheruserId", otheruserId);
+						bundle.putString("name", name);
+						intent.putExtras(bundle);
+						startActivity(intent);
+					}
+				}
+			}
+		}
+	}
 
 	private void emojiDownLoad(List<Emoji> emojiList){
 		if(emojiList == null || emojiList.size() < 1)
@@ -140,7 +203,7 @@ public class MainActivity extends FragmentActivity {
 		}
 		for(int i = 0;i < emojiList.size();i++) {
 			Emoji emoji = emojiList.get(i);
-			String emojiName = emoji.getEntity().getName() + ".png";
+			String emojiName = emoji.getEntity().getName() + Constants.IMAGE_SUFFIXES_ENCRYPT;
 			File file1 = new File(file.getPath() + "/" + emojiName);
 			if (!file1.exists()) {
 				try {
@@ -170,20 +233,24 @@ public class MainActivity extends FragmentActivity {
 	}
 	private void inittopMenu(){
 		imgbutton_search = (ImageButton) findViewById(R.id.right_search);
-		imgbutton_search.setVisibility(View.GONE);
+		//imgbutton_search.setVisibility(View.GONE);
 		getImgbutton_more = (ImageButton) findViewById(R.id.right_add);
 		imgbutton_search.setOnClickListener(controlsclick);
 		getImgbutton_more.setOnClickListener(controlsclick);
 	}
 	private List<Fragment> fragmentList = new ArrayList<Fragment>();
+
+	ConversationFragment sessionFragment ;
+	ContactFragment contactFragment ;
+	SettingFragment settingFragment ;
 	public void InitViewPager(){
-		Fragment sessionFragment = ConversationFragment.newInstance(this, context);
-		Fragment contactFragment = ContactFragment.newInstance(this, context);
-		Fragment settingFragment = SettingFragment.newInstance(this,context);
+		sessionFragment = ConversationFragment.newInstance(this, context);
+		contactFragment = ContactFragment.newInstance(this, context);
+		settingFragment = SettingFragment.newInstance(this,context);
 		fragmentList.add(sessionFragment);
+
 		fragmentList.add(contactFragment);
 		fragmentList.add(settingFragment);
-
 		//给ViewPager设置适配器
 		vp_pager.setAdapter(new FragmentAdapter(this.getSupportFragmentManager(), fragmentList));
 		vp_pager.setCurrentItem(0);//设置当前显示标签页为第一页
@@ -223,21 +290,24 @@ public class MainActivity extends FragmentActivity {
 	private class MenuTopClick implements AdapterView.OnItemClickListener {
 
 		@Override
-		public void onItemClick(AdapterView<?> arg0, View arg1, int arg2,
+		public void onItemClick(AdapterView<?> arg0, View arg1, int position,
 								long arg3) {
-			if(getResources().getString(R.string.add_contact).equals(strings.get(arg2))){
-				startActivity(new Intent(context,AddContactActivity.class));
-				rl_menu_top.setVisibility(View.GONE);
-			}else if(getResources().getString(R.string.group_start).equals(strings.get(arg2))){
-				Intent intent = new Intent(context, SessionStartActivity.class);
-				Bundle bundle = new Bundle();
-				bundle.putBoolean("iscreate",true);
-				intent.putExtras(bundle);
-				startActivity(intent);
-				rl_menu_top.setVisibility(View.GONE);
-			}
+			int curentItem = vp_pager.getCurrentItem();
+			if (menus != null && menus.size() > curentItem){
+              String menusname = menus.get(curentItem).getName();
+				if (getResources().getString(R.string.add_contact).equals(strings.get(position))) {
+					startActivity(new Intent(context, AddContactActivity.class));
+					rl_menu_top.setVisibility(View.GONE);
+				} else if (getResources().getString(R.string.group_start).equals(strings.get(position))) {
+					Intent intent = new Intent(context, SessionStartActivity.class);
+					Bundle bundle = new Bundle();
+					bundle.putBoolean("iscreate", true);
+					intent.putExtras(bundle);
+					startActivity(intent);
+					rl_menu_top.setVisibility(View.GONE);
+				}
 		}
-
+		}
 	}
 
 
@@ -260,11 +330,21 @@ public class MainActivity extends FragmentActivity {
 		}
 	}
 	private void seachViewClick() {
-		//跳转搜索
-		Intent intent = new Intent();
-		intent.setClass(this,SearchActivity.class);
-		intent.putExtra("index",index+"");
-		startActivity(intent);
+
+		int curentItem = vp_pager.getCurrentItem();
+		if (menus != null && menus.size() > curentItem){
+			String menusname = menus.get(curentItem).getName();
+			if (menusname!=null&&menusname.equals(getResources().getString(R.string.menu_2))) {//工作
+				Intent intent = new Intent();
+				intent.setClass(this, WebLogActivity.class);
+				startActivity(intent);
+			}else{
+				Intent intent = new Intent();
+				intent.setClass(this,SearchActivity.class);
+				intent.putExtra("index",index+"");
+				startActivity(intent);
+			}
+		}
 	}
 	//界面下方主菜单初始化
 	private void initMenu(){
@@ -274,21 +354,22 @@ public class MainActivity extends FragmentActivity {
 		menu1.setChecked_IconId(R.drawable.lyy_mainchecked_session);
 		menu1.setNocheck_IconId(R.drawable.lyy_mainnochcke_session);
 		menu1.setCurrent(true);
-		MainMenu menu2 = new MainMenu();
-		menu2.setName(getResources().getString(R.string.menu_2));
-		menu2.setChecked_IconId(R.drawable.lyy_mainchecked_contacts);
-		menu2.setNocheck_IconId(R.drawable.lyy_mainnocheck_contacts);
-		menu2.setCurrent(false);
+
 		MainMenu menu3 = new MainMenu();
 		menu3.setName(getResources().getString(R.string.menu_3));
-		menu3.setChecked_IconId(R.drawable.lyy_mainchecked_setting);
-		menu3.setNocheck_IconId(R.drawable.lyy_mainnochcke_setting);
+		menu3.setChecked_IconId(R.drawable.lyy_mainchecked_contacts);
+		menu3.setNocheck_IconId(R.drawable.lyy_mainnocheck_contacts);
 		menu3.setCurrent(false);
+		MainMenu menu4 = new MainMenu();
+		menu4.setName(getResources().getString(R.string.menu_4));
+		menu4.setChecked_IconId(R.drawable.lyy_mainchecked_setting);
+		menu4.setNocheck_IconId(R.drawable.lyy_mainnochcke_setting);
+		menu4.setCurrent(false);
 
 		menus.add(menu1);
-		menus.add(menu2);
-		menus.add(menu3);
 
+		menus.add(menu3);
+		menus.add(menu4);
 		setMenuHorizontal();
 
 	}
@@ -315,14 +396,14 @@ public class MainActivity extends FragmentActivity {
 		for(int i=0;i<menus.size();i++){
 			if(i == index){
 				menus.get(index).setCurrent(true);
-               if(index==3) {
+				String menusname = menus.get(index).getName();
+               if(menusname!=null&&(menusname.equals(getResources().getString(R.string.menu_1)) || menusname.equals(getResources().getString(R.string.menu_3)))){//会话通讯录
+				   imgbutton_search.setVisibility(View.VISIBLE);
+				   getImgbutton_more.setVisibility(View.VISIBLE);
+			   }
+			 else{//设置
 				   imgbutton_search.setVisibility(View.GONE);
 				   getImgbutton_more.setVisibility(View.GONE);
-			   }
-			   else{
-				   //imgbutton_search.setVisibility(View.VISIBLE);//搜索功能完善后，可见
-				   imgbutton_search.setVisibility(View.GONE);
-				   getImgbutton_more.setVisibility(View.VISIBLE);
 			   }
 			}else{
 				menus.get(i).setCurrent(false);
@@ -330,17 +411,25 @@ public class MainActivity extends FragmentActivity {
 		}
 		adapter.notifyDataSetChanged();
 	}
+   public void setTopMenuDisPlay(){
 
+   }
 
 	private void menuTopDisplay(){
 		if(rl_menu_top.getVisibility() == View.VISIBLE){
 			rl_menu_top.setVisibility(View.GONE);
 		}else{
-			strings = new ArrayList<String>();
-			strings.add(getResources().getString(R.string.add_contact));
-			strings.add(getResources().getString(R.string.group_start));
-			rl_menu_top.setVisibility(View.VISIBLE);
-			lv_menu_top.setAdapter(new MenuTopAdapter());
+            int currentItem = vp_pager.getCurrentItem();
+			if(menus!=null&&menus.size()>currentItem){
+				String menusname = menus.get(currentItem).getName();
+
+					strings = new ArrayList<String>();
+					strings.add(getResources().getString(R.string.add_contact));
+					strings.add(getResources().getString(R.string.group_start));
+					rl_menu_top.setVisibility(View.VISIBLE);
+					lv_menu_top.setAdapter(new MenuTopAdapter());
+
+			}
 		}
 	}
 
@@ -481,14 +570,34 @@ public class MainActivity extends FragmentActivity {
 	}
 
 	@Override
-	protected void onResume() {
-		super.onResume();
-
+	public void onBackPressed() {
+		moveTaskToBack(false);
 	}
 
 	@Override
-	protected void onPause() {
-		super.onPause();
+	protected void onDestroy() {
+		super.onDestroy();
+		activity = null;
+		if(myReceiver!=null) {
+			unregisterReceiver(myReceiver);
+		}
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+			if (requestCode == MainResultCode.CODE_PERSON_INFO_CHANGE) { //头像修改
+				settingFragment.refreshAll();
+			}
+
+	}
+
+	public static class MainResultCode{
+		public static final int CODE_PERSON_INFO_CHANGE = 100;
+		public static final int CODE_CONVERSATION_REFRESH = 101;
+	}
+
+	public static class MainHandlerCode{
+		public static final int CODE_CONVERSATION_REFRESH = 100;
+	}
 }

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/dp_10" >
+
+    <EditText
+        android:id="@+id/edt_modify_personalinfo_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dp_35"
+        android:hint="姓名"
+        android:text=""
+        android:maxLength="20"
+        android:background="@drawable/bg_edittext_rounded_rectangle"
+        android:textSize="@dimen/sp_14"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/edt_modify_personalinfo_mail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dp_35"
+        android:hint="邮箱"
+        android:textSize="@dimen/sp_14"
+        android:text=""
+        android:maxLength="100"
+        android:background="@drawable/bg_edittext_rounded_rectangle"
+        android:inputType="textEmailAddress"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/edt_modify_personalinfo_phone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dp_35"
+        android:hint="手机号码"
+        android:textSize="@dimen/sp_14"
+        android:text=""
+        android:maxLength="20"
+        android:background="@drawable/bg_edittext_rounded_rectangle"
+        android:inputType="phone"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/edt_modify_personalinfo_old_pwd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dp_35"
+        android:hint="旧密码"
+        android:textSize="@dimen/sp_14"
+        android:text=""
+        android:background="@drawable/bg_edittext_rounded_rectangle"
+        android:inputType="textPassword"
+        android:visibility="gone" />
+
+    <EditText
+        android:id="@+id/edt_modify_personalinfo_new_pwd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dp_35"
+        android:layout_marginTop="@dimen/dp_10"
+        android:hint="新密码"
+        android:textSize="@dimen/sp_14"
+        android:text=""
+        android:background="@drawable/bg_edittext_rounded_rectangle"
+        android:inputType="textPassword"
+        android:visibility="gone" />
+    
+    <EditText
+        android:id="@+id/edt_modify_personalinfo_ensure_pwd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="@dimen/dp_35"
+        android:layout_marginTop="@dimen/dp_10"
+        android:hint="确认新密码"
+        android:textSize="@dimen/sp_14"
+        android:text=""
+        android:background="@drawable/bg_edittext_rounded_rectangle"
+        android:inputType="textPassword"
+        android:visibility="gone" />
+
+</LinearLayout>

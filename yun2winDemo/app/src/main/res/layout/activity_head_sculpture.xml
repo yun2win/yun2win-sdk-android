@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/lnl_head_sculpture_preview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#787878"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical|center_horizontal" >
+
+        <com.y2w.uikit.customcontrols.photoview.PhotoView
+            android:id="@+id/img_head_sculpture_preview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            />
+
+        <LinearLayout
+            android:id="@+id/lnl_head_sculpture_upload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:visibility="gone" >
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" >
+
+                <ImageView
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_150"
+                    android:src="@drawable/personal_center_head_frame" />
+
+                <ImageView
+                    android:id="@+id/img_head_sculpture_no"
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_150"
+                    android:padding="10dp"
+                    android:src="@drawable/new_my_page_head"/>
+            </FrameLayout>
+
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone" >
+
+                <ImageView
+                    android:id="@+id/rimg_head_sculpture_head"
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_150"
+                    android:src="@drawable/new_my_page_head" />
+
+                <ImageView
+                    android:layout_width="@dimen/dp_150"
+                    android:layout_height="@dimen/dp_150"
+                    android:background="@drawable/head_sculpture_mask"/>
+
+            </FrameLayout>
+
+            <Button
+                android:id="@+id/btn_head_sculpture_upload"
+                android:layout_width="@dimen/dp_150"
+                android:layout_height="@dimen/dp_50"
+                android:layout_marginTop="@dimen/dp_20"
+                android:background="@drawable/personal_center_head_frame"
+                android:text="新增头像"
+                android:textColor="#1cc09f"
+                android:textSize="@dimen/sp_18" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</LinearLayout>

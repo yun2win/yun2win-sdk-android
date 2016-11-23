@@ -1,6 +1,7 @@
 package y2w.db;
 
 import com.j256.ormlite.stmt.DeleteBuilder;
+import com.y2w.uikit.utils.StringUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,11 @@ public class UserSessionDb {
             }
         }
     }
+    public static void setisdelete(String myid,String id){
+        UserSessionEntity entity =queryByUserSessionId(myid,id);
+        entity.setIsDelete(true);
+        addUserSessionEntity(entity);
+    }
     public static void addUserSessionEntity(UserSessionEntity entity){
         if(entity != null){
             try{
@@ -33,6 +39,16 @@ public class UserSessionDb {
                 e.printStackTrace();
             }
         }
+    }
+    public static UserSessionEntity queryByUserSessionId(String myId, String userSessionId){
+        UserSessionEntity entity = null;
+        try {
+            entity = DaoManager.getInstance(AppContext.getAppContext()).dao_userSession.queryBuilder()
+                    .where()
+                    .eq("id", userSessionId).and().eq("myId", myId).queryForFirst();
+        } catch (Exception e) {
+        }
+        return entity;
     }
 
     public static UserSessionEntity queryBySessionId(String myId, String sessionId){
@@ -50,7 +66,7 @@ public class UserSessionDb {
     public static List<UserSessionEntity> query(String myId){
         List<UserSessionEntity> entities;
         try {
-            entities = DaoManager.getInstance(AppContext.getAppContext()).dao_userSession.queryBuilder().orderBy("updatedAt", false)
+            entities = DaoManager.getInstance(AppContext.getAppContext()).dao_userSession.queryBuilder().distinct().orderBy("updatedAt", false)
                     .where()
                     .eq("isDelete",false)
                     .and()

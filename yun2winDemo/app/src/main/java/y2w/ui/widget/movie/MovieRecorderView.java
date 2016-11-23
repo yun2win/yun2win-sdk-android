@@ -2,6 +2,7 @@ package y2w.ui.widget.movie;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,8 +27,10 @@ import android.view.SurfaceView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.y2w.uikit.utils.ToastUtil;
 import com.yun2win.demo.R;
 
+import y2w.base.AppContext;
 import y2w.common.Config;
 
 /**
@@ -65,8 +68,8 @@ public class MovieRecorderView extends LinearLayout implements MediaRecorder.OnE
 
         TypedArray a = context.obtainStyledAttributes(attrs,
                 R.styleable.MovieRecorderView, defStyle, 0);
-        mWidth = a.getInteger(R.styleable.MovieRecorderView_width, 320);// 默认320
-        mHeight = a.getInteger(R.styleable.MovieRecorderView_mHeight, 240);// 默认240
+        mWidth = a.getInteger(R.styleable.MovieRecorderView_width, 640);// 默认320
+        mHeight = a.getInteger(R.styleable.MovieRecorderView_mHeight, 480);// 默认240
 
         isOpenCamera = a.getBoolean(
                 R.styleable.MovieRecorderView_is_open_camera, true);// 默认打开
@@ -120,13 +123,28 @@ public class MovieRecorderView extends LinearLayout implements MediaRecorder.OnE
     /**
      * 初始化摄像头
      */
+    private int mCameraFacing = Camera.CameraInfo.CAMERA_FACING_BACK;//默认后置摄像头
     private void initCamera() throws IOException {
         if (mCamera != null) {
             freeCameraResource();
         }
         try {
-            mCamera = Camera.open();
+            if (Camera.getNumberOfCameras() == 2) {
+                mCamera = Camera.open(mCameraFacing);
+            } else {
+                mCamera = Camera.open();
+            }
+            Camera.Parameters parameters = mCamera.getParameters();
+                List<String> focusModesList = parameters.getSupportedFocusModes();
+                //增加对聚焦模式的判断
+                if (focusModesList.contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
+                } else if (focusModesList.contains(Camera.Parameters.FOCUS_MODE_AUTO)) {
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+                }
+                mCamera.setParameters(parameters);
         } catch (Exception e) {
+            ToastUtil.ToastMessage(AppContext.getAppContext(),"打开摄像头失败,请检测是否禁止权限或者被拦截");
             e.printStackTrace();
             freeCameraResource();
         }
@@ -155,11 +173,15 @@ public class MovieRecorderView extends LinearLayout implements MediaRecorder.OnE
      * 释放摄像头资源
      */
     private void freeCameraResource() {
-        if (mCamera != null) {
-            mCamera.setPreviewCallback(null);
-            mCamera.stopPreview();
-            mCamera.lock();
-            mCamera.release();
+        try {
+            if (mCamera != null) {
+                mCamera.setPreviewCallback(null);
+                mCamera.stopPreview();
+                mCamera.lock();
+                mCamera.release();
+                mCamera = null;
+            }
+        }catch (Exception e){
             mCamera = null;
         }
     }
@@ -187,6 +209,7 @@ public class MovieRecorderView extends LinearLayout implements MediaRecorder.OnE
     private void initRecord() throws IOException {
         mMediaRecorder = new MediaRecorder();
         mMediaRecorder.reset();
+
         if (mCamera != null)
             mMediaRecorder.setCamera(mCamera);
         mMediaRecorder.setOnErrorListener(this);
@@ -194,14 +217,15 @@ public class MovieRecorderView extends LinearLayout implements MediaRecorder.OnE
         mMediaRecorder.setVideoSource(VideoSource.CAMERA);// 视频源
         mMediaRecorder.setAudioSource(AudioSource.MIC);// 音频源
         mMediaRecorder.setOutputFormat(OutputFormat.MPEG_4);// 视频输出格式
-        mMediaRecorder.setAudioEncoder(AudioEncoder.AMR_NB);// 音频格式
+        mMediaRecorder.setAudioEncoder(AudioEncoder.AAC);// 音频格式
         mMediaRecorder.setVideoSize(mWidth, mHeight);// 设置分辨率：
-        // mMediaRecorder.setVideoFrameRate(16);// 这个我把它去掉了，感觉没什么用
+        //mMediaRecorder.setVideoFrameRate(16);// 这个我把它去掉了，感觉没什么用
         mMediaRecorder.setVideoEncodingBitRate(1 * 1024 * 1024 * 100);// 设置帧频率，然后就清晰了
         mMediaRecorder.setOrientationHint(90);// 输出旋转90度，保持竖屏录制
-        mMediaRecorder.setVideoEncoder(VideoEncoder.MPEG_4_SP);// 视频录制格式
+        mMediaRecorder.setVideoEncoder(VideoEncoder.H264);// 视频录制格式
         // mediaRecorder.setMaxDuration(Constant.MAXVEDIOTIME * 1000);
         mMediaRecorder.setOutputFile(mVecordFile.getAbsolutePath());
+
         mMediaRecorder.prepare();
         try {
             mMediaRecorder.start();

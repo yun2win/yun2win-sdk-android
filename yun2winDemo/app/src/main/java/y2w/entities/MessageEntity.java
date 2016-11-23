@@ -8,6 +8,8 @@ import java.io.Serializable;
 
 import com.y2w.uikit.utils.StringUtil;
 
+import y2w.base.AppData;
+
 /**
  * 消息表
  * Created by yangrongfang on 2016/1/18.
@@ -21,6 +23,8 @@ public class MessageEntity implements Serializable{
     @DatabaseField
     private String content;
     @DatabaseField
+    private String simpchinacontent;
+    @DatabaseField
     private String createdAt;
     @DatabaseField
     private String updatedAt;
@@ -33,7 +37,7 @@ public class MessageEntity implements Serializable{
     //此条数据所有者
     @DatabaseField
     private String myId;
-
+    @DatabaseField
     private boolean isDelete;
 
     public static MessageEntity parse(Json json){
@@ -44,8 +48,10 @@ public class MessageEntity implements Serializable{
         entity.setCreatedAt(json.getStr("createdAt"));
         entity.setUpdatedAt(json.getStr("updatedAt"));
         entity.setType(json.getStr("type"));
+        entity.setIsDelete(json.getBool("isDelete"));
         entity.setStatus(MessageEntity.MessageState.stored.toString());
         entity.setSessionId(json.getStr("sessionId"));
+        entity.setSimpchinacontent(AppData.getInstance().getsampchina(entity.getContent()));
         return entity;
     }
 
@@ -119,6 +125,22 @@ public class MessageEntity implements Serializable{
 
     public void setMyId(String myId) {
         this.myId = myId;
+    }
+
+    public boolean isDelete() {
+        return isDelete;
+    }
+
+    public void setIsDelete(boolean isDelete) {
+        this.isDelete = isDelete;
+    }
+
+    public String getSimpchinacontent() {
+        return simpchinacontent;
+    }
+
+    public void setSimpchinacontent(String simpchinacontent) {
+        this.simpchinacontent = simpchinacontent;
     }
 
     public static enum  MessageState{

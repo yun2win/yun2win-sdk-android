@@ -22,8 +22,8 @@ android {
         applicationId "com.yun2win.demo"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 16
-        versionName "0.1.6"
+        versionCode 18
+        versionName "0.1.8"
         multiDexEnabled = true
     }
     dexOptions {
@@ -59,7 +59,6 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.4.0'
     compile files('libs/yun2win-av-0.2.jar')
     compile files('libs/org.apache.http.legacy.jar')
-    compile files('libs/agora-rtc-sdk.jar')
     compile 'com.android.support:multidex:1.0.0'
     compile files('libs/volley.jar')
     compile 'com.google.code.gson:gson:2.7'

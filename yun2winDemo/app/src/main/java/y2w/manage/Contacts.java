@@ -67,6 +67,9 @@ public class Contacts implements Serializable {
         TimeStampEntity entity= TimeStampDb.queryByType(user.getEntity().getId(),TimeStampEntity.TimeStampType.contact.toString());
         if(entity != null){
             updateAt = entity.getTime();
+            if(StringUtil.isEmpty(updateAt)){
+                updateAt = Constants.TIME_ORIGIN;
+            }
         }else{
             updateAt = Constants.TIME_ORIGIN;
         }
@@ -99,6 +102,18 @@ public class Contacts implements Serializable {
         return  contacts;
     }
 
+    /**
+     * 关键字查询联系人(全部转化为简体)
+     * @return 返回结果
+     */
+    public List<Contact> getContactsByNameKey(String nameKey){
+        List<Contact> contacts = new ArrayList<Contact>();
+        List<ContactEntity> entities = ContactDb.searchByName(user.getEntity().getId(),nameKey);
+        for(ContactEntity entity:entities){
+            contacts.add(new Contact(user,this,entity));
+        }
+        return  contacts;
+    }
     /**
      * 将某个联系人信息保存到数据库
      * @param contact 联系人

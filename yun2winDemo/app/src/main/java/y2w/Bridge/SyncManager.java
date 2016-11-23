@@ -2,30 +2,25 @@ package y2w.Bridge;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 
-import com.yun2win.utils.Json;
 import com.yun2win.utils.LogUtil;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import y2w.base.AppContext;
 import y2w.base.AppData;
+import y2w.base.Tool;
 import y2w.common.CallBackUpdate;
-import y2w.common.NoticeUtil;
-import y2w.model.SyncQueue;
+import y2w.httpApi.messages.AcCallQueue;
 import y2w.manage.CurrentUser;
 import y2w.manage.EnumManage;
+import y2w.model.Contact;
+import y2w.model.SyncQueue;
 import y2w.model.UserConversation;
 import y2w.service.Back;
-import y2w.ui.activity.AVCallActivity;
+import y2w.ui.activity.ChatActivity;
+import y2w.ui.activity.MainActivity;
 
 /**
  * Created by maa2 on 2016/3/22.
@@ -33,169 +28,148 @@ import y2w.ui.activity.AVCallActivity;
 public class SyncManager implements Serializable{
     private static SyncManager syncManager;
     private String TAG = ReceiveUtil.class.getSimpleName();
-    //定时器
-    private Timer syncTimer;
-    private TimerTask syncTask;
-    private SyncHandler syncHandler;
     private CurrentUser user;
-    private Map<String,SyncQueue> syncQueues = new HashMap<String,SyncQueue>();
-    private List<SyncQueue> entityList = new ArrayList<SyncQueue>();
+    private boolean syncConversation =false;//是否正在同步会话
+    private boolean hasSyncConversation= false;//是否有新的同步会话消息
+    private int repeatSyncconversationCount = 0;
+
+    private boolean syncContact =false;//是否正在同步会话
+    private boolean hasSyncContact= false;//是否有新的同步会话消息
+    private int repeatSynccontactCount = 0;
 
     public SyncManager(CurrentUser user){
         this.user = user;
-        this.syncHandler = new SyncHandler();
     }
 
-    public void addSync(SyncQueue sq){
-        if(syncQueues.containsKey(sq.getType())){
-            if(EnumManage.ReceiveSyncStatusType.syncing.toString().equals(sq.getStatus())){
-                syncQueues.remove(sq.getType());
-                sq.setStatus(EnumManage.ReceiveSyncStatusType.repeat.toString());
-                syncQueues.put(sq.getType(),sq);
-            }
-        }else{
-            syncQueues.put(sq.getType(),sq);
-        }
-        syncHandlerSend(1);
+    public void addMessage(SyncQueue sq){
+        sync(sq);
     }
 
-    public class SyncHandler extends Handler implements Serializable{
-
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            switch (msg.what) {
-                case 1:// 消息发送，若定时器已关闭，则重新开启
-                    syncQueueDeal();
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
-
-    // 消息发送队列处理
-    private void syncQueueDeal() {
-        try {
-            if (entityList.size() == 0) {// 消息发送队列处理
-                for(Map.Entry<String,SyncQueue> entry : syncQueues.entrySet()){
-                    SyncQueue sq = entry.getValue();
-                    if(sq.getStatus().equals(EnumManage.ReceiveSyncStatusType.none.toString()) || sq.getStatus().equals(EnumManage.ReceiveSyncStatusType.repeat.toString())){
-                        sq.setStatus(EnumManage.ReceiveSyncStatusType.syncing.toString());
-                        entityList.add(sq);
-                        sync(sq.getType(),sq.getContent());
-                        break;
-                    }else{
-                        sq.setStatus(EnumManage.ReceiveSyncStatusType.none.toString());
-                    }
-                }
-
-            }
-
-        } catch (Exception e) {
-        }
-    }
-    private void syncHandlerSend(int what){
-        if (syncHandler == null){
-            syncHandler = new SyncHandler();
-        }
-        syncHandler.sendEmptyMessage(what);
-    }
-
-    private void sync(String type,String content){
+    private void sync(SyncQueue sq){
+        String type = sq.getType();
+        String content = sq.getContent();
         if("0".equals(type)){
-            syncUserConversation();
-        }else if(EnumManage.AvCmdType.groupavcall.toString().equals(type)){
-            Json json = new Json(content);
-            String callType = json.getStr("avcalltype");
-            String channelId = json.getStr("channelId");
-            String sessionId = json.getStr("sessionId");
-            String fromId = json.getStr("senderId");
-            List<Json> jsons = json.getList("receiversIds");
-            List<String> ids = new ArrayList<String>();
-            for(Json j : jsons){
-                ids.add(j.toString());
+            if(syncConversation){
+                hasSyncConversation = true;
+            }else{
+                syncUserConversation();
             }
-            if(ids.contains(user.getEntity().getId())){
-                Intent intent = new Intent(AppContext.getAppContext(), AVCallActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                Bundle bundle = new Bundle();
-                bundle.putString("chatType", EnumManage.SessionType.group.toString());
-                bundle.putString("type", EnumManage.AvType.agree.toString());
-                bundle.putString("callType", callType);
-                bundle.putString("channelId", channelId);
-                bundle.putString("sessionId", sessionId);
-                bundle.putString("sessionName", "");
-                bundle.putString("otherSideId", fromId);
-                intent.putExtras(bundle);
-                AppContext.getAppContext().startActivity(intent);
+        }else if("1".equals(type)){
+            String currentActivityname =AppContext.getAppContext().getCurrentActivityname();
+             if(!("backstage".equals(AppContext.getAppContext().getCurrentActivityname()))&&currentActivityname.equals(ChatActivity.class.getName())){
+                 CallBackUpdate update = AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.chatting.toString());
+                 if(update!=null) {
+                     update.addDateUI(sq.getSessionId());
+                 }
             }
-            syncComplete(true);
-        }else if(EnumManage.AvCmdType.singleavcall.toString().equals(type)){
-            Json json = new Json(content);
-            String callType = json.getStr("avcalltype");
-            String channelId = json.getStr("channelId");
-            String sessionId = json.getStr("sessionId");
-            String fromId = json.getStr("senderId");
-            Intent intent = new Intent(AppContext.getAppContext(), AVCallActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            Bundle bundle = new Bundle();
-            bundle.putString("chatType", EnumManage.SessionType.p2p.toString());
-            bundle.putString("type", EnumManage.AvType.agree.toString());
-            bundle.putString("callType", callType);
-            bundle.putString("channelId", channelId);
-            bundle.putString("sessionId", sessionId);
-            bundle.putString("sessionName", "");
-            bundle.putString("otherSideId", fromId);
-            intent.putExtras(bundle);
-            AppContext.getAppContext().startActivity(intent);
-            syncComplete(true);
-        }else{
-            syncComplete(true);
+        }else if("2".equals(type)){
+            if(syncContact){
+                hasSyncContact = true;
+            }else{
+                syncUserContact();
+            }
+        }else if("3".equals(type)){
+
+        }else if("4".equals(type)){//同步会话和会话成员
+            String currentActivityname =AppContext.getAppContext().getCurrentActivityname();
+            if(currentActivityname.equals(ChatActivity.class.getName())){
+                CallBackUpdate update = AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.chatting.toString());
+                if(update!=null&&sq!=null) {
+                    update.SyncSession(sq.getSessionId());
+                }
+            }
+        } 
+		
+    }
+	public void addCallMessage(AcCallQueue sq){
+        if(Tool.isShowAvActivity(AppContext.getAppContext())){//正在视频界面，AV消息由视频界面处理
+            CallBackUpdate update = AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.avcall.toString());
+            if(update!=null) {
+                update.responseAVMessage(sq);
+            }
         }
     }
 
-    private void syncUserConversation(){
+    private void syncUserContact(){
         try {
-            //NoticeUtil.notice(AppContext.getAppContext(), "receive", "有一条消息", 0, "", "");
-            user.getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
+            syncContact = true;
+            hasSyncContact = false;
+            repeatSynccontactCount++;
+            if(repeatSynccontactCount==5){
+                repeatSynccontactCount = 0;
+                syncContact = false;
+                return;
+            }
+            user.getContacts().getRemote().sync(new Back.Result<List<Contact>>() {
                 @Override
-                public void onSuccess(List<UserConversation> userConversationList) {
-                    syncComplete(true);
-                    CallBackUpdate update = AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.chatting.toString());
-                    if(update != null){
-                        update.addDateUI("");
-                    }else{
-                        update = AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.userConversation.toString());
+                public void onSuccess(List<Contact> userContactList) {
+                    AppData.isRefreshContact=true;
+                    String currentActivityname =AppContext.getAppContext().getCurrentActivityname();
+                    if(currentActivityname.equals("backstage")){//後台
+
+                    }else if(currentActivityname.equals(MainActivity.class.getName())){
+                        CallBackUpdate update = AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.contact.toString());
                         if(update != null){
                             update.updateUI();
                         }
+                    }
+                    syncContact = false;
+                    repeatSynccontactCount =0;
+                    if(hasSyncContact){
+                        syncUserContact();
                     }
                 }
 
                 @Override
                 public void onError(int errorCode,String error) {
-                    syncComplete(false);
+                    syncUserContact();
                     LogUtil.getInstance().log(TAG, "update:" + errorCode, null);
                 }
             });
         }catch (Exception e){
-            syncComplete(false);
+            syncUserContact();
         }
 
     }
-
-    private void syncComplete(boolean isOk){
-        if(isOk){
-            if(entityList.size() > 0){
-                SyncQueue entity = syncQueues.get(entityList.get(0).getType());
-                if(entity == null || !entity.getStatus().equals(EnumManage.ReceiveSyncStatusType.repeat)){
-                    syncQueues.remove(entityList.get(0).getType());
-                }
+    private void syncUserConversation(){
+        try {
+            syncConversation = true;
+            hasSyncConversation = false;
+            repeatSyncconversationCount++;
+            if(repeatSyncconversationCount==5){
+                repeatSyncconversationCount = 0;
+                syncConversation = false;
+                return;
             }
-        }
-        entityList.clear();
-        syncHandlerSend(1);
-    }
+            user.getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
+                @Override
+                public void onSuccess(List<UserConversation> userConversationList) {
+                    AppData.isRefreshConversation=true;
+                    String currentActivityname =AppContext.getAppContext().getCurrentActivityname();
+                    if(currentActivityname.equals("backstage")){//後台
 
+                    }else if(currentActivityname.equals(MainActivity.class.getName())){
+                        CallBackUpdate update = AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.userConversation.toString());
+                        if(update != null){
+                            update.updateUI();
+                        }
+                    }
+                    syncConversation = false;
+                    repeatSyncconversationCount =0;
+                    if(hasSyncConversation){
+                        syncUserConversation();
+                    }
+                }
+
+                @Override
+                public void onError(int errorCode,String error) {
+                    syncUserConversation();
+                    LogUtil.getInstance().log(TAG, "update:" + errorCode, null);
+                }
+            });
+        }catch (Exception e){
+            syncUserConversation();
+        }
+
+    }
 }

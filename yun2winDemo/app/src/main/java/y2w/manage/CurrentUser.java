@@ -1,11 +1,13 @@
 package y2w.manage;
 
 import java.io.Serializable;
+import java.util.List;
 
+import y2w.db.SessionMemberDb;
+import y2w.entities.SessionMemberEntity;
 import y2w.model.MToken;
 import y2w.model.User;
 import y2w.service.Back;
-import y2w.service.ErrorCode;
 import y2w.service.UserSrv;
 
 /**
@@ -19,6 +21,8 @@ public class CurrentUser extends User implements Serializable {
     private String appKey;
     private String secret;
     private String token;
+    private String role;
+    private boolean isShowWork;
     private MToken imToken;
     private Contacts contacts;
     private Sessions sessions;
@@ -28,6 +32,7 @@ public class CurrentUser extends User implements Serializable {
     private Emojis emojis;
     private Remote remote;
     private CurrentUser user;
+    private WebValues webValues;
 
     /**
      * 无参构造
@@ -35,7 +40,20 @@ public class CurrentUser extends User implements Serializable {
     public CurrentUser(){
         user = this;
     }
-
+    public void initCurrentUser(){
+        imToken = null;
+        contacts=null;
+        sessions=null;
+        userConversations =null;
+        userSessions = null;
+        if(imBridges!=null&&imBridges.getImBridge()!=null&&imBridges.getImBridge().getImClient()!=null){
+            imBridges.getImBridge().getImClient().disConnect();
+        }
+        imBridges =null;
+        emojis = null;
+        remote =null;
+        webValues = null;
+    }
     /**
      * 设置开发者key
      * @param appKey 开发者key
@@ -68,6 +86,21 @@ public class CurrentUser extends User implements Serializable {
     }
 
     /**
+     * 获取当前用户角色
+     * @return
+     */
+    public String getRole() {
+        return role;
+    }
+    /**
+     * 设置当前用户角色
+     * @param showWork
+     */
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    /**
      * 获取token
      * @return
      */
@@ -96,11 +129,7 @@ public class CurrentUser extends User implements Serializable {
      * @param result
      */
     public void getImToken(Back.Result<MToken> result) {
-        if(imToken != null){
-            result.onSuccess(imToken);
-        }else{
-            getRemote().syncIMToken(result);
-        }
+        getRemote().syncIMToken(result);
     }
 
     /**
@@ -152,6 +181,16 @@ public class CurrentUser extends User implements Serializable {
         }
         return userSessions;
     }
+    /**
+     * 获取缓存图片地址管理类
+     * @return 返回结果
+     */
+    public WebValues getWebValues() {
+        if(webValues == null){
+            webValues = new WebValues(this);
+        }
+        return webValues;
+    }
 
     /**
      * 获取服务器连接管理类
@@ -173,6 +212,17 @@ public class CurrentUser extends User implements Serializable {
             emojis = new Emojis(this);
         }
         return emojis;
+    }
+
+
+    /*
+    *
+    关键字所有所有会话成员
+    *
+    */
+    public List<SessionMemberEntity> getAllMembersBynameKey(String myuserId,String nameKey){
+        List<SessionMemberEntity> entities = SessionMemberDb.searchByName(myuserId, nameKey);
+        return entities;
     }
 
     /**
@@ -211,7 +261,6 @@ public class CurrentUser extends User implements Serializable {
                     result.onError(errorCode,error);
                 }
             });
-
         }
         /**
          * 同步通讯录与用户会话列表
@@ -220,9 +269,5 @@ public class CurrentUser extends User implements Serializable {
         public void sync(final Back.Callback callback){
             UserSrv.getInstance().sync(callback);
         }
-
     }
-
-
-
 }

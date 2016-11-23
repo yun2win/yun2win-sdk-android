@@ -8,7 +8,7 @@ import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.provider.MediaStore;
 
-import com.y2w.uikit.utils.ImageUtils;
+import com.y2w.uikit.utils.ImageUtil;
 import com.y2w.uikit.utils.SampleSizeUtil;
 import com.y2w.uikit.utils.ScreenUtil;
 
@@ -54,7 +54,7 @@ public class BitmapDecoder {
     }
 
     public static Bitmap decodeSampledForDisplay(String pathName, boolean withTextureLimit) {
-        float ratio = ImageUtils.MAX_IMAGE_RATIO;
+        float ratio = ImageUtil.MAX_IMAGE_RATIO;
         int[][] reqBounds = new int[][]{
                 new int[]{ScreenUtil.screenWidth * 2, ScreenUtil.screenHeight},
                 new int[]{ScreenUtil.screenWidth, ScreenUtil.screenHeight * 2},

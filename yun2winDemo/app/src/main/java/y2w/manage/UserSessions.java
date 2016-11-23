@@ -79,6 +79,14 @@ public class UserSessions implements Serializable{
     }
 
     /**
+     * 删除某个群聊
+     * @param userSession
+     */
+    public void deleteUserSession(UserSession userSession){
+        UserSessionDb.setisdelete(userSession.getEntity().getMyId(),userSession.getEntity().getId());
+    }
+
+    /**
      * 群聊列表保存到数据库
      * @param  userSessionList 群聊列表
      */
@@ -161,10 +169,11 @@ public class UserSessions implements Serializable{
          * @param id 成员唯一标识码
          * @param callback 回调
          */
-        public void userSessionDelete(String id, final Back.Callback callback){
+        public void userSessionDelete(final String id, final Back.Callback callback){
             UserSessionSrv.getInstance().sessionDelete(user.getToken(), user.getEntity().getId(), id, new Back.Callback() {
                 @Override
                 public void onSuccess() {
+                    UserSessionDb.setisdelete(user.getEntity().getId(), id);
                     callback.onSuccess();
                 }
 

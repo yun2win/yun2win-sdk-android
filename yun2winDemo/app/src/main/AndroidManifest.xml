@@ -252,22 +252,7 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateUnchanged|stateHidden" />
 
-        <activity
-            android:name="y2w.ui.activity.AVCallP2PActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" />
-        <activity
-            android:name="y2w.ui.activity.AVCallGroupActivity"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" />
-
         <!-- 音视频选择群成员界面 -->
-        <activity
-            android:name="y2w.ui.activity.AVMemberSelectActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden" />
 
         <!-- 白板界面 -->
         <activity
@@ -288,10 +273,6 @@
             android:name="y2w.ui.activity.WebViewActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateUnchanged|stateHidden" />
-        <activity
-            android:name="y2w.ui.activity.StrongWebViewActivity"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateUnchanged|stateHidden"></activity>
 
         <!-- 图片消息浏览界面 -->
         <activity

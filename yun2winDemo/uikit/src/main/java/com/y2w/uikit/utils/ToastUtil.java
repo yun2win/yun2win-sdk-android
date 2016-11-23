@@ -35,7 +35,7 @@ public class ToastUtil {
             if(msg==null)
                 msg="网络不给力";
             msg=msg.replace("java.lang.Exception:", "").replace("java.lang.NullPointerException", "");
-            showToast(context, msg, Toast.LENGTH_SHORT);
+            showToast(context, msg, Toast.LENGTH_LONG);
         }catch(Exception ex){
          String e =ex.toString();
         }

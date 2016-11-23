@@ -34,8 +34,8 @@ public class UserConversations implements Serializable {
      * @param targetId 用户会话目标id
      * @return 回调
      */
-    public UserConversation get(String targetId){
-        UserConversationEntity entity = UserConversationDb.queryByTargetId(user.getEntity().getId(),targetId);
+    public UserConversation get(String targetId,String type){
+        UserConversationEntity entity = UserConversationDb.queryByTargetId(user.getEntity().getId(),targetId,type);
         return new UserConversation(this,entity);
     }
     /**
@@ -43,10 +43,12 @@ public class UserConversations implements Serializable {
      * @param targetId 用户会话目标id
      * @return
      */
-    public void delete(String targetId){
-        UserConversationEntity entity = UserConversationDb.queryByTargetId(user.getEntity().getId(), targetId);
-        if(entity!=null)
-         UserConversationDb.delete(entity);
+    public void delete(String targetId,String type){
+        UserConversationEntity entity = UserConversationDb.queryByTargetId(user.getEntity().getId(), targetId,type);
+        if(entity!=null) {
+            entity.setIsDelete(true);
+            UserConversationDb.addUserConversation(entity);
+        }
     }
 
     /**
@@ -62,6 +64,18 @@ public class UserConversations implements Serializable {
         return userConversationList;
     }
 
+    /**
+     * 会话名字关键字查询
+     * @return 返回结果
+     */
+    public List<UserConversation> getUserConversationsByNameKey(String nameKey){
+        List<UserConversation> userConversationList = new ArrayList<UserConversation>();
+        List<UserConversationEntity> entityList = UserConversationDb.searchByName(user.getEntity().getId(),nameKey);
+        for(UserConversationEntity entity : entityList){
+            userConversationList.add(new UserConversation(this,entity));
+        }
+        return userConversationList;
+    }
     /**
      * 将用户会话列表保存到本地数据库
      * @param userConversationList 会话列表
@@ -171,7 +185,7 @@ public class UserConversations implements Serializable {
 
                 @Override
                 public void onError(int errorCode,String error) {
-
+                    result.onError(errorCode,error);
                 }
             });
         }

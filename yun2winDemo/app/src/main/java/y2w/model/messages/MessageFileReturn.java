@@ -29,7 +29,9 @@ public class MessageFileReturn {
     public static String getFileUrl(String id){
        return "attachments/"+id+"/content";
     }
-
+    public static String getMD5FileUrl(String id,String md5){
+        return "attachments/"+id+"/"+md5;
+    }
     public String getId() {
         return id;
     }

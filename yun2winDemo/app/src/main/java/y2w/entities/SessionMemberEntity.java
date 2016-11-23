@@ -10,6 +10,8 @@ import com.yun2win.utils.Json;
 
 import java.io.Serializable;
 
+import y2w.base.AppData;
+
 /**
  * 会话成员表
  * Created by yangrongfang on 2016/1/18.
@@ -25,6 +27,8 @@ public class SessionMemberEntity implements Serializable {
     private String userId;
     @DatabaseField
     private String name;
+    @DatabaseField
+    private String simpchinaname;
     @DatabaseField
     private String sessionId;
     @DatabaseField
@@ -54,6 +58,7 @@ public class SessionMemberEntity implements Serializable {
         entity.setRole(json.getStr("role"));
         entity.setStatus(json.getStr("status"));
         entity.setAvatarUrl(json.getStr("avatarUrl"));
+        entity.setSimpchinaname(entity.getName());
         return entity;
     }
 
@@ -67,6 +72,7 @@ public class SessionMemberEntity implements Serializable {
         entity.setIsDelete(false);
         entity.setRole(contact.getRole());
         entity.setStatus(contact.getStatus());
+        entity.setSimpchinaname(AppData.getInstance().getsampchina(entity.getName()));
         return entity;
     }
 
@@ -164,5 +170,13 @@ public class SessionMemberEntity implements Serializable {
 
     public void setMyId(String myId) {
         this.myId = myId;
+    }
+
+    public String getSimpchinaname() {
+        return simpchinaname;
+    }
+
+    public void setSimpchinaname(String simpchinaname) {
+        this.simpchinaname = simpchinaname;
     }
 }

@@ -20,18 +20,29 @@ public class SessionSrv {
         return sessionSrv;
     }
 
+
     /**
-     * 获取p2p聊天会话
+     * 获取自己的会话
+     * @param token
+     * @param userId
+     * @param result
+     */
+    public void getSessionSingle(String token, String userId,final Back.Result<SessionEntity> result){
+        ClientFactory.getInstance().getSessionSingle(token, userId, result);
+    }
+
+    /**
+     * 获取p2p交流会话
      * @param userId
      * @param otherId
      * @param result
      */
-    public void getP2PSession(String token, String userId,String otherId, final Back.Result<SessionEntity> result){
-        ClientFactory.getInstance().getP2PSession(token, userId, otherId,result);
+    public void getSessionP2p(String token, String userId,String otherId, final Back.Result<SessionEntity> result){
+        ClientFactory.getInstance().getSessionP2p(token, userId, otherId, result);
     }
 
     /**
-     * 获取聊天会话(不含p2p)
+     * 获取交流会话(不含p2p)
      * @param sessionId
      * @param result
      */
@@ -41,7 +52,7 @@ public class SessionSrv {
 
 
     /**
-     * 创建群聊天会话
+     * 创建群交流会话
      * @param name
      * @param secureType
      * @param type
@@ -53,7 +64,22 @@ public class SessionSrv {
     }
 
     /**
-     * 群聊天会话添加成员
+     * 群交流会话更新
+     * @param token
+     * @param sessionId
+     * @param name
+     * @param secureType
+     * @param nameChanged
+     * @param type
+     * @param avatarUrl
+     * @param result
+     */
+    public void sessionUpdate(boolean sendnameChanged,String token,String sessionId, String name, String secureType,boolean nameChanged, String type, String avatarUrl, Back.Result<SessionEntity> result){
+        ClientFactory.getInstance().sessionUpdate(sendnameChanged,token, sessionId, name, secureType, nameChanged, type, avatarUrl, result);
+    }
+
+    /**
+     * 群交流会话添加成员
      * @param sessionId
      * @param userId
      * @param name
@@ -86,6 +112,8 @@ public class SessionSrv {
     public void sessionMembersDelete(String token, String sessionId, String id,Back.Callback callback){
         ClientFactory.getInstance().sessionMemberDelete(token, sessionId, id, callback);
     }
-
+    public void sessionMemberUpdate(String token, String sessionId, String id,String userId,String name,String role,String avatarUrl,String status,Back.Result<SessionMemberEntity> resultCallback){
+        ClientFactory.getInstance().sessionMemberUpdate(token, sessionId, id, userId, name, role, avatarUrl, status, resultCallback);
+    }
 
 }

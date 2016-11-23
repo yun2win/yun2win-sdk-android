@@ -40,10 +40,10 @@
 	               android:layout_width="wrap_content"
 	               android:layout_height="wrap_content"
 	               android:layout_centerInParent="true"
-                   android:background="@drawable/file_loading"
-	               android:scaleType="fitEnd"
+	               android:scaleType="centerInside"
 	               android:maxWidth="@dimen/dp_120"
 	               android:maxHeight="@dimen/dp_160"
+				   android:background="#6ce5dc"
 	               android:visibility="visible" >
 	           </com.y2w.uikit.customcontrols.imageview.RoundAngleImageView>
                <RelativeLayout
@@ -51,7 +51,7 @@
                    android:layout_height="@dimen/dp_50"
                    android:layout_centerVertical="true"
                    android:layout_centerHorizontal="true"
-                   >-->
+                   >
 
                    <com.y2w.uikit.customcontrols.view.RoundProgressBar
                        android:id="@+id/pb_myside_image_transfer"

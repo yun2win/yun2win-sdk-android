@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
+    android:id="@+id/conversation_list"
     android:background="@drawable/list_item_press_bg_change" >
 
     <RelativeLayout
@@ -27,7 +28,7 @@
                 android:gravity="center"
                 android:textColor="#fff"
                 android:textSize="@dimen/sp_18" />
-            <com.y2w.uikit.customcontrols.imageview.HeadImageView
+            <y2w.common.HeadImageView
                 android:id="@+id/iv_header"
                 android:layout_width="@dimen/dp_50"
                 android:layout_height="@dimen/dp_50"

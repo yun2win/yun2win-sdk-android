@@ -42,13 +42,27 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:background="@drawable/file_loading"
                 android:layout_marginLeft="@dimen/dp_10"
-                android:scaleType="fitStart"
+                android:scaleType="centerInside"
                 android:maxWidth="@dimen/dp_120"
+                android:background="#6ce5dc"
                 android:maxHeight="@dimen/dp_160"
                 android:visibility="visible" />
+            <RelativeLayout
+                android:layout_width="@dimen/dp_50"
+                android:layout_height="@dimen/dp_50"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                >
+                <com.y2w.uikit.customcontrols.view.RoundProgressBar
+                    android:id="@+id/pb_otherside_image_transfer"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_centerHorizontal="true"
+                    android:visibility="gone"/>
 
+            </RelativeLayout>
             <com.y2w.uikit.customcontrols.movie.ScalableVideoView
                 android:id="@+id/sv_otherside_movie"
                 android:layout_width="@dimen/dp_200"
@@ -58,8 +72,8 @@
 
             <ImageView
                 android:id="@+id/iv_otherside_image_open"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
                 android:layout_centerInParent="true"
                 android:alpha="1.0"
                 android:scaleType="fitCenter"

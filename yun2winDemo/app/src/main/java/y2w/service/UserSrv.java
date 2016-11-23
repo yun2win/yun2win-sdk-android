@@ -87,6 +87,17 @@ public class UserSrv {
     }
 
     /**
+     * 修改用户登录密码
+     * @param token
+     * @param oldPassword
+     * @param password
+     * @param callback
+     */
+    public void userSetPassword(String token, String oldPassword,String password, Back.Callback callback) {
+        ClientFactory.getInstance().userSetPassword(token, oldPassword,password, callback);
+    }
+
+    /**
      * 获取token
      * @param appKey
      * @param appSecret

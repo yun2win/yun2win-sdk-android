@@ -9,24 +9,13 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.view.Display;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.RadioGroup;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.text.TextUtils;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.RadioButton;
-import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
@@ -44,7 +33,6 @@ import com.amap.api.maps2d.model.LatLng;
 import com.amap.api.maps2d.model.Marker;
 import com.amap.api.maps2d.model.MarkerOptions;
 import com.amap.api.maps2d.model.MyLocationStyle;
-import com.y2w.uikit.utils.ImageUtils;
 import com.y2w.uikit.utils.StringUtil;
 import com.yun2win.demo.R;
 
@@ -292,31 +280,21 @@ public class LocationActivity extends Activity implements
         if(!file.exists()){
             file.mkdirs();
         }
-        file = new File(Config.CACHE_PATH_FILE+"y2w_location_shot.png");
+        long millis =System.currentTimeMillis();
+        file = new File(Config.CACHE_PATH_FILE + "y2w_location_shot_"+millis+".jpg");
         if(file.exists()){
             file.delete();
         }
-        View view = this.getWindow().getDecorView();
-        view.setDrawingCacheEnabled(true);
-        view.buildDrawingCache();
-        Bitmap b1 = view.getDrawingCache();
-        //获取状态栏高度
-        Rect frame = new Rect();
-        this.getWindow().getDecorView().getWindowVisibleDisplayFrame(frame);
-        int statusBarHeight = frame.top;
-        int width = this.getWindowManager().getDefaultDisplay().getWidth();
-
-        int height = this.getWindowManager().getDefaultDisplay().getHeight();//去掉标题栏
-
-        Bitmap b = Bitmap.createBitmap(b1, 0, 150, width, 500);
-        view.destroyDrawingCache();
-        if(b != null){
+        mapView.setDrawingCacheEnabled(true);
+        mapView.buildDrawingCache();
+        Bitmap b1 = mapView.getDrawingCache();
+        if(b1 != null){
             FileOutputStream fos = null;
             try {
                 fos = new FileOutputStream(file.getPath());
                 if (null != fos)
                 {
-                    b.compress(Bitmap.CompressFormat.PNG, 90, fos);
+                    b1.compress(Bitmap.CompressFormat.PNG, 90, fos);
                     fos.flush();
                     fos.close();
                     path = SendUtil.compressOriginPicture(this, file.getPath());
@@ -327,6 +305,7 @@ public class LocationActivity extends Activity implements
                 e.printStackTrace();
             }
         }
+        mapView.destroyDrawingCache();
         return path;
     }
 

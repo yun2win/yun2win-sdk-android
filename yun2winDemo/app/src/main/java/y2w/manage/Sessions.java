@@ -53,6 +53,18 @@ public class Sessions implements Serializable {
     }
 
     /**
+     * 更新ession哈希列表
+     */
+    public void refreshSessionHashMap(Session session){
+        if(sessionHashMap.containsKey(session.getEntity().getId())){
+            sessionHashMap.remove(session.getEntity().getId());
+            sessionHashMap.put(session.getEntity().getId(),session);
+        }else {
+            sessionHashMap.put(session.getEntity().getId(),session);
+        }
+    }
+
+    /**
      * 获取远程访问实例
      * @return 返回结果
      */
@@ -69,6 +81,7 @@ public class Sessions implements Serializable {
      */
     public void addSession(Session session){
         session.getEntity().setMyId(user.getEntity().getId());
+        refreshSessionHashMap(session);
         SessionDb.addSessionEntity(session.getEntity());
     }
 
@@ -108,7 +121,7 @@ public class Sessions implements Serializable {
 
     /**
      * 根据会话类型获取session
-     * session类型为p2p时，targetId为对方userId,为group时,为sessionId，会话唯一标识码
+     * session类型为p2p时，targetId为对方userId,为group时,targetId为sessionId，会话唯一标识码
      * @param targetId 目标id
      * @param type 会话类型
      * @param result 回调
@@ -186,31 +199,31 @@ public class Sessions implements Serializable {
          */
         public void getSession(final String targetId, final String type, final Back.Result<Session> result){
             if(EnumManage.SessionType.p2p.toString().equals(type)){
-                SessionSrv.getInstance().getP2PSession(user.getToken(), user.getEntity().getId(), targetId, new Back.Result<SessionEntity>() {
+                SessionSrv.getInstance().getSessionP2p(user.getToken(), user.getEntity().getId(), targetId, new Back.Result<SessionEntity>() {
                     @Override
                     public void onSuccess(SessionEntity entity) {
-                     if(SessionMemberDb.queryCount(user.getEntity().getId(),entity.getId()) == 0){
-                         //若本地没有一个session成员，则同步所有成员
-                         new Session(Sessions.this, entity).getMembers().getRemote().sync(new Back.Result<List<SessionMember>>() {
-                             @Override
-                             public void onSuccess(List<SessionMember> sessionMemberList) {
-                                 LogUtil.getInstance().log(TAG, "sessionMemberList:" + sessionMemberList.size(), null);
-                             }
+                         if(SessionMemberDb.queryCount(user.getEntity().getId(),entity.getId()) == 0){
+                             //若本地没有一个session成员，则同步所有成员
+                             new Session(Sessions.this, entity).getMembers().getRemote().sync(new Back.Result<List<SessionMember>>() {
+                                 @Override
+                                 public void onSuccess(List<SessionMember> sessionMemberList) {
+                                     LogUtil.getInstance().log(TAG, "sessionMemberList:" + sessionMemberList.size(), null);
+                                 }
 
-                             @Override
-                             public void onError(int errorCode,String error) {
+                                 @Override
+                                 public void onError(int errorCode,String error) {
 
-                             }
-                         });
-                     }
-                    entity.setOtherSideId(targetId);
-                    addSession(new Session(Sessions.this, entity));
-                    SessionEntity temp = SessionDb.queryByTargetId(user.getEntity().getId(), targetId, type);
-                    Session session = new Session(Sessions.this, temp);
-                    if(!sessionHashMap.containsKey(targetId)) {
-                        sessionHashMap.put(targetId, session);
-                    }
-                    result.onSuccess(session);
+                                 }
+                             });
+                         }
+                        entity.setOtherSideId(targetId);
+                        addSession(new Session(Sessions.this, entity));
+                        SessionEntity temp = SessionDb.queryByTargetId(user.getEntity().getId(), targetId, type);
+                        Session session = new Session(Sessions.this, temp);
+                        if(!sessionHashMap.containsKey(targetId)) {
+                            sessionHashMap.put(targetId, session);
+                        }
+                        result.onSuccess(session);
                     }
 
                     @Override
@@ -269,10 +282,29 @@ public class Sessions implements Serializable {
                     SessionEntity temp = SessionDb.queryByTargetId(user.getEntity().getId(), entity.getId(), entity.getType());
                     result.onSuccess(new Session(Sessions.this, temp));
                 }
-
                 @Override
                 public void onError(int errorCode,String error) {
                     result.onError(errorCode,error);
+                }
+            });
+        }
+
+        /**
+         * 更新session
+         * @param result
+         */
+        public void sessionUpdate(Session session,boolean sendnameChanged, final Back.Result<Session> result){
+            SessionSrv.getInstance().sessionUpdate(sendnameChanged,user.getToken(),session.getEntity().getId(), session.getEntity().getName(), session.getEntity().getSecureType(),session.getEntity().isNameChanged(), session.getEntity().getType(), session.getEntity().getAvatarUrl(), new Back.Result<SessionEntity>() {
+                @Override
+                public void onSuccess(SessionEntity entity) {
+                    addSession(new Session(Sessions.this, entity));
+                    SessionEntity temp = SessionDb.queryByTargetId(user.getEntity().getId(), entity.getId(), entity.getType());
+                    result.onSuccess(new Session(Sessions.this, temp));
+                }
+
+                @Override
+                public void onError(int errorCode, String error) {
+                    result.onError(errorCode, error);
                 }
             });
         }

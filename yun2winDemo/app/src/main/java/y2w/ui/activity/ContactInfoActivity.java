@@ -14,21 +14,21 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.y2w.uikit.utils.HeadTextBgProvider;
 import com.y2w.uikit.utils.StringUtil;
 import com.y2w.uikit.utils.ToastUtil;
 import com.yun2win.demo.R;
 
 import y2w.base.AppData;
+import y2w.base.Urls;
 import y2w.common.CallBackUpdate;
+import y2w.common.HeadImageView;
 import y2w.manage.EnumManage;
 import y2w.manage.Users;
 import y2w.model.Contact;
 import y2w.model.Session;
 import y2w.model.User;
 import y2w.service.Back;
-import y2w.service.ErrorCode;
 
 /**
  * Created by hejie on 2016/3/14.
@@ -48,6 +48,8 @@ public class ContactInfoActivity extends Activity{
     private TextView tv_account;
     private Button bt_chat,bt_delete;
     private boolean isfriend =false;
+    private int flag;
+    public final static int chat = 1;
     Handler updatefriendHandler= new Handler(){
         @Override
         public void handleMessage(Message msg) {
@@ -73,8 +75,8 @@ public class ContactInfoActivity extends Activity{
                 }
             }else if(msg.what==0){
                 tv_username.setText(username);
-                tv_account.setText("账号:"+account);
-                img_head.loadBuddyAvatarbyurl(avatarUrl, R.drawable.default_person_icon);
+                tv_account.setText("账号:" + account);
+                img_head.loadBuddyAvatarbyurl(avatarUrl , R.drawable.default_person_icon);
             }
         }
     };
@@ -115,10 +117,13 @@ public class ContactInfoActivity extends Activity{
         imageButtonright.setVisibility(View.GONE);
     }
     private void getExtras(Bundle bundle){
+        if(bundle == null)
+            return;
         _otheruserid = bundle.getString("otheruserid");
         avatarUrl = bundle.getString("avatarUrl");
         username= bundle.getString("username");
         account =bundle.getString("account");
+        flag = bundle.getInt("flag");
     }
    private void getHttp(){
        final ProgressDialog pd = new ProgressDialog(ContactInfoActivity.this);
@@ -148,17 +153,39 @@ public class ContactInfoActivity extends Activity{
        tv_account = (TextView) findViewById(R.id.head_detail_label);
        img_head = (HeadImageView) findViewById(R.id.head_image);
        tv_username.setText(username);
-       tv_account.setText("账号:" + account);
-       img_head.loadBuddyAvatarbyurl(avatarUrl, R.drawable.default_person_icon);
+       if(!StringUtil.isEmpty(account)) {
+           tv_account.setText("账号:" + account);
+       }
+       img_head.loadBuddyAvatarbyurl(avatarUrl , R.drawable.default_person_icon);
+
        tv_head.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(_otheruserid)));
        bt_chat = (Button) findViewById(R.id.bt_contactInfo_chat);
        bt_delete = (Button) findViewById(R.id.bt_contactInfo_delete);
-       if(_otheruserid.equals(Users.getInstance().getCurrentUser().getEntity().getId())){
+       if(flag == 1){
+           bt_delete.setVisibility(View.GONE);
+       }
+
+       if (_otheruserid.equals(Users.getInstance().getCurrentUser().getEntity().getId())){
            bt_chat.setVisibility(View.GONE);
            bt_delete.setVisibility(View.GONE);
        }
+
    }
     private void uiEvent(){
+        tv_head.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent headSculpture1 = new Intent(context,
+                        HeadSculptureActivity.class);
+                Bundle bundle1 = new Bundle();
+                bundle1.putString("type", EnumManage.SessionType.p2p.toString());
+                bundle1.putString("mode", "view");
+                bundle1.putString("userId", _otheruserid);
+                headSculpture1.putExtras(bundle1);
+                startActivity(headSculpture1);
+            }
+        });
+
         bt_chat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -209,6 +236,19 @@ public class ContactInfoActivity extends Activity{
                             AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.contact.toString()).syncDate();
                             isfriend = true;
                             updatefriendHandler.sendEmptyMessage(2);
+                            if (_session == null) {
+                                Toast.makeText(context, "正在初始化数据", Toast.LENGTH_SHORT);
+                                return;
+                            }
+                            Intent intent = new Intent(context, ChatActivity.class);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("sessionid", _session.getEntity().getId());
+                            bundle.putString("sessiontype", _session.getEntity().getType());
+                            bundle.putString("otheruserId",_session.getEntity().getOtherSideId());
+                            bundle.putString("name", username);
+                            intent.putExtras(bundle);
+                            startActivity(intent);
+                            finish();
                         }
                         @Override
                         public void onError(int errorCode, String error) {

@@ -6,6 +6,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager;
 import com.j256.ormlite.dao.Dao;
 import y2w.entities.ContactEntity;
 import y2w.entities.EmojiEntity;
+import y2w.entities.WebValueEntity;
 import y2w.entities.SessionEntity;
 import y2w.entities.SessionMemberEntity;
 import y2w.entities.MessageEntity;
@@ -29,12 +30,13 @@ public class DaoManager {
 	public Dao<TimeStampEntity, Integer> dao_timeStamp = null;
 	public Dao<UserEntity, Integer> dao_user = null;
 	public Dao<EmojiEntity, Integer> dao_emoji = null;
+	public Dao<WebValueEntity,Integer> dao_webValue = null;
 
 
 
 	private static DaoManager manager = null;
 
-	public DaoManager(Context context){
+	private DaoManager(Context context){
 
 		if (helper == null) {
 			helper = OpenHelperManager.getHelper(context, DataBaseHelper.class);
@@ -50,6 +52,7 @@ public class DaoManager {
 			dao_timeStamp = helper.getTimeStampDao();
 			dao_user = helper.getUserDao();
 			dao_emoji = helper.getEmojiDao();
+			dao_webValue = helper.getWebValueDao();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -74,10 +77,11 @@ public class DaoManager {
 	 * 关闭管理器
 	 */
 	public void close() {
-		if (helper != null) {
+		/*if (helper != null) {
 			helper.close();
 			OpenHelperManager.releaseHelper();
 			helper = null;
 		}
+		manager =null;*/
 	}
 }

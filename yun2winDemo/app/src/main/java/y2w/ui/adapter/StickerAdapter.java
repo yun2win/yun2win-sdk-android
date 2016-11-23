@@ -70,7 +70,7 @@ public class StickerAdapter extends BaseAdapter {
         }
 
         ImageLoader.getInstance().displayImage(StickerManager.getInstance().getStickerBitmapUri(sticker.getCategory()
-                , sticker.getName()), viewHolder.imageView, StickerManager.getInstance().getStickerImageOptions(ScreenUtil.dip2px(64)));
+                , sticker.getName()),null, viewHolder.imageView, StickerManager.getInstance().getStickerImageOptions(ScreenUtil.dip2px(64)));
 
         viewHolder.descLabel.setVisibility(View.GONE);
 

@@ -1,9 +1,13 @@
 package com.y2w.uikit.utils.pinyinutils;
 
 
-import java.io.Serializable;
+import android.os.Parcel;
+import android.os.Parcelable;
 
-public class SortModel implements Serializable{
+import java.io.Serializable;
+import java.util.ArrayList;
+
+public class SortModel implements Serializable {
 
 	/**
 	 * 拼音排序模型
@@ -14,7 +18,7 @@ public class SortModel implements Serializable{
 	private String userId;
 	private String name;
 	private String sortLetters;  //显示数据拼音的首字母
-	private String selectedStatus;
+	private boolean selectedStatus =false;
 	private String avatarUrl;
 	private int image;
 	private String status;
@@ -22,8 +26,11 @@ public class SortModel implements Serializable{
 	private String pinyin;
 	private String email;
 	private String role;
+	private SortModel hightSortModel =null;
 	private boolean isChoice =false;//加群选择人
 	private boolean isMember = false;//是否已经是成员
+	private ArrayList<SortModel> ChildrenPerson = new ArrayList<SortModel>();
+   public SortModel(){}
 
 	public String getId() {
 		return id;
@@ -57,11 +64,11 @@ public class SortModel implements Serializable{
 		this.sortLetters = sortLetters;
 	}
 
-	public String getSelectedStatus() {
+	public boolean getSelectedStatus() {
 		return selectedStatus;
 	}
 
-	public void setSelectedStatus(String selectedStatus) {
+	public void setSelectedStatus(boolean selectedStatus) {
 		this.selectedStatus = selectedStatus;
 	}
 
@@ -135,5 +142,21 @@ public class SortModel implements Serializable{
 
 	public void setIsMember(boolean isMember) {
 		this.isMember = isMember;
+	}
+
+	public ArrayList<SortModel> getChildrenPerson() {
+		return ChildrenPerson;
+	}
+
+	public void setChildrenPerson(ArrayList<SortModel> childrenPerson) {
+		ChildrenPerson = childrenPerson;
+	}
+
+	public SortModel getHightSortModel() {
+		return hightSortModel;
+	}
+
+	public void setHightSortModel(SortModel hightSortModel) {
+		this.hightSortModel = hightSortModel;
 	}
 }

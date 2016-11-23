@@ -2,6 +2,7 @@ package y2w.base;
 
 import com.y2w.uikit.utils.StringUtil;
 import com.y2w.uikit.utils.ThreadPool;
+import com.y2w.uikit.utils.ToastUtil;
 import com.yun2win.demo.R;
 
 import y2w.common.Config;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import y2w.db.SessionDb;
 import y2w.entities.ContactEntity;
 import y2w.entities.EmojiEntity;
 import y2w.entities.MessageEntity;
@@ -28,6 +30,8 @@ import y2w.entities.UserEntity;
 import y2w.entities.UserSessionEntity;
 import y2w.manage.Users;
 import y2w.model.MToken;
+import y2w.model.SyncMessagesModel;
+import y2w.model.Update;
 import y2w.model.UserConversation;
 import y2w.service.Back;
 import y2w.service.ErrorCode;
@@ -57,7 +61,7 @@ public class APIClient {
         if (!StringUtil.isEmpty(status) && !StringUtil.isEmpty(message)) {
             int key = Integer.parseInt(status);
             LogUtil.getInstance().log(TAG,"result:"+status+" -|- "+message,null);
-            if(key == 401){
+            if(key == 401||key==400){
                 LogUtil.getInstance().log(TAG,message,null);
                 return true;
             }
@@ -71,9 +75,12 @@ public class APIClient {
      * 更新token
      * @return refreshToken
      */
-    private String refreshToken(){
+    private UserInfo.LoginInfo refreshToken(){
        String result = "";
        String token = "";
+        String key = "";
+        String secret ="";
+        UserInfo.LoginInfo loginInfo=null;
        try {
            Map<String, String> params = new HashMap<String, String>();
            params.put("appKey", Users.getInstance().getCurrentUser().getAppKey());
@@ -81,22 +88,32 @@ public class APIClient {
            params.put("password", StringUtil.get32MD5(UserInfo.getPassWord()));
            result = HttpUtil.post(Urls.User_Login, params);
        }catch (Exception e){
-           return token;
+           return loginInfo;
        }
        Json json = new Json(result);
        String status = json.getStr("status");
        String message = json.getStr("message");
        if (!StringUtil.isEmpty(status) && !StringUtil.isEmpty(message)) {
-
+           ToastUtil.ToastMessage(AppContext.getAppContext(),"用户信息验证失败,请重新登录");
+            AppContext.getAppContext().logout();
        } else {
-           UserInfo.LoginInfo loginInfo = UserInfo.LoginInfo.parseJson(json);
+           loginInfo = UserInfo.LoginInfo.parseJson(json);
            token = loginInfo.getToken();
+           key = loginInfo.getKey();
+           secret = loginInfo.getSecret();
            LogUtil.getInstance().log(TAG,"token refresh:"+token,null);
-           if(!StringUtil.isEmpty(token)){
+           if(!StringUtil.isEmpty(token)&&!StringUtil.isEmpty(key)&&!StringUtil.isEmpty(secret)){
                Users.getInstance().getCurrentUser().setToken(token);
+               Users.getInstance().getCurrentUser().setAppKey(key);
+               Users.getInstance().getCurrentUser().setSecret(secret);
+               Users.getInstance().getCurrentUser().getEntity().setUpdatedAt(loginInfo.getEntity().getUpdatedAt());
+               Users.getInstance().getCurrentUser().getEntity().setAvatarUrl(loginInfo.getEntity().getAvatarUrl());
+               Users.getInstance().getCurrentUser().getEntity().setName(loginInfo.getEntity().getName());
+               Users.getInstance().getCurrentUser().setRole(loginInfo.getEntity().getRole());
+               UserInfo.setCurrentInfo(Users.getInstance().getCurrentUser(),UserInfo.getPassWord());//存到本地
            }
        }
-       return token;
+       return loginInfo;
     }
     /***********************************************************注册,登录**********************************************************/
 
@@ -203,6 +220,7 @@ public class APIClient {
             @Override
             public void run() {
                 String result = "";
+                String tokenRefresh = "";
                 try {
                     if (StringUtil.isEmpty(grantType) || StringUtil.isEmpty(appKey) || StringUtil.isEmpty(appSecret)) {
                         resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
@@ -212,6 +230,16 @@ public class APIClient {
                         params.put("client_id", appKey);
                         params.put("client_secret", appSecret);
                         result = HttpUtil.post(Config.Token_Get, params);
+                        if(isTokenExpired(result)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                Map<String, String> newparams = new HashMap<String, String>();
+                                newparams.put("grant_type", grantType);
+                                newparams.put("client_id", loginInfo.getKey());
+                                newparams.put("client_secret", loginInfo.getSecret());
+                                result = HttpUtil.post(Config.Token_Get, newparams);
+                            }
+                        }
                     }
                 }catch (Exception e){
                     resultCallback.onError(ErrorCode.EC_NETWORK_ERROR,ec_network_error);
@@ -232,11 +260,26 @@ public class APIClient {
                         resultCallback.onSuccess(MToken.parse(json));
                     }
                 }catch (Exception e){
-
+                   String ee = e.getMessage();
                 }
 
             }
         });
+    }
+
+    /***********************************************************检测是否有新版本**********************************************************/
+    public static Update checkVersion(AppContext appContext){
+        try {
+            Map<String, String> params = new HashMap<String, String>();
+            long currenttime=System.currentTimeMillis();
+            String result = HttpUtil.get("", Urls.User_App_Version_Get+"?date="+currenttime, params);
+            Json json = new Json(result);
+
+            return Update.parse(json);
+        } catch (Exception e) {
+
+        }
+        return null;
     }
 
     /***********************************************************通讯录**********************************************************/
@@ -258,8 +301,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.get(token, Urls.User_Contact_Get + userId + Urls.User_Contacts_Last, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh, Urls.User_Contact_Get + userId + Urls.User_Contacts_Last, params);
                             }
                         }
@@ -309,8 +353,9 @@ public class APIClient {
                         params.put("limit", ""+limit);
                         result = HttpUtil.get(token,updateAt,Urls.User_Contacts_Get+userId+Urls.User_Contacts_Last, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh,updateAt,Urls.User_Contacts_Get+userId+Urls.User_Contacts_Last, params);
                             }
                         }
@@ -365,8 +410,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.get(token, Urls.User_Contact_Search+keyword, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh,Urls.User_Contact_Search+keyword, params);
                             }
                         }
@@ -414,7 +460,7 @@ public class APIClient {
                 String result = "";
                 String tokenRefresh;
                 try {
-                    if (StringUtil.isEmpty(token) || StringUtil.isEmpty(userId) || StringUtil.isEmpty(otherId) || StringUtil.isEmpty(email) || StringUtil.isEmpty(name) || StringUtil.isEmpty(avatarUrl)) {
+                    if (StringUtil.isEmpty(token) || StringUtil.isEmpty(userId) || StringUtil.isEmpty(otherId) || StringUtil.isEmpty(email) || StringUtil.isEmpty(name)) {
                         resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
                     } else {
                         Map<String, String> params = new HashMap<String, String>();
@@ -424,8 +470,9 @@ public class APIClient {
                         params.put("avatarUrl", avatarUrl);
                         result = HttpUtil.post(token, Urls.User_Contact_Add + userId + Urls.User_Contacts_Last, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.post(tokenRefresh, Urls.User_Contact_Add + userId + Urls.User_Contacts_Last, params);
                             }
                         }
@@ -474,7 +521,7 @@ public class APIClient {
                 String result = "";
                 String tokenRefresh;
                 try {
-                    if (StringUtil.isEmpty(token) || StringUtil.isEmpty(userId) || StringUtil.isEmpty(otherId) || StringUtil.isEmpty(id) || StringUtil.isEmpty(name) || StringUtil.isEmpty(title) || StringUtil.isEmpty(remark) || StringUtil.isEmpty(avatarUrl)) {
+                    if (StringUtil.isEmpty(token) || StringUtil.isEmpty(userId) || StringUtil.isEmpty(otherId) || StringUtil.isEmpty(id) || StringUtil.isEmpty(name) || StringUtil.isEmpty(title) || StringUtil.isEmpty(remark)) {
                         callback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
                     } else {
                         Map<String, String> params = new HashMap<String, String>();
@@ -485,8 +532,9 @@ public class APIClient {
                         params.put("avatarUrl", avatarUrl);
                         result = HttpUtil.put(token, Urls.User_Contact_Update + userId + Urls.User_Contact_Update_Last + id, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.put(tokenRefresh, Urls.User_Contact_Update + userId + Urls.User_Contact_Update_Last + id, params);
                             }
                         }
@@ -537,8 +585,9 @@ public class APIClient {
                 String result = "";
                 String tokenRefresh;
                 try {
-                    if (StringUtil.isEmpty(token) || StringUtil.isEmpty(userId) || StringUtil.isEmpty(email) || StringUtil.isEmpty(name) || StringUtil.isEmpty(role) || StringUtil.isEmpty(jobTitle) || StringUtil.isEmpty(phone) || StringUtil.isEmpty(address) || StringUtil.isEmpty(status) || StringUtil.isEmpty(avatarUrl)) {
+                    if (StringUtil.isEmpty(token) || StringUtil.isEmpty(userId) || StringUtil.isEmpty(name) || StringUtil.isEmpty(role) || StringUtil.isEmpty(status)) {
                         resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
+                        return;
                     } else {
                         Map<String, String> params = new HashMap<String, String>();
                         params.put("userId", userId);
@@ -549,11 +598,12 @@ public class APIClient {
                         params.put("phone", phone);
                         params.put("address", address);
                         params.put("status", status);
-                        params.put("address", avatarUrl);
+                        params.put("avatarUrl", avatarUrl);
                         result = HttpUtil.put(token, Urls.User_Update + userId, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.put(tokenRefresh, Urls.User_Update + userId, params);
                             }
                         }
@@ -602,12 +652,14 @@ public class APIClient {
                 try {
                     if (StringUtil.isEmpty(token) || StringUtil.isEmpty(userId)) {
                         resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
+                        return;
                     } else {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.get(token, Urls.User_Get + userId, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh, Urls.User_Get + userId, params);
                             }
                         }
@@ -639,6 +691,62 @@ public class APIClient {
     }
 
     /**
+     * 个人信息密码修改
+     * @param token
+     * @param oldPassword
+     * @param password
+     * @param callback
+     */
+    public void userSetPassword(final String token, final String oldPassword,final String password, final Back.Callback callback){
+        ThreadPool.getThreadPool().executNet(new Runnable() {
+            @Override
+            public void run() {
+                String result = "";
+                String tokenRefresh;
+                try {
+                    if (StringUtil.isEmpty(token) || StringUtil.isEmpty(oldPassword) || StringUtil.isEmpty(password)) {
+                        callback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
+                        return;
+                    } else {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("oldPassword", oldPassword);
+                        params.put("password", password);
+                        result = HttpUtil.post(token, Urls.User_SetPassword, params);
+                        if(isTokenExpired(result)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
+                                result = HttpUtil.get(tokenRefresh, Urls.User_SetPassword, params);
+                            }
+                        }
+                    }
+                }catch (Exception e){
+                    callback.onError(ErrorCode.EC_UNKNOWN,ec_network_error);
+                    return;
+                }
+                try {
+                    Json json = new Json(result);
+                    String status = json.getStr("status");
+                    String message = json.getStr("message");
+                    if (!StringUtil.isEmpty(status) && !StringUtil.isEmpty(message)) {
+                        int key = Integer.parseInt(status);
+                        if(key > 0){
+                            callback.onError(ErrorCode.errorCodeParse(key), message);
+                        }else{
+                            callback.onError(ErrorCode.EC_UNKNOWN, "");
+                        }
+                    } else {
+                        callback.onSuccess();
+                    }
+                }catch (Exception e){
+
+                }
+            }
+        });
+
+    }
+
+    /**
      * 从通讯录中删除某个用户
      * @param userId 自己用户唯一标识码
      * @param id 被删除联系人唯一标识码
@@ -657,8 +765,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.delete(token, Urls.User_Contact_Delete + userId + Urls.User_Contact_Delete_Last + id, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.delete(tokenRefresh, Urls.User_Contact_Delete + userId + Urls.User_Contact_Delete_Last + id, params);
                             }
                         }
@@ -712,8 +821,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.get(token, syncTime, Urls.User_Sessions_Get + userId + Urls.User_Sessions_Get_Last, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh, syncTime, Urls.User_Sessions_Get + userId + Urls.User_Sessions_Get_Last, params);
                             }
                         }
@@ -766,7 +876,7 @@ public class APIClient {
             @Override
             public void run() {
                 if(StringUtil.isEmpty(token) || StringUtil.isEmpty(name)|| StringUtil.isEmpty(secureType)
-                        || StringUtil.isEmpty(type)|| StringUtil.isEmpty(avatarUrl)){
+                        || StringUtil.isEmpty(type)){
                     resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
                 }else{
                     String result = "";
@@ -779,9 +889,68 @@ public class APIClient {
                         params.put("avatarUrl",avatarUrl);
                         result = HttpUtil.post(token, Urls.User_Session_Create, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.post(tokenRefresh, Urls.User_Session_Create, params);
+                            }
+                        }
+                    }catch (Exception e){
+                        resultCallback.onError(ErrorCode.EC_UNKNOWN,ec_network_error);
+                        return;
+                    }
+                    try {
+                        Json json = new Json(result);
+                        String status = json.getStr("status");
+                        String message = json.getStr("message");
+                        if (!StringUtil.isEmpty(status) && !StringUtil.isEmpty(message)) {
+                            int key = Integer.parseInt(status);
+                            if(key > 0){
+                                resultCallback.onError(ErrorCode.errorCodeParse(key), message);
+                            }else{
+                                resultCallback.onError(ErrorCode.EC_UNKNOWN, "");
+                            }
+                        } else {
+                            resultCallback.onSuccess(SessionEntity.parse(json));
+                        }
+                    }catch (Exception e){
+
+                    }
+                }
+
+            }
+        });
+    }
+
+
+    public void sessionUpdate(final boolean sendnameChanged, final String token, final String sessionId, final String name, final String secureType, final boolean nameChanged, final String type, final String avatarUrl,
+                              final Back.Result<SessionEntity> resultCallback){
+
+        ThreadPool.getThreadPool().executNet(new Runnable() {
+            @Override
+            public void run() {
+                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(sessionId)|| StringUtil.isEmpty(name)|| StringUtil.isEmpty(secureType)
+                        || StringUtil.isEmpty(type)){
+                    resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
+                    return;
+                }else{
+                    String result = "";
+                    String tokenRefresh;
+                    try {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put("name",name);
+                       if(sendnameChanged) {
+                           params.put("nameChanged", nameChanged + "");
+                       }
+                        params.put("secureType",secureType);
+                        params.put("type",type);
+                        params.put("avatarUrl",avatarUrl);
+                        result = HttpUtil.put(token, Urls.User_Session_Update + sessionId, params);
+                        if(isTokenExpired(result)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
+                                result = HttpUtil.post(tokenRefresh,  Urls.User_Session_Update + sessionId, params);
                             }
                         }
                     }catch (Exception e){
@@ -825,7 +994,7 @@ public class APIClient {
         ThreadPool.getThreadPool().executNet(new Runnable() {
             @Override
             public void run() {
-                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(userId)|| StringUtil.isEmpty(sessionId)|| StringUtil.isEmpty(name)|| StringUtil.isEmpty(avatarUrl)){
+                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(userId)|| StringUtil.isEmpty(sessionId)|| StringUtil.isEmpty(name)){
                     resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
                 }else{
                     String result = "";
@@ -837,8 +1006,9 @@ public class APIClient {
                         params.put("avatarUrl",avatarUrl);
                         result = HttpUtil.post(token, Urls.User_Sessions_Store + userId + Urls.User_Sessions_Store_Last, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.post(tokenRefresh, Urls.User_Sessions_Store + userId + Urls.User_Sessions_Store_Last, params);
                             }
                         }
@@ -889,8 +1059,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.delete(token, Urls.User_Sessions_Delete + userId + Urls.User_Sessions_Delete_Last + id, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.delete(tokenRefresh, Urls.User_Sessions_Delete + userId + Urls.User_Sessions_Delete_Last + id, params);
                             }
                         }
@@ -949,8 +1120,9 @@ public class APIClient {
                         params.put("status",status);
                         result = HttpUtil.post(token, Urls.User_SessionMember_Add + sessionId + Urls.User_SessionMember_Add_Last, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.post(tokenRefresh, Urls.User_SessionMember_Add + sessionId + Urls.User_SessionMember_Add_Last, params);
                             }
                         }
@@ -1000,9 +1172,10 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.delete(token, Urls.User_SessionMember_Delete + sessionId + Urls.User_SessionMember_Delete_Last + id, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
-                                result = HttpUtil.get(tokenRefresh, Urls.User_SessionMembers_Get + sessionId + Urls.User_SessionMembers_Get_Last, params);
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
+                                result = HttpUtil.delete(tokenRefresh, Urls.User_SessionMember_Delete + sessionId + Urls.User_SessionMember_Delete_Last + id, params);
                             }
                         }
                     }catch (Exception e){
@@ -1036,6 +1209,62 @@ public class APIClient {
     }
 
     /**
+     * 更新成员状态信息
+     */
+   public void sessionMemberUpdate(final String token,final String sessionId,final String id,final String userId,final String name,final String role,final String avatarUrl,final String status,final Back.Result<SessionMemberEntity> resultCallback){
+       ThreadPool.getThreadPool().executNet(new Runnable() {
+           @Override
+           public void run() {
+               String result = "";
+               String tokenRefresh;
+               if(StringUtil.isEmpty(token) || StringUtil.isEmpty(sessionId) || StringUtil.isEmpty(id)){
+                   resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
+               }else{
+                   try {
+                       Map<String, String> params = new HashMap<String, String>();
+                       params.put("userId",userId);
+                       params.put("name",name);
+                       params.put("role",role);
+                       params.put("avatarUrl",avatarUrl);
+                       params.put("status",status);
+                       result = HttpUtil.put(token, Urls.User_SessionMembers_update + sessionId + Urls.User_SessionMembers_update_Last + id, params);
+                       if(isTokenExpired(result)){
+                           UserInfo.LoginInfo loginInfo=refreshToken();
+                           if(loginInfo!=null){
+                               tokenRefresh = loginInfo.getToken();
+                               result = HttpUtil.put(tokenRefresh, Urls.User_SessionMembers_update + sessionId + Urls.User_SessionMembers_update_Last + id, params);
+                           }
+                       }
+                   }catch (Exception e){
+                       resultCallback.onError(ErrorCode.EC_TOKEN_ERROR,ec_network_error);
+                       return;
+                   }
+
+                   try {
+                       Json json = new Json(result);
+                       String status = json.getStr("status");
+                       String message = json.getStr("message");
+                       if (!StringUtil.isEmpty(status) && !StringUtil.isEmpty(message)) {
+                           int key = Integer.parseInt(status);
+                           if(key > 0){
+                               resultCallback.onError(ErrorCode.errorCodeParse(key), message);
+                           }else{
+                               resultCallback.onError(ErrorCode.EC_UNKNOWN,"");
+                           }
+                       } else {
+                           resultCallback.onSuccess(SessionMemberEntity.parse(new Json(result)));
+                       }
+                   }catch (Exception e){
+
+                   }
+
+               }
+
+           }
+       });
+
+   }
+    /**
      * 获取本会话成员列表.
      * @param sessionId 会话Id
      * @param resultCallback 回调
@@ -1054,8 +1283,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.get(token, Urls.User_SessionMembers_Get + sessionId + Urls.User_SessionMembers_Get_Last, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh,Urls.User_SessionMembers_Get+sessionId+Urls.User_SessionMembers_Get_Last, params);
                             }
                         }
@@ -1084,7 +1314,7 @@ public class APIClient {
                             resultCallback.onSuccess(sessionMembers);
                         }
                     }catch (Exception e){
-
+                       LogUtil.getInstance().log("dd","ddd",e);
                     }
                 }
             }
@@ -1097,7 +1327,7 @@ public class APIClient {
             public void run() {
                 String result = "";
                 String tokenRefresh;
-                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(userId) || StringUtil.isEmpty(userSessionId) || StringUtil.isEmpty(name) || StringUtil.isEmpty(avatarUrl)){
+                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(userId) || StringUtil.isEmpty(userSessionId) || StringUtil.isEmpty(name)){
                     resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
                 }else {
                     try {
@@ -1105,11 +1335,12 @@ public class APIClient {
                         params.put("sessionId",sessionId);
                         params.put("name",name);
                         params.put("avatarUrl",avatarUrl);
-                        result = HttpUtil.put(token, Urls.User_UserConversations_Update + userId + Urls.User_Session_Update_Last + userSessionId, params);
+                        result = HttpUtil.put(token, Urls.User_Sessions_Update + userId + Urls.User_Sessions_Update_Last + userSessionId, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
-                                result = HttpUtil.delete(tokenRefresh, Urls.User_Session_Update + userId + Urls.User_Session_Update_Last + userSessionId, params);
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
+                                result = HttpUtil.put(tokenRefresh, Urls.User_Sessions_Update + userId + Urls.User_Sessions_Update_Last + userSessionId, params);
                             }
                         }
                     }catch (Exception e){
@@ -1161,8 +1392,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.get(token, Urls.User_UserConversation_Get + userId + Urls.User_UserConversation_Last + userConversationId, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh, Urls.User_UserConversation_Get + userId + Urls.User_UserConversation_Last + userConversationId, params);
                             }
                         }
@@ -1214,8 +1446,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.get(token, updateAt, Urls.User_UserConversations_Get + userId + Urls.User_UserConversations_Last, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh,updateAt,Urls.User_UserConversations_Get+userId+Urls.User_UserConversations_Last, params);
                             }
                         }
@@ -1270,8 +1503,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.delete(token, Urls.User_UserConversations_Delete + userId + Urls.User_UserConversation_Last + userConversationId, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.delete(tokenRefresh, Urls.User_UserConversations_Delete + userId + Urls.User_UserConversation_Last + userConversationId, params);
                             }
                         }
@@ -1320,7 +1554,7 @@ public class APIClient {
             public void run() {
                 String result = "";
                 String tokenRefresh;
-                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(userId) || StringUtil.isEmpty(userConversationId) || StringUtil.isEmpty(targetId) || StringUtil.isEmpty(name) || StringUtil.isEmpty(type) || StringUtil.isEmpty(avatarUrl)){
+                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(userId) || StringUtil.isEmpty(userConversationId) || StringUtil.isEmpty(targetId) || StringUtil.isEmpty(name) || StringUtil.isEmpty(type)){
                     resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
                 }else {
                     try {
@@ -1332,8 +1566,9 @@ public class APIClient {
                         params.put("avatarUrl",avatarUrl);
                         result = HttpUtil.put(token, Urls.User_UserConversations_Update + userId + Urls.User_UserConversation_Last + userConversationId, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.delete(tokenRefresh, Urls.User_UserConversations_Update + userId + Urls.User_UserConversation_Last + userConversationId, params);
                             }
                         }
@@ -1365,6 +1600,57 @@ public class APIClient {
     }
 
     /************************************************会话****************************************************/
+    /**
+     * 获取自己的会话
+     * @param token
+     * @param userId
+     * @param resultCallback
+     */
+    public void getSessionSingle(final String token,final String userId,final Back.Result<SessionEntity> resultCallback){
+        ThreadPool.getThreadPool().executNet(new Runnable() {
+            @Override
+            public void run() {
+                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(userId)){
+                    resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
+                }else {
+                    String result = "";
+                    String tokenRefresh;
+                    try {
+                        Map<String, String> params = new HashMap<String, String>();
+                        result = HttpUtil.get(token, Urls.User_Session_Single_Get + userId , params);
+                        if(isTokenExpired(result)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
+                                result = HttpUtil.get(tokenRefresh, Urls.User_Session_Single_Get + userId , params);
+                            }
+                        }
+                    }catch (Exception e){
+                        resultCallback.onError(ErrorCode.EC_UNKNOWN,ec_network_error);
+                        return;
+                    }
+
+                    try {
+                        Json json = new Json(result);
+                        String status = json.getStr("status");
+                        String message = json.getStr("message");
+                        if (!StringUtil.isEmpty(status) && !StringUtil.isEmpty(message)) {
+                            int key = Integer.parseInt(status);
+                            if(key > 0){
+                                resultCallback.onError(ErrorCode.errorCodeParse(key), message);
+                            }else{
+                                resultCallback.onError(ErrorCode.EC_UNKNOWN, "");
+                            }
+                        } else {
+                            resultCallback.onSuccess(SessionEntity.parse(json));
+                        }
+                    }catch (Exception e){
+
+                    }
+                }
+            }
+        });
+    }
 
     /**
      * 获取一对一会话
@@ -1372,7 +1658,7 @@ public class APIClient {
      * @param otherId 对方的唯一标识码
      * @param resultCallback 回调
      */
-    public void getP2PSession(final String token,final String userId, final String otherId, final Back.Result<SessionEntity> resultCallback){
+    public void getSessionP2p(final String token,final String userId, final String otherId, final Back.Result<SessionEntity> resultCallback){
         ThreadPool.getThreadPool().executNet(new Runnable() {
             @Override
             public void run() {
@@ -1385,8 +1671,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.get(token, Urls.User_SessionP2p_Get + userId +"/" + otherId , params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh, Urls.User_SessionP2p_Get + userId +"/" + otherId , params);
                             }
                         }
@@ -1437,8 +1724,9 @@ public class APIClient {
                         Map<String, String> params = new HashMap<String, String>();
                         result = HttpUtil.get(token, Urls.User_Session_Get + sessionId, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh, Urls.User_Session_Get + sessionId, params);
                             }
                         }
@@ -1495,8 +1783,9 @@ public class APIClient {
                         params.put("type", type);
                         result = HttpUtil.post(token, Urls.User_Messages_Send + sessionId + Urls.User_Messages_Send_Last, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.post(tokenRefresh, Urls.User_Messages_Send + sessionId + Urls.User_Messages_Send_Last, params);
                             }
                         }
@@ -1508,10 +1797,11 @@ public class APIClient {
                         Json json = new Json(result);
                         String status = json.getStr("status");
                         String message = json.getStr("message");
+                        String error = json.getStr("error");
                         if (!StringUtil.isEmpty(status) && !StringUtil.isEmpty(message)) {
                             int key = Integer.parseInt(status);
                             if(key > 0){
-                                resultCallback.onError(ErrorCode.errorCodeParse(key), message);
+                                resultCallback.onError(key, error);
                             }else{
                                 resultCallback.onError(ErrorCode.EC_UNKNOWN, "");
                             }
@@ -1534,7 +1824,7 @@ public class APIClient {
      *  @param limit 消息条数极限
      * @param resultCallback 回调
      */
-    public void getMessage(final String token,final String sessionId,final String syncTime, final int limit, final Back.Result<List<MessageEntity>> resultCallback){
+    public void getMessage(final String token,final String sessionId,final String syncTime, final int limit, final Back.Result<SyncMessagesModel> resultCallback){
         ThreadPool.getThreadPool().executNet(new Runnable() {
             @Override
             public void run() {
@@ -1544,13 +1834,15 @@ public class APIClient {
                     String result = "";
                     String tokenRefresh;
                     List<MessageEntity> models = new ArrayList<MessageEntity>();
+                    SyncMessagesModel syncMessagesModel = new SyncMessagesModel();
                     try {
                         Map<String, String> params = new HashMap<String, String>();
                         params.put("limit", ""+limit);
                         result = HttpUtil.get(token, syncTime, Urls.User_Messages_Get + sessionId + Urls.User_Messages_Get_Last, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh, syncTime, Urls.User_Messages_Get + sessionId + Urls.User_Messages_Get_Last, params);
                             }
                         }
@@ -1558,10 +1850,11 @@ public class APIClient {
                         Json json = new Json(result);
                         String status = json.getStr("status");
                         String message = json.getStr("message");
+                        String error = json.getStr("error");
                         if (!StringUtil.isEmpty(status) && !StringUtil.isEmpty(message)) {
                             int key = Integer.parseInt(status);
                             if(key > 0){
-                                resultCallback.onError(ErrorCode.errorCodeParse(key), message);
+                                resultCallback.onError(key, error);
                             }else{
                                 resultCallback.onError(ErrorCode.EC_UNKNOWN, "");
                             }
@@ -1571,11 +1864,14 @@ public class APIClient {
                                 models.add(MessageEntity.parse(j));
                             }
                         }
+                        String sessionUpdatedAt = json.getStr("sessionUpdatedAt");
+                        syncMessagesModel.setSessionUpdatedAt(sessionUpdatedAt);
                     }catch (Exception e){
                         resultCallback.onError(ErrorCode.EC_UNKNOWN,ec_network_error);
                         return ;
                     }
-                    resultCallback.onSuccess(models);
+                    syncMessagesModel.setMessageEntities(models);
+                    resultCallback.onSuccess(syncMessagesModel);
                 }
             }
         });
@@ -1603,8 +1899,9 @@ public class APIClient {
                         params.put("limit", ""+limit);
                         result = HttpUtil.get(token, syncTime, Urls.User_Messages_Get + sessionId + Urls.User_Messages_Get_Hostory, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh, syncTime, Urls.User_Messages_Get + sessionId + Urls.User_Messages_Get_Hostory, params);
                             }
                         }
@@ -1629,8 +1926,9 @@ public class APIClient {
         ThreadPool.getThreadPool().executNet(new Runnable() {
             @Override
             public void run() {
-                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(sessionId) || StringUtil.isEmpty(messageId) || StringUtil.isEmpty(sender) || StringUtil.isEmpty(content) || StringUtil.isEmpty(content)){
+                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(sessionId) || StringUtil.isEmpty(messageId) || StringUtil.isEmpty(sender) || StringUtil.isEmpty(content)){
                     resultCallback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
+                    return;
                 }else {
                     String result = "";
                     String tokenRefresh;
@@ -1641,9 +1939,10 @@ public class APIClient {
                         params.put("type", type);
                         result = HttpUtil.put(token, Urls.User_Message_Update + sessionId + Urls.User_Message_Update_Last + messageId, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
-                                result = HttpUtil.get(tokenRefresh, Urls.User_Message_Update + sessionId + Urls.User_Message_Update_Last + messageId, params);
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
+                                result = HttpUtil.put(tokenRefresh, Urls.User_Message_Update + sessionId + Urls.User_Message_Update_Last + messageId, params);
                             }
                         }
                     }catch (Exception e){
@@ -1673,6 +1972,53 @@ public class APIClient {
 
     }
 
+    public void messageDelete(final String token,final String sessionId,final String messageId,final Back.Callback callback){
+        ThreadPool.getThreadPool().executNet(new Runnable() {
+            @Override
+            public void run() {
+                if(StringUtil.isEmpty(token) || StringUtil.isEmpty(sessionId) || StringUtil.isEmpty(messageId) ){
+                    callback.onError(ErrorCode.EC_PARAMETER_ERROR,ec_para_error);
+                    return;
+                }else {
+                    String result = "";
+                    String tokenRefresh;
+                    try {
+                        Map<String, String> params = new HashMap<String, String>();
+                        result = HttpUtil.delete(token, Urls.User_Message_Delete + sessionId + Urls.User_Message_Delete_Last + messageId, params);
+                        if(isTokenExpired(result)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
+                                result = HttpUtil.delete(tokenRefresh, Urls.User_Message_Delete + sessionId + Urls.User_Message_Delete_Last + messageId, params);
+                            }
+                        }
+                    }catch (Exception e){
+                        callback.onError(ErrorCode.EC_UNKNOWN,ec_network_error);
+                        return ;
+                    }
+                    try {
+                        Json json = new Json(result);
+                        String status = json.getStr("status");
+                        String message = json.getStr("message");
+                        if (!StringUtil.isEmpty(status) && !StringUtil.isEmpty(message)) {
+                            int key = Integer.parseInt(status);
+                            if(key > 0){
+                                callback.onError(ErrorCode.errorCodeParse(key), message);
+                            }else{
+                                callback.onError(ErrorCode.EC_UNKNOWN, "");
+                            }
+                        } else {
+                            callback.onSuccess();
+                        }
+                    }catch (Exception e){
+
+                    }
+                }
+            }
+        });
+
+    }
+
     /*************************************************emoji************************************************/
     public void getEmojiList(final String token,final String syncTime, final int limit, final Back.Result<List<EmojiEntity>> resultCallback){
         ThreadPool.getThreadPool().executNet(new Runnable() {
@@ -1689,8 +2035,9 @@ public class APIClient {
                         params.put("limit", ""+limit);
                         result = HttpUtil.get(token, syncTime, Urls.User_Messages_Emojis_Get, params);
                         if(isTokenExpired(result)){
-                            tokenRefresh = refreshToken();
-                            if(!StringUtil.isEmpty(tokenRefresh)){
+                            UserInfo.LoginInfo loginInfo=refreshToken();
+                            if(loginInfo!=null){
+                                tokenRefresh = loginInfo.getToken();
                                 result = HttpUtil.get(tokenRefresh, syncTime, Urls.User_Messages_Emojis_Get, params);
                             }
                         }

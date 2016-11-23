@@ -6,14 +6,14 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
-
 import com.y2w.uikit.customcontrols.imageview.RoundAngleImageView;
 import com.y2w.uikit.customcontrols.movie.ScalableVideoView;
 import com.y2w.uikit.customcontrols.view.RoundProgressBar;
 
+import y2w.common.HeadImageView;
+
 /**
- * 聊天界面，消息展示所有控件集合
+ * 交流界面，消息展示所有控件集合
  * Created by yangrongfang on 2016/2/23.
  */
 public class MViewHolder {
@@ -49,7 +49,7 @@ public class MViewHolder {
     RoundAngleImageView ivOtherSideImage;
     ScalableVideoView svOtherSideMovie;
     ImageView ivOtherSideImageOpen;
-    ProgressBar pbOtherSideImageTransfer;
+    RoundProgressBar pbOtherSideImageTransfer;
 
     /******* 帖图 ********/
     ImageView ivOtherSidePinup;
@@ -69,16 +69,16 @@ public class MViewHolder {
     TextView tvOtherSideAudioFileDescRight;
     ProgressBar pbOtherSideAudioFileTransfer;
 
-    /******* 聊天语音对方 ********/
+    /******* 交流语音对方 ********/
     LinearLayout llOtherSideVoiceItem;
     ImageView ivOtherSideVoice;
     ImageView ivOtherSideVoiceIcon;
     TextView tvOtherSideVoice;
 
     /******* 一对一语音视频 ********/
-    LinearLayout llOtherSideOneVideoItem;
-    ImageView ivOtherSideOneVideoIcon;
-    TextView tvOtherSideOneVideo;
+    LinearLayout llOtherSideAVItem;
+    ImageView ivOtherSideAVIcon;
+    TextView tvOtherSideAV;
 
 
 
@@ -87,8 +87,9 @@ public class MViewHolder {
     // 头像
     HeadImageView iv_myside_icon;
     TextView tvMySideCircleName;
-    // 时间
-    ImageView ivMySideMessageLoading;
+    TextView tvMySideMessageRead;
+    // 正在发送
+    ProgressBar ivMySideMessageLoading;
 
     /******* 文本 ********/
     TextView tvMySideText;
@@ -119,16 +120,16 @@ public class MViewHolder {
     TextView tvMySideAudioFileDescRight;
     ProgressBar pbMySideAudioFileTransfer;
 
-    /******* 聊天语音我方 ********/
+    /******* 交流语音我方 ********/
     LinearLayout llMySideVoiceItem;
     ImageView ivMySideVoice;
     ImageView ivMySideVoiceIcon;
     TextView tvMySideVoice;
 
-    /******* 一对一语音视频 ********/
-    LinearLayout llMySideOneVideoItem;
-    ImageView ivMySideOneVideoIcon;
-    TextView tvMySideOneVideo;
+    /******* 一对一音视频 ********/
+    LinearLayout llMySideAVItem;
+    ImageView ivMySideAVIcon;
+    TextView tvMySideAV;
 
     // *********************我方,对方通知标签*********************//
     TextView tv_message_noticelabel;

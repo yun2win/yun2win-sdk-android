@@ -6,6 +6,8 @@ import com.yun2win.utils.Json;
 
 import java.io.Serializable;
 
+import y2w.base.AppData;
+
 /**
  * 群聊表
  * Created by yangrongfang on 2016/3/7.
@@ -22,6 +24,8 @@ public class UserSessionEntity implements Serializable {
     //会话名称
     @DatabaseField
     private String name;
+    @DatabaseField
+    private String simpchinaname;
     //会话类型
     @DatabaseField
     private boolean isDelete;
@@ -47,6 +51,7 @@ public class UserSessionEntity implements Serializable {
         Entity.setCreatedAt(json.getStr("createdAt"));
         Entity.setUpdatedAt(json.getStr("updatedAt"));
         Entity.setAvatarUrl(json.getStr("avatarUrl"));
+        Entity.setSimpchinaname(AppData.getInstance().getsampchina(Entity.getName()));
         return  Entity;
     }
 
@@ -113,5 +118,13 @@ public class UserSessionEntity implements Serializable {
 
     public void setMyId(String myId) {
         this.myId = myId;
+    }
+
+    public String getSimpchinaname() {
+        return simpchinaname;
+    }
+
+    public void setSimpchinaname(String simpchinaname) {
+        this.simpchinaname = simpchinaname;
     }
 }

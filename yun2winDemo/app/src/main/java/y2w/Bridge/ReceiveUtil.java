@@ -2,17 +2,21 @@ package y2w.Bridge;
 
 import com.y2w.uikit.utils.StringUtil;
 import com.yun2win.imlib.IMClient;
-import com.yun2win.imlib.SendReturnCode;
 import com.yun2win.imlib.IMSession;
+import com.yun2win.imlib.SendReturnCode;
 import com.yun2win.utils.Json;
 import com.yun2win.utils.LogUtil;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import y2w.base.AppContext;
+import y2w.base.AppData;
+import y2w.common.CallBackUpdate;
 import y2w.common.NoticeUtil;
-import y2w.common.SendUtil;
+import y2w.httpApi.messages.AcCallQueue;
 import y2w.manage.CurrentUser;
 import y2w.manage.EnumManage;
 import y2w.manage.Users;
@@ -23,6 +27,7 @@ import y2w.model.User;
 import y2w.model.UserConversation;
 import y2w.service.Back;
 import y2w.ui.activity.ChatActivity;
+import y2w.ui.activity.MainActivity;
 
 /**
  * 接受消息处理类
@@ -30,217 +35,283 @@ import y2w.ui.activity.ChatActivity;
  */
 public class ReceiveUtil implements Serializable{
     private String TAG = ReceiveUtil.class.getSimpleName();
-    private CurrentUser user;
+    private CurrentUser currentUser;
     private SyncManager syncManager;
+    private HashMap<String,Integer> mtsMap = new HashMap<String,Integer>();
+    private int mtsMaxCount = 3;
+
+    private List<ReceiveMessageEntity> receivequeue = new ArrayList<ReceiveMessageEntity>();
+    private ReceiveMessageManage messageMeangeThread ;
 
     public ReceiveUtil(CurrentUser user){
-        this.user = user;
+        this.currentUser = user;
         this.syncManager = new SyncManager(user);
+       if(messageMeangeThread==null) {
+           messageMeangeThread =new ReceiveMessageManage();
+           messageMeangeThread.start();
+       }
     }
 
-   /* {
-        "message": {
-        "syncs": [
-        {
-            "type": 0
-        },
-        {
-            "type": 1,
-                "sessionId": "p2p_85"
-        }
-        ]
-    },
-        "cmd": "sendMessage",
-            "from": "18"
-    }*/
     public void receiveMessage(String message,IMSession imSession, String sendMsg, String data){
         if(StringUtil.isEmpty(message)){
             return ;
         }
-        Json json = new Json(message);
-        String cmd = json.getStr("cmd");
-        if("sendMessage".equals(cmd)){
-            messageDeal(json.get("message"));
-            noticeToast(message);
-        }else if(message.contains("y2wMessageId")){
-            int returnCode = Integer.parseInt(json.getStr("returnCode"));
-            messageSendReturn(returnCode,imSession,sendMsg);
+        receivequeue.add(new ReceiveMessageEntity(message, imSession, sendMsg, data));
+    }
+   private class ReceiveMessageManage extends Thread{
+       @Override
+       public void run() {
+           super.run();
+           while (true) {
+               if(receivequeue.size()>0) {
+                   ReceiveMessageEntity receiveMessage = receivequeue.get(0);
+                   receivequeue.remove(0);
+                   if (receiveMessage != null) {
+                       Json json = new Json(receiveMessage.getMessage());
+                       String cmd = json.getStr("cmd");
+                       if ("sendMessage".equals(cmd)) {
+                           messageDeal(json.get("message"),receiveMessage.getMessage());
+
+                       } else if (receiveMessage.getMessage().contains("y2wMessageId")) {
+                           int returnCode = Integer.parseInt(json.getStr("returnCode"));
+                           messageSendReturn(returnCode, receiveMessage.getImSession(), receiveMessage.getSendMsg());
+                       }
+                   }
+               }else{
+                   try {
+                       sleep(500);
+                   } catch (Exception e) {
+                   }
+               }
+           }
+       }
+   }
+
+    private class ReceiveMessageEntity{
+        private String message;
+        private IMSession imSession;
+        private String sendMsg;
+        private String data;
+        public ReceiveMessageEntity(String message,IMSession imSession, String sendMsg, String data){
+            this.message = message;
+            this.imSession = imSession;
+            this.sendMsg = sendMsg;
+            this.data = data;
         }
 
-    }
+        public String getMessage() {
+            return message;
+        }
 
+        public IMSession getImSession() {
+            return imSession;
+        }
+
+        public String getSendMsg() {
+            return sendMsg;
+        }
+
+        public String getData() {
+            return data;
+        }
+    }
     /**
      * 收到消息回执处理
      * @param returnCode
      */
-    private void messageSendReturn(final int returnCode, final IMSession imSession,String sendMsg){
+    private void messageSendReturn(final int returnCode, final IMSession imSession, final String sendMsg){
+
+      if(returnCode== SendReturnCode.UPDATE_MESSAGE){//更新会话
+          if(currentUser!=null) {
+              currentUser.getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
+                  @Override
+                  public void onSuccess(List<UserConversation> userConversationList) {
+                      AppData.isRefreshConversation = true;
+                      String currentActivityname = AppContext.getAppContext().getCurrentActivityname();
+                      if (currentActivityname.equals(ChatActivity.class.getName())) {
+                          CallBackUpdate update = AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.chatting.toString());
+                          if (update != null)
+                              update.addDateUI("updatemessage");
+                      } else {
+                          if (currentActivityname.equals("backstage")) {//後台
+
+                          } else if (currentActivityname.equals(MainActivity.class.getName())) {
+                              CallBackUpdate update = AppData.getInstance().getUpdateHashMap().get(CallBackUpdate.updateType.userConversation.toString());
+                              if (update != null) {
+                                  update.updateUI();
+                              }
+                          }
+                      }
+                  }
+
+                  @Override
+                  public void onError(int errorCode, String error) {
+                      LogUtil.getInstance().log(TAG, "update:" + errorCode, null);
+                  }
+              });
+          }
+          return;
+      }
+       if(imSession==null||imSession.getId()==null)
+           return;
+        String foo[] = imSession.getId().split("_");
+        if(foo==null||foo.length<2){
+            return;
+        }
+        String sessiontype = foo[0];
+        String sessionId = foo[1];
         switch (returnCode){
             case SendReturnCode.SRC_SUCCESS :
-                user.getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
-                    @Override
-                    public void onSuccess(List<UserConversation> userConversationList) {
-                        LogUtil.getInstance().log(TAG, "userConversationList :"+userConversationList.size(), null);
-                    }
-
-                    @Override
-                    public void onError(int errorCode,String error) {
-                        LogUtil.getInstance().log(TAG, "update:"+errorCode, null);
-                    }
-                });
+                if(mtsMap.containsKey(sessionId) && imSession.isForce()){
+                    mtsMap.remove(sessionId);
+                }
                 break;
             case SendReturnCode.SRC_CMD_INVALID :
                 LogUtil.getInstance().log(TAG, "returnCode:"+returnCode, null);
                 break;
-
+            case SendReturnCode.SRC_SESSION_MTS_INVALID :
+                LogUtil.getInstance().log(TAG, "returnCode:"+returnCode, null);
+                break;
             case SendReturnCode.SRC_SESSION_ON_SERVER_NOT_EXIST :
-                LogUtil.getInstance().log(TAG, "imSession.getId() ="+imSession.getId(), null);
-                int  index = imSession.getId().indexOf("_")+1;
-                if(index < 1){
-                    return ;
-                }
-                LogUtil.getInstance().log(TAG, "SRC_SESSION_ON_SERVER_NOT_EXIST", null);
-                String  sessionId = imSession.getId().substring(index,imSession.getId().length());
-                user.getSessions().getSessionBySessionId(sessionId, new Back.Result<Session>() {
-                    @Override
-                    public void onSuccess(final Session session) {
-                        session.getMembers().getMembers(new Back.Result<List<SessionMember>>() {
-                            @Override
-                            public void onSuccess(List<SessionMember> sessionMembers) {
-                                user.getImBridges().getImBridge().getImClient().updateSession(imSession, CmdBuilder.buildMembersToJson(sessionMembers), new IMClient.SendCallback() {
-                                    @Override
-                                    public void onReturnCode(int code, IMSession imSession, String sendMsg) {
-                                        if (SendReturnCode.SRC_SESSION_MEMBERS_INVALID == code) {
-                                            LogUtil.getInstance().log(TAG, "updateSession:" + code, null);
-                                        } else {
-                                            session.getMessages().getRemote().sendMessage("", new IMClient.SendCallback() {
-                                                @Override
-                                                public void onReturnCode(int i, IMSession imSession, String s) {
-                                                    LogUtil.getInstance().log(TAG, "sendMessage :" + i, null);
-                                                }
-                                            });
-                                            /*user.getImBridges().getImBridge().getImClient().sendMessage(imSession, sendMsg, new IMClient.SendCallback() {
-
-                                                @Override
-                                                public void onReturnCode(int code, IMSession imSession, String sendMsg) {
-                                                    LogUtil.getInstance().log(TAG, "sendMessage :" + code, null);
-                                                }
-                                            });*/
+                 if(StringUtil.isEmpty(sessiontype))
+                     return;
+                if(sessiontype.equals(currentUser.getImBridges().getY2wIMAppSessionPrefix())){
+                    currentUser.getImBridges().getImBridge().getImClient().updateSession(imSession, "["+CmdBuilder.buildMemberWithDel(sessionId,false)+"]", sendMsg, new IMClient.SendCallback() {
+                        @Override
+                        public void onReturnCode(int code, IMSession imSession, String sendMsg) {
+                        }
+                    });
+                }else {
+                    currentUser.getSessions().getRemote().getSession(sessionId, EnumManage.SessionType.group.toString(),new Back.Result<Session>() {//通过sessionID获得，走默认端口
+                        @Override
+                        public void onSuccess(final Session session) {
+                            session.getMembers().getRemote().sync(new Back.Result<List<SessionMember>>() {
+                                @Override
+                                public void onSuccess(List<SessionMember> sessionMembers) {
+                                    imSession.setMts(session.getMessages().getTimeStamp());
+                                    imSession.setForce(true);
+                                    currentUser.getImBridges().getImBridge().getImClient().updateSession(imSession, CmdBuilder.buildMembersWithDelToJson(sessionMembers), sendMsg, new IMClient.SendCallback() {
+                                        @Override
+                                        public void onReturnCode(int code, IMSession imSession, String sendMsg) {
                                         }
-                                    }
-                                });
-                            }
+                                    });
+                                }
 
-                            @Override
-                            public void onError(int errorCode, String error) {
-                                LogUtil.getInstance().log(TAG, "ErrorCode:" + errorCode, null);
-                            }
-                        });
+                                @Override
+                                public void onError(int code, String error) {
+                                }
+                            });
+                        }
 
-                    }
-                    @Override
-                    public void onError(int errorCode,String error) {
-
-                    }
-                });
+                        @Override
+                        public void onError(int code, String error) {
+                        }
+                    });
+                }
                 break;
             case SendReturnCode.SRC_SESSION_MTS_ON_CLIENT_HAS_EXPIRED :
-                index = imSession.getId().indexOf("_")+1;
-                if(index < 1){
-                    return ;
+
+                if(mtsMap.containsKey(sessionId)){
+                    int count =  mtsMap.get(sessionId) + 1;
+                    mtsMap.remove(sessionId);
+                    mtsMap.put(sessionId, count);
+                }else{
+                    mtsMap.put(sessionId,0);
                 }
-                sessionId = imSession.getId().substring(index,imSession.getId().length());
-                user.getSessions().getSessionBySessionId(sessionId, new Back.Result<Session>() {
+                if(mtsMap.get(sessionId) < mtsMaxCount){
+                    currentUser.getSessions().getRemote().getSession(sessionId, EnumManage.SessionType.group.toString(), new Back.Result<Session>() {
+                        @Override
+                        public void onSuccess(final Session session) {
+                            session.getMembers().getRemote().sync(new Back.Result<List<SessionMember>>() {
+                                @Override
+                                public void onSuccess(List<SessionMember> sessionMembers) {
+                                    imSession.setMts( session.getMessages().getTimeStamp());
+                                    imSession.setForce(true);
+                                    currentUser.getImBridges().getImBridge().getImClient().updateSession(imSession,CmdBuilder.buildMembersWithDelToJson(sessionMembers),sendMsg, new IMClient.SendCallback() {
+                                        @Override
+                                        public void onReturnCode(int code, IMSession imSession, String sendMsg) {
+                                        }
+                                    });
+                                }
+                                @Override
+                                public void onError(int code, String error) {
+                                }
+                            });
+                        }
+                        @Override
+                        public void onError(int code, String error) {
+                        }
+                    });
+                }else{
+                    mtsMap.remove(sessionId);
+                }
+                break;
+            case SendReturnCode.SRC_SESSION_MTS_ON_SERVER_HAS_EXPIRED :
+
+                currentUser.getSessions().getRemote().getSession(sessionId, EnumManage.SessionType.group.toString(), new Back.Result<Session>() {
                     @Override
                     public void onSuccess(final Session session) {
                         session.getMembers().getRemote().sync(new Back.Result<List<SessionMember>>() {
                             @Override
                             public void onSuccess(List<SessionMember> sessionMembers) {
-                                imSession.setMts(session.getMessages().getTimeStamp());
-                                LogUtil.getInstance().log(TAG, returnCode + " getMts:" + imSession.getMts(), null);
-                                user.getImBridges().getImBridge().getImClient().sendMessage(imSession, CmdBuilder.buildMembersToJson(sessionMembers), new IMClient.SendCallback() {
-
+                                imSession.setMts( session.getMessages().getTimeStamp());
+                                imSession.setForce(true);
+                                currentUser.getImBridges().getImBridge().getImClient().updateSession(imSession,CmdBuilder.buildMembersWithDelToJson(sessionMembers),sendMsg, new IMClient.SendCallback() {
                                     @Override
                                     public void onReturnCode(int code, IMSession imSession, String sendMsg) {
-                                        LogUtil.getInstance().log(TAG, "sendMessage :" + code, null);
                                     }
                                 });
                             }
-
                             @Override
-                            public void onError(int errorCode,String error) {
-
+                            public void onError(int code, String error) {
                             }
                         });
                     }
-
                     @Override
-                    public void onError(int errorCode,String error) {
-
+                    public void onError(int code, String error) {
                     }
                 });
                 break;
-            case SendReturnCode.SRC_SESSION_MTS_ON_SERVER_HAS_EXPIRED :
-                index = imSession.getId().indexOf("_")+1;
-                if(index < 1){
-                    return ;
-                }
-                sessionId = imSession.getId().substring(index,imSession.getId().length());
-                LogUtil.getInstance().log(TAG, "SRC_SESSION_MTS_ON_SERVER_HAS_EXPIRED:"+28 , null);
-                user.getSessions().getSessionBySessionId(sessionId, new Back.Result<Session>() {
-                    @Override
-                    public void onSuccess(Session session) {
-                        session.getMembers().getMembers(new Back.Result<List<SessionMember>>() {
-                            @Override
-                            public void onSuccess(List<SessionMember> sessionMembers) {
-                                LogUtil.getInstance().log(TAG, "sessionMembers:"+sessionMembers.size() , null);
-                                user.getImBridges().updateSession(imSession, CmdBuilder.buildMembersWithDelToJson(sessionMembers), new IMClient.SendCallback() {
 
-                                    @Override
-                                    public void onReturnCode(int code, IMSession imSession, String sendMsg) {
-                                        if (SendReturnCode.SRC_SESSION_MEMBERS_INVALID == code) {
-                                            LogUtil.getInstance().log(TAG, "updateSession:" + code, null);
-                                        }else{
-                                            user.getImBridges().getImBridge().getImClient().sendMessage(imSession, sendMsg, new IMClient.SendCallback() {
-
-                                                @Override
-                                                public void onReturnCode(int code, IMSession imSession, String sendMsg) {
-                                                    LogUtil.getInstance().log(TAG, "sendMessage :" + code, null);
-                                                }
-                                            });
-                                        }
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onError(int errorCode,String error) {
-                                LogUtil.getInstance().log(TAG, "ErrorCode:" + errorCode, null);
-                            }
-                        });
-
-                    }
-
-                    @Override
-                    public void onError(int errorCode,String error) {
-
-                    }
-                });
-                break;
             default:break;
         }
     }
-    private void messageDeal(Json json){
-        List<Json> syncs = json.getList("syncs");
-        for(Json j : syncs){
-            SyncQueue sq = new SyncQueue();
-            sq.setType(j.getStr("type"));
-            sq.setSessionId(j.getStr("sessionId"));
-            sq.setContent(j.getStr("content"));
-            sq.setStatus(EnumManage.ReceiveSyncStatusType.none.toString());
-            sq.setMyId(user.getEntity().getId());
-            syncManager.addSync(sq);
-        }
 
+    private void messageDeal(Json json,String noticemessage){
+        if(!json.getStr("syncs").equals("")) {
+            List<Json> syncs = json.getList("syncs");
+            for (Json j : syncs) {
+                SyncQueue sq = new SyncQueue();
+                sq.setType(j.getStr("type"));
+                sq.setSessionId(j.getStr("sessionId"));
+                sq.setContent(j.getStr("content"));
+                sq.setStatus(EnumManage.ReceiveSyncStatusType.none.toString());
+                sq.setMyId(currentUser.getEntity().getId());
+                syncManager.addMessage(sq);
+                if("1".equals(sq.getType())){//交流消息
+                    if("backstage".equals(AppContext.getAppContext().getCurrentActivityname())) {
+                        noticeToast(noticemessage);
+                    }
+                }
+            }
+        }
+        if(!json.getStr("av").equals("")){
+            Json avJson = new Json(json.getStr("av"));
+            AcCallQueue sq = new AcCallQueue();
+            sq.setType(avJson.getStr("type"));
+            sq.setMode(avJson.getStr("mode"));
+            sq.setAction(avJson.getStr("action"));
+            sq.setChannel(avJson.getStr("channel"));
+            sq.setSender(avJson.getStr("sender"));
+            List<Json> nubJsons = avJson.getList("members");
+            List<String> ids = new ArrayList<String>();
+            for(Json j : nubJsons){
+                ids.add(j.toString());
+            }
+            sq.setMembers(ids);
+            sq.setSession(avJson.getStr("session"));
+            syncManager.addCallMessage(sq);
+        }
     }
     private void noticeToast(String message){
         if(StringUtil.isEmpty(message)){
@@ -251,9 +322,12 @@ public class ReceiveUtil implements Serializable{
         }
         final Json json = new Json(message);
         final String from = json.getStr("from");
+        if(from.equals(currentUser.getEntity().getId())){
+            return;
+        }
         Users.getInstance().getUser(from, new Back.Result<User>() {
             @Override
-            public void onSuccess(final User user1) {
+            public void onSuccess(final User user) {
                 List<Json> syncs = json.get("message").getList("syncs");
                 String sessionId = "";
                 for(Json j : syncs){
@@ -268,14 +342,10 @@ public class ReceiveUtil implements Serializable{
                         return ;
                     }
                     sessionId = sessionId.substring(index, sessionId.length());
-                    user.getSessions().getSessionBySessionId(sessionId, new Back.Result<Session>() {
+                    currentUser.getSessions().getSessionBySessionId(sessionId, new Back.Result<Session>() {
                         @Override
                         public void onSuccess(Session session) {
-                            if(EnumManage.SessionType.group.toString().equals(session.getEntity().getType())){
-                                NoticeUtil.notice(session.getEntity().getName(),"有一条新消息",0,from,session.getEntity().getType());
-                            }else{
-                                NoticeUtil.notice(user1.getEntity().getName(),"有一条新消息",0,from,session.getEntity().getType());
-                            }
+                            noticeShow(session,user);
                         }
 
                         @Override
@@ -292,6 +362,14 @@ public class ReceiveUtil implements Serializable{
             }
         });
 
+    }
+
+    private void noticeShow(final Session session, final User user){
+        if (EnumManage.SessionType.group.toString().equals(session.getEntity().getType())) {
+            NoticeUtil.notice(session.getEntity().getName(), "您有收到一条新的消息!", NoticeUtil.CHAT, user.getEntity().getId(), session, session.getEntity().getType());
+        } else {
+            NoticeUtil.notice(user.getEntity().getName(), "您有收到一条新的消息!", NoticeUtil.CHAT, user.getEntity().getId(), session, session.getEntity().getType());
+        }
     }
 
     /**

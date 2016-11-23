@@ -252,9 +252,9 @@ public class FilesAdapter extends BaseAdapter {
 			DisplayImageOptions options = new DisplayImageOptions.Builder()
 					.showImageOnLoading(R.drawable.new_img_nom)
 					.showImageForEmptyUri(null).showImageOnFail(null)
-					.cacheInMemory(true).considerExifParams(true)
+					.cacheInMemory(true).cacheOnDisk(true).considerExifParams(true)
 					.bitmapConfig(Bitmap.Config.RGB_565).build();
-			getImageLoader().displayImage("file://" + fileItem.getFilePath(),
+			getImageLoader().displayImage("file://" + fileItem.getFilePath(),null,
 					iv, options);
 		} else if (iconId == R.drawable.file_video) {
 			Bitmap bitmap = BitmapFactory.decodeResource(

@@ -7,11 +7,12 @@ public class Constants {
     public static final String TIME_ORIGIN = "1990-01-01 00:00:00";
     public static final String TIME_QUERY_BEFORE = "2049-01-01 20:12:33";
     public static final String TIME_QUERY_AFTER = "2016-01-01 20:12:33";
-    public static final int CONTACTS_SYNC_LIMIT = 20;
+    public static final int CONTACTS_SYNC_LIMIT = 2000;
     public static final int EMOJIS_SYNC_LIMIT = 100;
     public static final long TIME_STAMP_ADD = 26784*10000;
 
     public static  final String TAG = "lyy Notes";
+    public static  final String IMAGE_SUFFIXES_ENCRYPT = ".pg";
     public static final String APP_STORAGE_DIRECTORY_SB_SYNC = "db_sync";
 
     public static final String DATE_FORMAT_SORTABLE = "yyyyMMdd_HHmmss_S";

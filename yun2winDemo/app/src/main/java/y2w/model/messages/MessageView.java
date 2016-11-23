@@ -8,16 +8,16 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.y2w.uikit.customcontrols.imageview.CircleImageView;
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.y2w.uikit.customcontrols.movie.ScalableVideoView;
 import com.yun2win.demo.R;
 
 import com.y2w.uikit.customcontrols.imageview.RoundAngleImageView;
 import com.y2w.uikit.customcontrols.view.RoundProgressBar;
 
+import y2w.common.HeadImageView;
+
 /**
- * 聊天界面布局定义与控件实例化
+ * 交流界面布局定义与控件实例化
  * Created by yangrongfang on 2016/2/23.
  */
 public class MessageView {
@@ -52,14 +52,17 @@ public class MessageView {
                 .findViewById(R.id.iv_myside_sending_error);
         viewHolder.tvMySideText = (TextView) view
                 .findViewById(R.id.tv_myside_message_text);
-        viewHolder.ivMySideMessageLoading = (ImageView) view
+        viewHolder.ivMySideMessageLoading = (ProgressBar) view
                 .findViewById(R.id.iv_myside_message_text_loading);
         viewHolder.iv_myside_icon = (HeadImageView) view
                 .findViewById(R.id.iv_myside_icon);
         viewHolder.tvMySideCircleName = (TextView) view
                 .findViewById(R.id.tv_myside_image_name);
+        viewHolder.tvMySideMessageRead = (TextView) view
+                .findViewById(R.id.tv_myside_message_text_read);
         viewHolder.ivMySideSendingError.setVisibility(View.GONE);
         viewHolder.ivMySideMessageLoading.setVisibility(View.GONE);
+        viewHolder.tvMySideMessageRead.setVisibility(View.GONE);
         return view;
     }
 
@@ -98,8 +101,11 @@ public class MessageView {
                 .findViewById(R.id.tv_myside_image_name);
         viewHolder.ivMySideSendingError = (ImageView) view
                 .findViewById(R.id.iv_myside_sending_error);
+        viewHolder.tvMySideMessageRead = (TextView) view
+                .findViewById(R.id.tv_myside_message_text_read);
         viewHolder.ivMySideSendingError.setVisibility(View.GONE);
         viewHolder.pbMySideImageTransfer.setVisibility(View.GONE);
+        viewHolder.tvMySideMessageRead.setVisibility(View.GONE);
         return view;
     }
 
@@ -143,12 +149,14 @@ public class MessageView {
                 .findViewById(R.id.iv_myside_icon);
         viewHolder.tvMySideCircleName = (TextView) view
                 .findViewById(R.id.tv_myside_image_name);
-        viewHolder.ivMySideMessageLoading = (ImageView) view
+        viewHolder.ivMySideMessageLoading = (ProgressBar) view
                 .findViewById(R.id.iv_myside_message_text_loading);
         viewHolder.ivMySideSendingError = (ImageView) view
                 .findViewById(R.id.iv_myside_sending_error);
+        viewHolder.tvMySideMessageRead = (TextView) view
+                .findViewById(R.id.tv_myside_message_text_read);
         viewHolder.ivMySideSendingError.setVisibility(View.GONE);
-
+        viewHolder.tvMySideMessageRead.setVisibility(View.GONE);
         return view;
     }
 
@@ -195,10 +203,13 @@ public class MessageView {
                 .findViewById(R.id.tv_myside_image_name);
         viewHolder.ivMySideSendingError = (ImageView) view
                 .findViewById(R.id.iv_myside_sending_error);
+        viewHolder.tvMySideMessageRead = (TextView) view
+                .findViewById(R.id.tv_myside_message_text_read);
         viewHolder.ivMySideSendingError.setVisibility(View.GONE);
         viewHolder.pbMySideImageTransfer.setVisibility(View.GONE);
         viewHolder.svMySideMovie.setVisibility(View.GONE);
         viewHolder.ivMySideImage.setVisibility(View.GONE);
+        viewHolder.tvMySideMessageRead.setVisibility(View.GONE);
         return view;
     }
 
@@ -210,6 +221,8 @@ public class MessageView {
                 .findViewById(R.id.otherside_message_image_item);
         viewHolder.ivOtherSideImage = (RoundAngleImageView) view
                 .findViewById(R.id.iv_otherside_image);
+        viewHolder.pbOtherSideImageTransfer = (RoundProgressBar) view
+                .findViewById(R.id.pb_otherside_image_transfer);
         viewHolder.svOtherSideMovie = (ScalableVideoView) view.findViewById(R.id.sv_otherside_movie);
         viewHolder.ivOtherSideImageOpen = (ImageView) view
                 .findViewById(R.id.iv_otherside_image_open);
@@ -247,7 +260,10 @@ public class MessageView {
                 .findViewById(R.id.tv_myside_file_state);
         viewHolder.ivMySideSendingError = (ImageView) view
                 .findViewById(R.id.iv_myside_sending_error);
+        viewHolder.tvMySideMessageRead = (TextView) view
+                .findViewById(R.id.tv_myside_message_text_read);
         viewHolder.pbMySideFile = (ProgressBar) view.findViewById(R.id.pb_myside_file);
+        viewHolder.tvMySideMessageRead.setVisibility(View.GONE);
         return view;
     }
 
@@ -272,6 +288,43 @@ public class MessageView {
         viewHolder.tvOtherSideFileState = (TextView) view
                 .findViewById(R.id.tv_otherside_file_state);
         viewHolder.pbOtherSideFile = (ProgressBar) view.findViewById(R.id.pb_otherside_file);
+        return view;
+    }
+    /*******************************file***********************************/
+    public View mySideAVInit(MViewHolder viewHolder) {
+        View view = LayoutInflater.from(_context).inflate(
+                R.layout.message_view_type_av_right, null);
+        messageCreateDateInit(viewHolder, view);
+        viewHolder.llMySideAVItem = (LinearLayout) view.findViewById(R.id.myside_message_av_item);
+        viewHolder.iv_myside_icon = (HeadImageView) view
+                .findViewById(R.id.iv_myside_icon);
+        viewHolder.tvMySideCircleName= (TextView) view
+                .findViewById(R.id.tv_myside_image_name);
+        viewHolder.ivMySideAVIcon = (ImageView) view
+                .findViewById(R.id.iv_myside_av_icon);
+        viewHolder.tvMySideAV = (TextView) view
+                .findViewById(R.id.tv_myside_av_title);
+        viewHolder.ivMySideSendingError = (ImageView) view
+                .findViewById(R.id.iv_myside_sending_error);
+        return view;
+    }
+
+    public View otherSideAVInit(MViewHolder viewHolder) {
+        View view = LayoutInflater.from(_context).inflate(
+                R.layout.message_view_type_av_left, null);
+        messageCreateDateInit(viewHolder,view);
+        viewHolder.llOtherSideAVItem = (LinearLayout) view
+                .findViewById(R.id.otherside_message_av_item);
+        viewHolder.ivOtherSideIcon = (HeadImageView) view
+                .findViewById(R.id.iv_otherside_icon);
+        viewHolder.tvOtherSideCircleName= (TextView) view
+                .findViewById(R.id.tv_otherside_image_name);
+        viewHolder.tvOtherSideName= (TextView) view
+                .findViewById(R.id.tv_otherside_name);
+        viewHolder.ivOtherSideAVIcon = (ImageView) view
+                .findViewById(R.id.iv_otherside_av_icon);
+        viewHolder.tvOtherSideAV = (TextView) view
+                .findViewById(R.id.tv_otherside_av_title);
         return view;
     }
 }

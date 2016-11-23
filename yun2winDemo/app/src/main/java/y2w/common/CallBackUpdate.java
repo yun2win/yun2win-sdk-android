@@ -39,7 +39,7 @@ public class CallBackUpdate {
         msg.obj = o;
         handler.sendMessage(msg);
     }
-    public void removeDateUI(Object o){
+    public void responseAVMessage(Object o){
         Message msg = new Message();
         msg.what = 3;
         msg.obj = o;
@@ -50,8 +50,32 @@ public class CallBackUpdate {
         msg.what = 4;
         handler.sendMessage(msg);
     }
+    public void callReject(Object o){
+        Message msg = new Message();
+        msg.what = 5;
+        msg.obj = o;
+        handler.sendMessage(msg);
+    }
+    public void callBusy(Object o){
+        Message msg = new Message();
+        msg.what = 6;
+        msg.obj = o;
+        handler.sendMessage(msg);
+    }
+    public void callCancel(Object o){
+        Message msg = new Message();
+        msg.what = 7;
+        msg.obj = o;
+        handler.sendMessage(msg);
+    }
+	public void SyncSession(Object o){
+        Message msg = new Message();
+        msg.what = 9;
+        msg.obj = o;
+        handler.sendMessage(msg);
+    }
     public static enum updateType{
-        userConversation,contact,chatting,
+        userConversation,contact,chatting,avcall,
     }
 
 }

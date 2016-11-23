@@ -2,8 +2,40 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:background="@color/white">
+    <LinearLayout
+        android:id="@+id/ll_notice_net"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_40"
+        android:background="#fff6df"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        >
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="@dimen/dp_20"
+            android:src="@drawable/action_warning"/>
 
+        <TextView
+            android:id="@+id/tv_notice_net"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:textSize="@dimen/sp_12"
+            android:textColor="#5a5a5a"
+            android:layout_marginLeft="@dimen/dp_10"
+            />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="@dimen/dp_10"
+            android:src="@drawable/ic_action_next_grey" />
+    </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -16,7 +48,16 @@
             android:divider="@null"
             android:scrollbars="vertical">
         </ListView>
-
+      <TextView
+          android:id="@+id/noconversation"
+          android:layout_width="fill_parent"
+          android:layout_height="0dp"
+          android:layout_weight="1"
+          android:gravity="center"
+          android:textSize="@dimen/sp_15"
+          android:textColor="#999999"
+          android:visibility="gone"
+          android:text="您还没有任何交流会话\n赶快点击上方加号，进入工作群聊"/>
     </LinearLayout>
 
 </LinearLayout>

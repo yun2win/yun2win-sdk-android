@@ -13,5 +13,14 @@
             android:divider="@null"
             android:scrollbars="vertical">
         </ListView>
-
+        <TextView
+            android:id="@+id/nogroup"
+            android:layout_width="fill_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="@dimen/sp_15"
+            android:textColor="#999999"
+            android:visibility="gone"
+            android:text="您还没有收藏任何群\n赶快进入群信息，选择保存到通讯录"/>
 </LinearLayout>

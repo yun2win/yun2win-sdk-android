@@ -31,7 +31,7 @@ import y2w.common.IntentChecker;
 import y2w.common.StorageManager;
 import com.y2w.uikit.utils.SystemHardwareUtil;
 import y2w.ui.adapter.ImgAdapter;
-import com.y2w.uikit.utils.ImageUtils;
+import com.y2w.uikit.utils.ImageUtil;
 import com.y2w.uikit.utils.ToastUtil;
 
 /**
@@ -185,11 +185,14 @@ public class ImageSendChooseActivity extends Activity {
 			ToastUtil.ToastMessage(this, getResources().getString(R.string.error));
 			return;
 		}
+		if(!f.getParentFile().exists()){
+			f.getParentFile().mkdirs();
+		}
 		path = f.getPath();
-		if(!SystemHardwareUtil.isHuaweiPhoto()){
+		/*if(!SystemHardwareUtil.isHuaweiPhoto()){*/
 			Uri uri = Uri.fromFile(f);
 			intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-		}
+		//}
 		startActivityForResult(intent, TAKE_PHOTO);
 	}
 
@@ -198,14 +201,14 @@ public class ImageSendChooseActivity extends Activity {
 		if (resultCode == Activity.RESULT_OK) {
 			switch (requestCode) {
 			case TAKE_PHOTO:
-				if(SystemHardwareUtil.isHuaweiPhoto()){
+				/*if(SystemHardwareUtil.isHuaweiPhoto()){
 					Bitmap bitmap = (Bitmap) intent.getExtras().get("data");
 					try {
-						ImageUtils.saveImageToSD(this, path, bitmap, 100);
+						FileUtil.saveImageToSD(this, path, bitmap, 100);
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-				}
+				}*/
 				Intent reintent = new Intent();// 数据是使用Intent返回
 				List<String> phtopath = new ArrayList<String>();
 				phtopath.add(path);
@@ -223,29 +226,34 @@ public class ImageSendChooseActivity extends Activity {
 		public void run() {
 			String volumeName = "external";
 			Uri uri = Images.Media.getContentUri(volumeName); // 图片文件
+
+			String[] columns = new String[] {
+					MediaStore.Files.FileColumns._ID, MediaStore.Files.FileColumns.DATA, MediaStore.Files.FileColumns.SIZE, MediaStore.Files.FileColumns.DATE_MODIFIED
+			};
 			Cursor cursor = ImageSendChooseActivity.this.getContentResolver()
-					.query(uri, null, null, null,
+					.query(uri, columns, null, null,
 							Images.Media.DATE_MODIFIED + " DESC");
 			if (cursor != null) {
 				while (cursor.moveToNext()) {
-					String path = cursor
-							.getString(cursor
-									.getColumnIndexOrThrow(Images.Media.DATA));
-					long size = cursor
-							.getLong(cursor
-									.getColumnIndexOrThrow(Images.Media.SIZE));
-					if (size > 10 * 1024) {
-						int num1 = countSum(path, '/');
+					long fileid = cursor.getLong(0);
+					String filePath = cursor.getString(1);
+					long fileSize = cursor.getLong(2);
+                    String filename="";
+					int pos = filePath.lastIndexOf('/');
+					if (pos != -1) {
+						filename= filePath.substring(pos + 1);
+					}
+					long ModifiedDate = cursor.getLong(3);
+					if (fileSize > 10 * 1024) {
+						int num1 = countSum(filePath, '/');
 						if (num1 <= 10) {
-							int num2 = countSum(path, '.');
-							if (num2 == 1) {
-								listpath.add(path);
+							if (!filename.startsWith(".")) {
+								listpath.add(filePath);
 								chooses.add(false);
 							}
 						}
 					}
 				}
-				Message msg = new Message();
 				if (handler != null)
 					handler.sendEmptyMessage(1);
 				cursor.close();

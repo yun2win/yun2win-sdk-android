@@ -10,28 +10,38 @@ import android.widget.RelativeLayout;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 
-
-import com.y2w.uikit.customcontrols.imageview.CircleImageView;
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
-import com.y2w.uikit.utils.ImagePool;
+import com.y2w.uikit.utils.HeadTextBgProvider;
+import com.y2w.uikit.utils.StringUtil;
 import com.y2w.uikit.utils.pinyinutils.SortModel;
 import com.yun2win.demo.R;
 
 import java.util.List;
 
-import y2w.base.AppContext;
+import y2w.base.Urls;
+import y2w.common.HeadImageView;
+import y2w.manage.EnumManage;
 
 public class GroupMemberAdapter extends BaseAdapter implements SectionIndexer{
 	public List<SortModel> list = null;
 	private Context context;
 	public String type;//display;select
+	public int managenum =0;
 	
-	public GroupMemberAdapter(Context context, List<SortModel> list, String type) {
+	public GroupMemberAdapter(Context context, List<SortModel> list, String type,int managenum) {
 		this.list = list;
 		this.type = type;
 		this.context = context;
+		this.managenum = managenum;
 	}
-	
+
+	public int getManagenum() {
+		return managenum;
+	}
+
+	public void setManagenum(int managenum) {
+		this.managenum = managenum;
+	}
+
 	/**
 	 * 当ListView数据发生变化时,调用此方法来更新ListView
 	 * @param list
@@ -65,6 +75,7 @@ public class GroupMemberAdapter extends BaseAdapter implements SectionIndexer{
 			viewHolder.ivSelectedIcon = (ImageView) view.findViewById(R.id.iv_selector);
 			viewHolder.vDivider = (View) view.findViewById(R.id.v_divider);
 			viewHolder.tv_circle_name = (TextView) view.findViewById(R.id.tv_image_name);
+			viewHolder.tv_sign = (TextView) view.findViewById(R.id.tv_sign);
 			viewHolder.rlContactorListItem = (RelativeLayout) view.findViewById(R.id.rl_list_item);
 			view.setTag(viewHolder);
 		} else {
@@ -75,9 +86,9 @@ public class GroupMemberAdapter extends BaseAdapter implements SectionIndexer{
 			//设置目录
 			this.setCalalog(viewHolder, view, position, mContent);
 			//设置选择状态
-			this.setSelectorState(viewHolder, view, mContent);
+			this.setSelectorState(viewHolder, view, mContent,position);
 			//设置名称
-			this.setBase(viewHolder, view, mContent);
+			this.setBase(viewHolder, view, mContent,position);
 
 		}catch(Exception e){
 			
@@ -87,30 +98,55 @@ public class GroupMemberAdapter extends BaseAdapter implements SectionIndexer{
 	}
 
 	private void setCalalog(ViewHolder viewHolder, View view, int position, SortModel mContent){
-		//根据position获取分类的首字母的Char ascii值ֵ
-		int section = getSectionForPosition(position);
-		//如果当前位置等于该分类首字母的Char的位置 ，则认为是第一次出现
-		if(position == getPositionForSection(section)){
-			viewHolder.tvCatalog.setText(mContent.getSortLetters());
+		if(position==0 && managenum>0){
+			viewHolder.tvCatalog.setText("群主,管理员");
 			viewHolder.tvCatalog.setVisibility(View.VISIBLE);
+		}else if(position < managenum){
+			viewHolder.tvCatalog.setVisibility(View.GONE);
+		}else {
+			//根据position获取分类的首字母的Char ascii值ֵ
+			int section = getSectionForPosition(position);
+			//如果当前位置等于该分类首字母的Char的位置 ，则认为是第一次出现
+			if (position == getPositionForSection(section)) {
+				viewHolder.tvCatalog.setText(mContent.getSortLetters());
+				viewHolder.tvCatalog.setVisibility(View.VISIBLE);
+			} else {
+				viewHolder.tvCatalog.setVisibility(View.GONE);
+			}
 		}
 	}
 
-	private void setBase(ViewHolder viewHolder, View view, SortModel model){
+	private void setBase(ViewHolder viewHolder, View view, SortModel model,int position){
 		viewHolder.tvName.setText(model.getName());
-		viewHolder.hiv_header.loadBuddyAvatarbyurl(model.getAvatarUrl(), R.drawable.default_person_icon);
+		viewHolder.hiv_header.loadBuddyAvatarbyurl(model.getAvatarUrl() , R.drawable.default_person_icon);//default_person_icon
+
+		viewHolder.tv_circle_name.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(model.getId())));
+		if(position < managenum){
+			viewHolder.tv_sign.setVisibility(View.VISIBLE);
+			if(model.getRole().equals(EnumManage.GroupRole.master.toString())){
+				viewHolder.tv_sign.setText("群主");
+			}else{
+				viewHolder.tv_sign.setText("管理员");
+			}
+		}else{
+			viewHolder.tv_sign.setVisibility(View.GONE);
+		}
 	}
 	
-	private void setSelectorState(ViewHolder viewHolder, View view, SortModel mContent){
+	private void setSelectorState(ViewHolder viewHolder, View view, SortModel mContent,int position){
 		if("display".equals(type)){
 			viewHolder.ivSelectedIcon.setVisibility(View.GONE);
-		}else{
-			if("true".equals(mContent.getSelectedStatus())){
-				viewHolder.ivSelectedIcon.setBackgroundResource(R.drawable.checked);
-			}else{
-				viewHolder.ivSelectedIcon.setBackgroundResource(R.drawable.unchecked);
+		}else {
+			if (position < managenum) {
+				viewHolder.ivSelectedIcon.setVisibility(View.GONE);
+			} else {
+				if (mContent.getSelectedStatus()) {
+					viewHolder.ivSelectedIcon.setBackgroundResource(R.drawable.checked);
+				} else {
+					viewHolder.ivSelectedIcon.setBackgroundResource(R.drawable.unchecked);
+				}
+				viewHolder.ivSelectedIcon.setVisibility(View.VISIBLE);
 			}
-			viewHolder.ivSelectedIcon.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -122,6 +158,7 @@ public class GroupMemberAdapter extends BaseAdapter implements SectionIndexer{
 		View vDivider;
 		RelativeLayout rlContactorListItem;
 		TextView tv_circle_name;
+		TextView tv_sign;
 	}
 
 	/**
@@ -146,7 +183,7 @@ public class GroupMemberAdapter extends BaseAdapter implements SectionIndexer{
 		try{
 		if(section == -1)
 			return -1;
-		for (int i = 0; i < getCount(); i++) {
+		for (int i = managenum; i < getCount(); i++) {
 			String sortStr = list.get(i).getSortLetters();
 			if(sortStr != null && !sortStr.equals("")){
 				char firstChar = sortStr.toUpperCase().charAt(0);

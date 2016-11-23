@@ -20,13 +20,16 @@ import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.InputFilter;
+import android.text.InputType;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.y2w.uikit.customcontrols.view.ClearableEditTextWithIcon;
+import com.y2w.uikit.utils.StringUtil;
 import com.y2w.uikit.utils.ToastUtil;
 import com.yun2win.demo.R;
 
@@ -46,9 +49,9 @@ import static com.yun2win.utils.LogUtil.*;
 public class RegisterActivity extends BaseActivity {
 	private static final String TAG = "RegisterActivity";
    //http://112.74.210.208:8080/images/default.jpg 默认头像地址
-    private ClearableEditTextWithIcon registerAccountEdit;
-	private ClearableEditTextWithIcon registerNickNameEdit;
-	private ClearableEditTextWithIcon registerPasswordEdit;
+    private EditText registerAccountEdit;
+	private EditText registerNickNameEdit;
+	private EditText registerPasswordEdit;
 	private Button bt_register;
 	private Context context;
 
@@ -71,17 +74,14 @@ public class RegisterActivity extends BaseActivity {
 	 * 初始化
 	 */
 	public void registerInit() {
-		registerAccountEdit = (ClearableEditTextWithIcon) findViewById(R.id.edit_register_account);
-		registerNickNameEdit = (ClearableEditTextWithIcon) findViewById(R.id.edit_register_nickname);
-		registerPasswordEdit = (ClearableEditTextWithIcon) findViewById(R.id.edit_register_password);
+		registerAccountEdit = (EditText) findViewById(R.id.et_register_account);
+		registerNickNameEdit = (EditText) findViewById(R.id.et_register_nickname);
+		registerPasswordEdit = (EditText) findViewById(R.id.et_register_secret);
 		bt_register = (Button) findViewById(R.id.bt_register);
-		registerAccountEdit.setIconResource(R.drawable.user_account_icon);
-		registerNickNameEdit.setIconResource(R.drawable.nick_name_icon);
-		registerPasswordEdit.setIconResource(R.drawable.user_pwd_lock_icon);
 
-		registerAccountEdit.setFilters(new InputFilter[]{new InputFilter.LengthFilter(20)});
+/*		registerAccountEdit.setFilters(new InputFilter[]{new InputFilter.LengthFilter(20)});
 		registerNickNameEdit.setFilters(new InputFilter[]{new InputFilter.LengthFilter(10)});
-		registerPasswordEdit.setFilters(new InputFilter[]{new InputFilter.LengthFilter(20)});
+		registerPasswordEdit.setFilters(new InputFilter[]{new InputFilter.LengthFilter(20)});*/
 
 		registerAccountEdit.addTextChangedListener(textWatcher);
 		registerNickNameEdit.addTextChangedListener(textWatcher);
@@ -123,17 +123,25 @@ public class RegisterActivity extends BaseActivity {
 			return;
 		} else if (TextUtils.isEmpty(username)) {
 			Toast.makeText(this, getResources().getString(R.string.User_name_cannot_be_empty), Toast.LENGTH_SHORT).show();
-			registerAccountEdit.requestFocus();
+			registerNickNameEdit.requestFocus();
 			return;
 		} else if (TextUtils.isEmpty(pwd)) {
 			Toast.makeText(this, getResources().getString(R.string.Password_cannot_be_empty), Toast.LENGTH_SHORT).show();
-			registerNickNameEdit.requestFocus();
+			registerPasswordEdit.requestFocus();
+			return;
+		}else if(pwd.length()<6){
+			Toast.makeText(this, getResources().getString(R.string.Password_cannot_be_short), Toast.LENGTH_SHORT).show();
+			registerPasswordEdit.requestFocus();
+			return;
+		}else if(!StringUtil.isEmail(account)){
+			Toast.makeText(this, getResources().getString(R.string.Account_cannot_be_error), Toast.LENGTH_SHORT).show();
+			registerAccountEdit.requestFocus();
 			return;
 		}
 		Users.getInstance().getRemote().register(account, pwd, username,new Back.Result<User>() {
 			@Override
 			public void onSuccess(User user) {
-				UserInfo.setUserInfo(user.getEntity().getAccount(),"","","","","","");
+				UserInfo.setUserInfo(user.getEntity().getAccount(),"","","","","","","","");
 				getInstance().log(TAG, "Id=" + user.getEntity().getId(), null);
 				getInstance().log(TAG, "name=" + user.getEntity().getName(), null);
 				getInstance().log(TAG, "email=" + user.getEntity().getAccount(), null);
@@ -159,6 +167,10 @@ public class RegisterActivity extends BaseActivity {
 	}
 
 	public void back(View view) {
+		finish();
+	}
+
+	public void loginClick(View view) {
 		finish();
 	}
 

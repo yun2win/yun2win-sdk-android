@@ -2,6 +2,7 @@ package y2w.ui.activity;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,12 +28,14 @@ public class MovieRecorderActivity extends Activity {
     private MovieRecorderView mRecorderView;
     private Button mShootBtn;
     private boolean isFinish = true;
+    private Context context;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movierecorder);
+        context = this;
         initActionBar();
         mRecorderView = (MovieRecorderView) findViewById(R.id.movieRecorderView);
         mShootBtn = (Button) findViewById(R.id.shoot_button);
@@ -42,7 +45,7 @@ public class MovieRecorderActivity extends Activity {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // TODO Auto-generated method stub
-                Log.i("touch","----event.getAction() : getTimeCount="+event.getAction() + " : "+mRecorderView.getTimeCount());
+                Log.i("touch", "----event.getAction() : getTimeCount=" + event.getAction() + " : " + mRecorderView.getTimeCount());
                 if (event.getAction() == MotionEvent.ACTION_DOWN) {
                     mRecorderView.record(new MovieRecorderView.OnRecordFinishListener() {
 

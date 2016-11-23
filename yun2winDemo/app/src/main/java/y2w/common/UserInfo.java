@@ -22,9 +22,8 @@ public class UserInfo {
      * @param account
      * @param password
      */
-    public static void setUserInfo(String account,String password,String id,String username,String token, String appKey, String secret){
-
-        SharedPreferences preferences = getAppContext().getSharedPreferences("user_info", Context.MODE_PRIVATE);
+    public static void setUserInfo(String account,String password,String id,String username,String avatarUrl,String token, String appKey, String secret,String role){
+        SharedPreferences preferences = getAppContext().getSharedPreferences(Config.UserInfo, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor1=preferences.edit();
         editor1.putString("account", account);
         editor1.putString("password", password);
@@ -33,52 +32,74 @@ public class UserInfo {
         editor1.putString("token", token);
         editor1.putString("appKey", appKey);
         editor1.putString("secret", secret);
+        editor1.putString("avatarUrl", avatarUrl);
+        editor1.putString("role",role);
         editor1.commit();
     }
 
-
-
     public static String getUserId(){
-        SharedPreferences preferences = getAppContext().getSharedPreferences("user_info",Context.MODE_PRIVATE);
+        SharedPreferences preferences = getAppContext().getSharedPreferences(Config.UserInfo,Context.MODE_PRIVATE);
         return preferences.getString("id", "");
     }
     public static String getUserName(){
-        SharedPreferences preferences = getAppContext().getSharedPreferences("user_info", Context.MODE_PRIVATE);
+        SharedPreferences preferences = getAppContext().getSharedPreferences(Config.UserInfo, Context.MODE_PRIVATE);
         return preferences.getString("username", "");
     }
 
 
     public static String getAccount(){
-        SharedPreferences preferences = getAppContext().getSharedPreferences("user_info", Context.MODE_PRIVATE);
+        SharedPreferences preferences = getAppContext().getSharedPreferences(Config.UserInfo, Context.MODE_PRIVATE);
         return preferences.getString("account", "");
     }
 
     public static String getPassWord(){
-        SharedPreferences preferences = getAppContext().getSharedPreferences("user_info", Context.MODE_PRIVATE);
+        SharedPreferences preferences = getAppContext().getSharedPreferences(Config.UserInfo, Context.MODE_PRIVATE);
         return preferences.getString("password", "");
     }
     public static String getToken(){
-        SharedPreferences preferences = getAppContext().getSharedPreferences("user_info", Context.MODE_PRIVATE);
+        SharedPreferences preferences = getAppContext().getSharedPreferences(Config.UserInfo, Context.MODE_PRIVATE);
         return preferences.getString("token", "");
     }
 
     public static String getAppKey(){
-        SharedPreferences preferences = getAppContext().getSharedPreferences("user_info", Context.MODE_PRIVATE);
+        SharedPreferences preferences = getAppContext().getSharedPreferences(Config.UserInfo, Context.MODE_PRIVATE);
         return preferences.getString("appKey", "");
     }
     public static String getSecret(){
-        SharedPreferences preferences = getAppContext().getSharedPreferences("user_info", Context.MODE_PRIVATE);
+        SharedPreferences preferences = getAppContext().getSharedPreferences(Config.UserInfo, Context.MODE_PRIVATE);
         return preferences.getString("secret", "");
     }
-
+    public static String getRole(){
+        SharedPreferences preferences = getAppContext().getSharedPreferences(Config.UserInfo, Context.MODE_PRIVATE);
+        return preferences.getString("role", "");
+    }
+    public static String getAvatarUrl(){
+        SharedPreferences preferences = getAppContext().getSharedPreferences(Config.UserInfo, Context.MODE_PRIVATE);
+        return preferences.getString("avatarUrl", "");
+    }
     public static void setCurrentInfo(CurrentUser user,String passWord){
-        setUserInfo(user.getEntity().getAccount(),passWord,user.getEntity().getId(),user.getEntity().getName(),user.getToken(),user.getAppKey(),user.getSecret());
+        setUserInfo(user.getEntity().getAccount(),passWord,user.getEntity().getId(),user.getEntity().getName(),user.getEntity().getAvatarUrl(),user.getToken(),user.getAppKey(),user.getSecret(),user.getRole());
+    }
+    public static LoginInfo getCurrentInfo(){
+        LoginInfo info = new LoginInfo();
+        info.setToken(getToken());
+        info.setKey(getAppKey());
+        info.setSecret(getSecret());
+        info.setRole(getRole());
+        ContactEntity entity = new ContactEntity();
+        entity.setId(getUserId());
+        entity.setName(getUserName());
+        entity.setEmail(getAccount());
+        entity.setAvatarUrl(getAvatarUrl());
+        info.setEntity(entity);
+        return  info;
     }
 
     public static class LoginInfo{
         String token;
         String key;
         String secret;
+        String role = "";
         ContactEntity entity;
 
         public static LoginInfo parseJson(Json json){
@@ -114,6 +135,14 @@ public class UserInfo {
             this.secret = secret;
         }
 
+        public String getRole() {
+            return role;
+        }
+
+        public void setRole(String role) {
+            this.role = role;
+        }
+
         public ContactEntity getEntity() {
             return entity;
         }
@@ -130,7 +159,7 @@ public class UserInfo {
     public static void clearPassWord(){
         String account = getAccount();
         LogUtil.getInstance().log("userInfo",account,null);
-        setUserInfo(account, "", "", "", "","","");
+        setUserInfo(account, "", "", "", "","","","","");
     }
 
 

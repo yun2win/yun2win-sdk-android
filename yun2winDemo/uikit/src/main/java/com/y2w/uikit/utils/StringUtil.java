@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.y2w.uikit.common.MD5;
 import com.y2w.uikit.utils.pinyinutils.CharacterParser;
@@ -280,7 +282,7 @@ public class StringUtil {
     }
 
     /**
-     * 聊天记录时间戳显示
+     * 交流记录时间戳显示
      * 每一条消息与上一条消息比较时间，超过2分钟，即可显示时间
      * @param str1 上一条消息时间
      * @param str2 当前显示消息时间
@@ -292,13 +294,9 @@ public class StringUtil {
             SimpleDateFormat dfs = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             java.util.Date begin = dfs.parse(str1);
             java.util.Date end = dfs.parse(str2);
-            long between = (end.getTime() - begin.getTime()) / 1000;//除以1000是为了转换成秒
+            long between = end.getTime() - begin.getTime();//除以1000是为了转换成秒
 
-            long day = between / (24 * 3600);
-            long hour = between % (24 * 3600) / 3600;
-            long minute = between % 3600 / 60;
-            long second = between % 60 / 60;
-            if(day > 1 || hour > 1 || minute >= 2){
+            if(between>2*60*1000){
                 return true;
             }
         }catch (Exception e){
@@ -318,15 +316,10 @@ public class StringUtil {
             SimpleDateFormat dfs = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             java.util.Date begin = dfs.parse(str1);
             java.util.Date end = dfs.parse(str2);
-            long between = (end.getTime() - begin.getTime()) / 1000;//除以1000是为了转换成秒
-
-            long day = between / (24 * 3600);
-            long hour = between % (24 * 3600) / 3600;
-            long minute = between % 3600 / 60;
-            long second = between % 60;
-            if(day > 1 || hour > 1 || minute >= 1 || second >= 1){
+            long between = end.getTime() - begin.getTime();
+            if(between>0){
                 return 1;
-            }else if(day == 0 && hour == 0 && minute == 0 && second == 0){
+            }else if(between==0){
                 return 0;
             }else{
                 return -1;
@@ -369,7 +362,8 @@ public class StringUtil {
      * @return
      */
     public static int parseAscii(String str){
-
+        if(StringUtil.isEmpty(str))
+            return 0;
         char[] cs=str.toCharArray();
         if(cs.length==0){
             return  0;
@@ -761,5 +755,11 @@ public class StringUtil {
         return topActivityClassName;
 
     }
-
+   public static boolean isEmail(String email){
+       String check = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+       Pattern regex = Pattern.compile(check);
+       Matcher matcher = regex.matcher(email);
+       boolean isMatched = matcher.matches();
+       return isMatched;
+   }
 }

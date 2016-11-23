@@ -40,8 +40,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
-                    android:background="@drawable/file_loading"
-                    android:scaleType="fitEnd"
+                    android:scaleType="centerInside"
+                    android:background="#6ce5dc"
                     android:maxWidth="@dimen/dp_120"
                     android:maxHeight="@dimen/dp_160"
                     android:visibility="visible" >
@@ -73,8 +73,8 @@
 
                 <ImageView
                     android:id="@+id/iv_myside_image_open"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
                     android:layout_centerInParent="true"
                     android:alpha="1.0"
                     android:scaleType="fitCenter"

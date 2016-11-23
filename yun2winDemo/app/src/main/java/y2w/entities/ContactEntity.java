@@ -9,6 +9,8 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import y2w.base.AppData;
+
 /**
  * 通讯录表
  * Created by yangrongfang on 2016/1/18.
@@ -24,6 +26,8 @@ public class ContactEntity implements Serializable {
     private String userId;
     @DatabaseField
     private String name;
+    @DatabaseField
+    private String simpchinaname;
     @DatabaseField
     private String email;
     @DatabaseField
@@ -65,6 +69,7 @@ public class ContactEntity implements Serializable {
         entity.setIsDelete(json.getBool("isDelete"));
         entity.setPhone(json.getStr("phone"));
         entity.setAddress(json.getStr("address"));
+        entity.setSimpchinaname(AppData.getInstance().getsampchina(entity.getName()));
         return  entity;
     }
     public static ContactEntity parseSync(Json json,int total){
@@ -212,4 +217,11 @@ public class ContactEntity implements Serializable {
         this.total = total;
     }
 
+    public String getSimpchinaname() {
+        return simpchinaname;
+    }
+
+    public void setSimpchinaname(String simpchinaname) {
+        this.simpchinaname = simpchinaname;
+    }
 }

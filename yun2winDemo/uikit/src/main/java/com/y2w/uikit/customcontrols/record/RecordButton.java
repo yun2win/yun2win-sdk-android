@@ -21,8 +21,8 @@ public class RecordButton extends Button implements OnTouchListener{
 	OnRecordListener onRecordListener;
 	RecordUtil util;
 	private boolean isCancel = false;
-	private static final int MIN_INTERVAL_TIME = 2000; // 录音最短时间
-	private static final int MAX_INTERVAL_TIME = 60000; // 录音最长时间
+	private static final int MIN_INTERVAL_TIME = 1000 * 2; // 录音最短时间
+	private static final int MAX_INTERVAL_TIME = 1000 * 60; // 录音最长时间
 
 	public static final int RECORD_NORMAL = 1;
 	public static final int RECORD_TIMEOUT = 0;
@@ -35,7 +35,7 @@ public class RecordButton extends Button implements OnTouchListener{
 	public interface OnRecordListener {
 		void onRecordStart();
 		void onCancel();
-		void onSuccess(String path, int code);
+		void onSuccess(String path, int code, int second);
 		void onError(String msg);
 		void onVolumeChange(int volume);
 	}
@@ -118,7 +118,7 @@ public class RecordButton extends Button implements OnTouchListener{
 			if(what==-1){//录音超时
 				stopRecording();
 				isTimeOut=true;
-				onRecordListener.onSuccess(util.getmAudioPath(),RECORD_TIMEOUT);
+				onRecordListener.onSuccess(util.getmAudioPath(),RECORD_TIMEOUT,MAX_INTERVAL_TIME/1000);
 			}else{//音量
 				onRecordListener.onVolumeChange(what);
 			}
@@ -155,24 +155,24 @@ public class RecordButton extends Button implements OnTouchListener{
 						thread.exit();
 					}
 					stopRecording();
+					long second = stopTime - mStartTime;
 					if(isCancel){
 						isCancel=false;
-						onRecordListener.onSuccess(util.getmAudioPath(),RECORD_CANCEL);
+						onRecordListener.onSuccess(util.getmAudioPath(),RECORD_CANCEL,(int)second/1000);
 					}else{
-						long count = stopTime - mStartTime;
-						if(count <= MIN_INTERVAL_TIME){
-							onRecordListener.onSuccess(util.getmAudioPath(),RECORD_LESS_THAN_MIN);
+						if(second <= MIN_INTERVAL_TIME){
+							onRecordListener.onSuccess(util.getmAudioPath(),RECORD_LESS_THAN_MIN,(int)second/1000);
 			            }else{
-							onRecordListener.onSuccess(util.getmAudioPath(),RECORD_NORMAL);
+							onRecordListener.onSuccess(util.getmAudioPath(),RECORD_NORMAL,(int)second/1000);
 			            }
 					}
 				}
 				isTimeOut = false;
 				break;
 			case MotionEvent.ACTION_CANCEL:
-				long count = stopTime - mStartTime;
-				if(count <= MIN_INTERVAL_TIME){
-					onRecordListener.onSuccess(util.getmAudioPath(),RECORD_LESS_THAN_MIN);
+				long second = stopTime - mStartTime;
+				if(second <= MIN_INTERVAL_TIME){
+					onRecordListener.onSuccess(util.getmAudioPath(),RECORD_LESS_THAN_MIN,(int)second/1000);
 				}
 				break;
 		}

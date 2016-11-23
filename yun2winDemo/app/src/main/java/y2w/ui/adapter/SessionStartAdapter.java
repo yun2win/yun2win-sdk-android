@@ -6,9 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.y2w.uikit.utils.HeadTextBgProvider;
 import com.y2w.uikit.utils.StringUtil;
 import com.yun2win.demo.R;
@@ -17,7 +17,8 @@ import java.util.List;
 
 import com.y2w.uikit.utils.pinyinutils.SortModel;
 
-import org.w3c.dom.Text;
+import y2w.base.Urls;
+import y2w.common.HeadImageView;
 
 /**
  * Created by maa2 on 2016/2/19.
@@ -26,8 +27,27 @@ public class SessionStartAdapter extends BaseAdapter {
 
     private List<SortModel> sortModels;
     private Context context;
+    private boolean isavatar = true;
+    private boolean showselect = true;
+
     public SessionStartAdapter(Context context){
         this.context = context;
+    }
+
+    public boolean isavatar() {
+        return isavatar;
+    }
+
+    public void setIsavatar(boolean isavatar) {
+        this.isavatar = isavatar;
+    }
+
+    public boolean isShowselect() {
+        return showselect;
+    }
+
+    public void setShowselect(boolean showselect) {
+        this.showselect = showselect;
     }
 
     public void setListView(List<SortModel> list) {
@@ -69,18 +89,26 @@ public class SessionStartAdapter extends BaseAdapter {
                     .findViewById(R.id.textchart);
             holdView.view_line=view.findViewById(R.id.viewline);
             holdView.iv_select = (ImageView) view.findViewById(R.id.iv_contact_select);
+            holdView.relativeLayouthead = (RelativeLayout) view.findViewById(R.id.relativeLayout11);
             view.setTag(holdView);
         } else {
             holdView = (SessionHoldView) view.getTag();
         }
         setIndexview(holdView,model,position);
+        if(!showselect){
+            holdView.iv_select.setVisibility(View.GONE);
+        }
         return view;
     }
     public void setIndexview(SessionHoldView holdView,SortModel model,int position){
         holdView.tv_name.setText(model.getName());
-        holdView.img_header.loadBuddyAvatarbyurl(model.getAvatarUrl(), R.drawable.default_person_icon);
 
-        holdView.tv_header.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(model.getUserId())));
+        if(isavatar) {
+            holdView.img_header.loadBuddyAvatarbyurl(model.getAvatarUrl(), R.drawable.default_person_icon);
+            holdView.tv_header.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(model.getUserId())));
+        }else{
+            holdView.relativeLayouthead.setVisibility(View.GONE);
+        }
         if(position==0){
             holdView.tv_chart.setVisibility(View.VISIBLE);
             holdView.tv_chart.setText(model.getSortLetters());
@@ -113,6 +141,7 @@ public class SessionStartAdapter extends BaseAdapter {
         public TextView tv_chart;
         public View view_line;
         public ImageView iv_select;
+        public RelativeLayout relativeLayouthead;
     }
     /**
      * 根据分类的首字母的Char ascii值获取其第一次出现该首字母的位置

@@ -1,61 +1,55 @@
 package y2w.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import y2w.entities.searchEntities.SearchMessage;
+import y2w.entities.searchEntities.SearchUserConversation;
+
 /**
  * Created by Administrator on 2016/4/25.
  */
-public class NewDataModel {
-    private String name = "";
-    private String head_url = "";
-    private String session_id = "";
-    private String type = "";
-    private String userId = "";
-    private String email = "";
-
-    public String getHead_url() {
-        return head_url;
-    }
-
-    public void setHead_url(String head_url) {
-        this.head_url = head_url;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setSession_id(String session_id) {
-        this.session_id = session_id;
-    }
-
-    public String getSession_id() {
-        return session_id;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+public class NewDataModel{
+    private String type = "";//contactentity,userconversationentity messageentity
+    private Contact contact;
+    private SearchUserConversation searchUserConversation;
+    private SearchMessage searchMessage;
+    public  NewDataModel(String type,Contact contact,SearchUserConversation searchUserConversation,SearchMessage searchMessage){
+        setType(type);
+        setSearchContact(contact);
+        setSearchUserconversation(searchUserConversation);
+        setSearchMessage(searchMessage);
     }
 
     public String getType() {
         return type;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setType(String type) {
+        this.type = type;
     }
 
-    public String getEmail() {
-        return email;
+    public SearchUserConversation getSearchUserconversation() {
+        return searchUserConversation;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setSearchUserconversation(SearchUserConversation searchUserConversation) {
+        this.searchUserConversation = searchUserConversation;
     }
 
-    public String getUserId() {
-        return userId;
+    public Contact getSearchContact() {
+        return contact;
+    }
+
+    public void setSearchContact(Contact contact) {
+        this.contact = contact;
+    }
+
+    public SearchMessage getSearchMessage() {
+        return searchMessage;
+    }
+
+    public void setSearchMessage(SearchMessage searchMessage) {
+        this.searchMessage = searchMessage;
     }
 }

@@ -2,7 +2,8 @@ package y2w.ui.widget.storeage.files;
 
 import android.graphics.Bitmap;
 
-public class FileItem {
+
+public class FileItem{
 
 	private String FileName;
 	private String extraName;

@@ -31,7 +31,7 @@
 	           android:id="@+id/tv_myside_message_text"
 	           android:layout_width="wrap_content"
 	           android:layout_height="wrap_content"
-	           android:maxWidth="@dimen/dp_248"
+	           android:maxWidth="@dimen/dp_230"
 	           android:background="@drawable/message_text_myside_style"
 	           android:gravity="center_vertical"
 	           android:paddingRight="15dp"

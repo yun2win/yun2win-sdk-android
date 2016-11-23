@@ -611,6 +611,21 @@ public class FileUtil {
                     {"", "*/*"}
             };
 
-
-
+    /**
+     * 检查路径是否存在
+     *
+     * @param path
+     * @return
+     */
+    public static boolean checkFilePathExists(String path) {
+        if(StringUtil.isEmpty(path)){
+            return false;
+        }
+        try {
+            File file = new File(path);
+            return file.exists();
+        }catch (Exception e){
+            return false;
+        }
+    }
 }

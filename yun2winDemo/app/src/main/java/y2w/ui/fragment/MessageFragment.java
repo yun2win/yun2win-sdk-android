@@ -18,22 +18,16 @@ import com.yun2win.demo.R;
 import java.util.ArrayList;
 import java.util.List;
 
-import y2w.base.AppData;
-import y2w.manage.EnumManage;
 import y2w.manage.Users;
 import y2w.model.Session;
-import y2w.model.messages.MessageType;
-import y2w.ui.activity.AVCallActivity;
-import y2w.ui.activity.AVMemberSelectActivity;
 import y2w.ui.activity.ChatActivity;
 import y2w.ui.activity.ImageSendChooseActivity;
 import y2w.ui.activity.LocationActivity;
+import y2w.ui.activity.MovieRecorderActivity;
 import y2w.ui.activity.StoreageFileSelectActivity;
 import y2w.ui.adapter.MessageAddAdapter;
 import y2w.ui.adapter.MessageFragementDisplayPagerAdapter;
 import y2w.ui.widget.emoji.ChatEmoji;
-import y2w.ui.activity.MovieRecorderActivity;
-import y2w.ui.widget.whiteboard.WhiteBoardActivity;
 
 /**
  * Created by hejie on 2016/3/14.
@@ -170,61 +164,6 @@ public class MessageFragment extends Fragment {
 				extras.putInt("type", LocationActivity.LocationType.locationSend);
 				intent.putExtras(extras);
 				_activity.startActivityForResult(intent, ChatActivity.ResultCode.CODE_LOCATION);
-			}else if("语音".equals(moreItems.get(arg2))){
-				if(_session.getEntity().getType().equals(EnumManage.SessionType.group.toString())){
-					Intent intent = new Intent(_context,
-							AVMemberSelectActivity.class);
-					Bundle bundle = new Bundle();
-					bundle.putString("chatType", EnumManage.SessionType.group.toString());
-					bundle.putString("callType", EnumManage.AvCallType.audio.toString());
-					bundle.putString("sessionId", _session.getEntity().getId());
-					bundle.putString("sessionName", _session.getEntity().getName());
-					bundle.putString("userIds", "");
-					bundle.putBoolean("isCreate", true);
-					intent.putExtras(bundle);
-					_activity.startActivity(intent);
-				}else{
-					Intent intent = new Intent(_context,
-							AVCallActivity.class);
-					Bundle bundle = new Bundle();
-					bundle.putString("chatType", EnumManage.SessionType.p2p.toString());
-					bundle.putString("callType", EnumManage.AvCallType.audio.toString());
-					bundle.putString("sessionId", _session.getEntity().getId());
-					bundle.putString("sessionName", _session.getEntity().getName());
-					bundle.putString("otherSideId", _session.getEntity().getOtherSideId());
-					bundle.putString("otherSideName", _session.getEntity().getId());
-					bundle.putString("userIds", "");
-					bundle.putBoolean("isCreate", true);
-					intent.putExtras(bundle);
-					_activity.startActivity(intent);
-				}
-			}else if("视频".equals(moreItems.get(arg2))){
-				if(_session.getEntity().getType().equals(EnumManage.SessionType.group.toString())){
-					Intent intent = new Intent(_context, AVMemberSelectActivity.class);
-					Bundle bundle = new Bundle();
-					bundle.putString("chatType", EnumManage.SessionType.group.toString());
-					bundle.putString("callType", EnumManage.AvCallType.video.toString());
-					bundle.putString("sessionId", _session.getEntity().getId());
-					bundle.putString("sessionName", _session.getEntity().getName());
-					bundle.putString("userIds", "");
-					bundle.putBoolean("isCreate", true);
-					intent.putExtras(bundle);
-					_activity.startActivity(intent);
-				}else{
-					Intent intent = new Intent(_context, AVCallActivity.class);
-					Bundle bundle = new Bundle();
-					bundle.putString("chatType", EnumManage.SessionType.p2p.toString());
-					bundle.putString("callType", EnumManage.AvCallType.video.toString());
-					bundle.putString("sessionId", _session.getEntity().getId());
-					bundle.putString("sessionName", _session.getEntity().getName());
-					bundle.putString("otherSideId", _session.getEntity().getOtherSideId());
-					bundle.putString("otherSideName", _session.getEntity().getId());
-					bundle.putString("userIds", "");
-					bundle.putBoolean("isCreate", true);
-					intent.putExtras(bundle);
-					_activity.startActivity(intent);
-				}
-
 			}
 		}
 		
@@ -235,8 +174,7 @@ public class MessageFragment extends Fragment {
 		 moreItems.add("小视频");
 		 moreItems.add("文档");
 		 moreItems.add("位置");
-		 moreItems.add("语音");
-		 moreItems.add("视频");
+		
 	}
 
 }

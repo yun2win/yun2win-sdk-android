@@ -48,6 +48,8 @@ public class SessionEntity implements Serializable {
     @DatabaseField
     private String avatarUrl;
     @DatabaseField
+    private boolean nameChanged;
+    @DatabaseField
     //此条数据所有者
     private String myId;
 
@@ -56,6 +58,7 @@ public class SessionEntity implements Serializable {
         Entity.setId(json.getStr("id"));
         Entity.setName(json.getStr("name"));
         Entity.setType(json.getStr("type"));
+        Entity.setNameChanged(json.getBool("nameChanged"));
         Entity.setSecureType(json.getStr("secureType"));
         Entity.setDescription(json.getStr("description"));
         Entity.setCreateMTS("");
@@ -225,6 +228,14 @@ public class SessionEntity implements Serializable {
      */
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+
+    public boolean isNameChanged() {
+        return nameChanged;
+    }
+
+    public void setNameChanged(boolean nameChanged) {
+        this.nameChanged = nameChanged;
     }
 
     public String getMyId() {

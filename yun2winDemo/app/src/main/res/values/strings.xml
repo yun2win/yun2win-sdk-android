@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    
+
     <string name="app_name">yun2win</string>
     <string name="Delete_the_contact">Delete the contact</string>
     <string name="Move_into_the_blacklist_new">Move into the blacklist</string>
@@ -16,7 +16,7 @@
     <string name="prompt">提示</string>
     <string name="add_friend">添加好友</string>
     <string name="out_mygroup">退出该群</string>
-    <string name="chat">聊天</string>
+    <string name="chat">发消息</string>
     <string name="delete_friend">删除好友</string>
     <string name="login">登录</string>
     <string name="user_name">用户名</string>
@@ -28,9 +28,11 @@
     <string name="Account_cannot_be_empty">帐号不能为空！</string>
     <string name="User_name_cannot_be_empty">昵称不能为空！</string>
     <string name="Password_cannot_be_empty">密码不能为空！</string>
+    <string name="Password_cannot_be_short">请输入6-20位字符</string>
+    <string name="Account_cannot_be_error">请输入正确的邮箱</string>
     <string name="Is_landing">正在登录...</string>
     <string name="Login_failed">登录失败:</string>
-    <string name="can_not_connect_chat_server_connection">连接不到聊天服务器</string>
+    <string name="can_not_connect_chat_server_connection">连接不到交流服务器</string>
     <string name="the_current_network">当前网络不可用，请检查网络设置</string>
     <string name="Two_input_password">两次输入的密码不一致，请重新输入!</string>
     <string name="Is_the_registered">正在注册...</string>
@@ -56,8 +58,8 @@
     <string name="msg_speaker">听筒模式</string>
     <!-- about -->
     <string name="about_custom_button1">自定义1</string>
-    <string name="about_clear_msg_history">清空所有聊天记录</string>
-    <string name="clear_msg_history_success">聊天记录已清空</string>
+    <string name="about_clear_msg_history">清空所有交流记录</string>
+    <string name="clear_msg_history_success">交流记录已清空</string>
 
     <string name="custom_notification">自定义通知</string>
 
@@ -66,13 +68,16 @@
     <string name="add_contact">添加好友</string>
     <string name="join_group">加入群聊</string>
     <string name="group_start">发起群聊</string>
-
-
+    <string name="group_request">邀请群聊</string>
+    <string name="select_contact">选择联系人</string>
     <!-- main bottom menu -->
-    <string name="menu_1">会话</string>
-    <string name="menu_2">通讯录</string>
-    <string name="menu_3">设置</string>
-
+    <string name="menu_1">交流</string>
+    <string name="menu_2">工作</string>
+    <string name="menu_3">通讯录</string>
+    <string name="menu_4">设置</string>
+    <string name="contacts">联系人</string>
+    <string name="groupchat">群聊</string>
+    <string name="messagechat">交流记录</string>
 
     <string name="change_pass">修改密码</string>
     <string name="about_me">关于</string>
@@ -94,9 +99,10 @@
 
     /*************************************提示***********************/
     <string name="searching">查找中...</string>
-    <string name="operationing">操作中...</string>
+    <string name="operationing">正在发送中...</string>
     <string name="loading">加载中...</string>
     <string name="creategrups">正在创建中...</string>
+    <string name="addmemgrups">正在添加中...</string>
     <string name="send_choceimg">选择图片</string>
     <string name="feature_not_available_on_this_device">功能在此设备上不可用</string>
     <string name="error">错误</string>
@@ -252,7 +258,7 @@
     <string name="video">视频</string>
     <string name="picture">图片</string>
     <string name="activity_not_found">"您的设备上未安装应用程序。"</string>
-
+    <string name="leave_message">"给朋友留言"</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="folder_all">所有图片</string>

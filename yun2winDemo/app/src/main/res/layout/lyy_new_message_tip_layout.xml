@@ -10,7 +10,7 @@
     android:padding="10dip"
     android:visibility="gone" >
 
-    <com.y2w.uikit.customcontrols.imageview.HeadImageView
+    <y2w.common.HeadImageView
         android:id="@+id/new_message_tip_head_image_view"
         android:layout_width="25dip"
         android:layout_height="25dip"

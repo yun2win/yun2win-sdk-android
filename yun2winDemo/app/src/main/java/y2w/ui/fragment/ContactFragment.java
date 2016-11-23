@@ -13,9 +13,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.yun2win.demo.R;
 
 import java.util.ArrayList;
@@ -26,10 +23,8 @@ import y2w.manage.Users;
 import y2w.base.AppData;
 import y2w.common.CallBackUpdate;
 import y2w.model.Contact;
-import y2w.model.DataSaveModuel;
-import y2w.model.UserSession;
+import y2w.model.UserConversation;
 import y2w.service.Back;
-import y2w.service.ErrorCode;
 import y2w.ui.activity.ContactInfoActivity;
 import y2w.ui.activity.GroupListActivity;
 import y2w.ui.adapter.ContactAdapter;
@@ -38,8 +33,6 @@ import com.y2w.uikit.utils.pinyinutils.CharacterParser;
 import com.y2w.uikit.utils.pinyinutils.PinyinComparator;
 import com.y2w.uikit.customcontrols.view.SideBar;
 import com.y2w.uikit.utils.pinyinutils.SortModel;
-
-import org.w3c.dom.Text;
 
 /**
  * Created by hejie on 2016/3/14.
@@ -64,7 +57,19 @@ public class ContactFragment extends Fragment{
 				acyContactdate = new AcyContactdate();
 				acyContactdate.start();
 			}else if(msg.what==0){
+				SourceDataList.clear();
+				List<SortModel> tmpSourceDataList = (List<SortModel>) msg.obj;
+				if(tmpSourceDataList!=null&&tmpSourceDataList.size()>0)
+					SourceDataList.addAll(tmpSourceDataList);
+				contactAdapter.setListViewdate(SourceDataList);
 				contactAdapter.updateListView();
+				if(contacts!=null&&contacts.size()<=0){
+					nocontact.setVisibility(View.VISIBLE);
+					sideBar.setVisibility(View.GONE);
+				}else{
+					nocontact.setVisibility(View.GONE);
+					sideBar.setVisibility(View.VISIBLE);
+				}
 			}else if(msg.what ==2){
 				SortModel entity = (SortModel) msg.obj;
 				boolean find = false;
@@ -115,7 +120,12 @@ public class ContactFragment extends Fragment{
 	        return newFragment;
 		
 	}
-	
+
+	@Override
+	public void onResume() {
+		super.onResume();
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
@@ -138,9 +148,11 @@ public class ContactFragment extends Fragment{
 	private SideBar sideBar;
 	private TextView dialog;
 	private List<Contact> contacts;
+	private TextView nocontact;
 
 	public void contactInit(View view){
 		lv_contact = (ListView) view.findViewById(R.id.lv_contact);
+		nocontact = (TextView) view.findViewById(R.id.nocontact);
 		initSideBar(view);
 		initPinYin();
 
@@ -167,6 +179,18 @@ public class ContactFragment extends Fragment{
 					intent.putExtras(bundle);
 					startActivity(intent);
 				}
+			}
+		});
+
+		Users.getInstance().getCurrentUser().getContacts().getRemote().sync(new Back.Result<List<Contact>>() {
+			@Override
+			public void onSuccess(List<Contact> contacts) {
+				Users.getInstance().getCurrentUser().getContacts().add(contacts);
+				if(contacts!=null&&contacts.size()>0)
+				callBackUpdate.updateUI();
+			}
+			@Override
+			public void onError(int errorCode,String error) {
 			}
 		});
 
@@ -205,11 +229,9 @@ public class ContactFragment extends Fragment{
 		@Override
 		public void run() {
 			super.run();
-			if(SourceDataList == null){
-				SourceDataList = new ArrayList<SortModel>();
-			}else{
-				SourceDataList.clear();
-			}
+
+			List<SortModel> tmpSourceDataList = new ArrayList<SortModel>();
+
 			//我的群
 			SortModel smqun = new SortModel();
 			smqun.setId("0");
@@ -219,7 +241,7 @@ public class ContactFragment extends Fragment{
 			smqun.setEmail("");
 			smqun.setAvatarUrl("");
 			smqun.setSortLetters("");
-			SourceDataList.add(smqun);
+			tmpSourceDataList.add(smqun);
 			contacts =  Users.getInstance().getCurrentUser().getContacts().getContacts();
 
 			for (Contact data : contacts) {
@@ -233,13 +255,15 @@ public class ContactFragment extends Fragment{
 				sm.setStatus(data.getEntity().getStatus());
 				sm.setRole(data.getEntity().getRole());
 				sm.setSortLetters(StringUtil.getPinYinSortLetters(characterParser,sm.getPinyin()));
-				SourceDataList.add(sm);
+				tmpSourceDataList.add(sm);
 			}
 			// 根据a-z进行排序源数据
-			Collections.sort(SourceDataList, pinyinComparator);
-			contactAdapter.setListViewdate(SourceDataList);
+			try {
+				Collections.sort(tmpSourceDataList, pinyinComparator);
+			}catch (Exception e){}
 			Message msg = new Message();
 			msg.what =0;
+			msg.obj = tmpSourceDataList;
 			updatecontactHandler.sendMessage(msg);
 		}
 	}

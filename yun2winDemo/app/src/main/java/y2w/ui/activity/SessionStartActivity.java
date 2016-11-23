@@ -33,6 +33,7 @@ import y2w.manage.Users;
 import y2w.model.Contact;
 import y2w.model.Session;
 import y2w.model.SessionMember;
+import y2w.model.UserConversation;
 import y2w.model.UserSession;
 import y2w.service.Back;
 import y2w.ui.adapter.ContactsSelectAdapter;
@@ -54,6 +55,7 @@ import y2w.base.Urls;
 public class SessionStartActivity extends Activity{
 
     private ListView lv_contact;
+    private TextView noContact;
     private SessionStartAdapter sessionStartAdapter;
     private ProgressDialog pd;
     /** 拼音排序 **/
@@ -87,6 +89,15 @@ public class SessionStartActivity extends Activity{
                 acyContactdate = new AcyContactdate();
                 acyContactdate.start();
             }else if(msg.what==0){
+                if(SourceDataList!=null&&SourceDataList.size()>0){
+                    lv_contact.setVisibility(View.VISIBLE);
+                    sideBar.setVisibility(View.VISIBLE);
+                    noContact.setVisibility(View.GONE);
+                }else{
+                    lv_contact.setVisibility(View.GONE);
+                    sideBar.setVisibility(View.GONE);
+                    noContact.setVisibility(View.VISIBLE);
+                }
                 sessionStartAdapter.notifyDataSetChanged();
             }
         }
@@ -124,7 +135,11 @@ public class SessionStartActivity extends Activity{
         actionbar.setDisplayShowCustomEnabled(true);
         actionbar.setCustomView(R.layout.actionbar_chat);
         TextView texttitle = (TextView) actionbar.getCustomView().findViewById(R.id.text_title);
-        texttitle.setText(getResources().getString(R.string.group_start));
+        if(iscreate){
+            texttitle.setText(getResources().getString(R.string.group_start));
+        }else{
+            texttitle.setText(getResources().getString(R.string.group_request));
+        }
         ImageButton imageButtonclose = (ImageButton) actionbar.getCustomView().findViewById(R.id.left_close);
         ImageButton imageButtonright = (ImageButton) actionbar.getCustomView().findViewById(R.id.right_add);
         imageButtonright.setVisibility(View.GONE);
@@ -138,6 +153,7 @@ public class SessionStartActivity extends Activity{
     }
     public void contactInit(){
         lv_contact = (ListView) findViewById(R.id.lv_contact);
+        noContact = (TextView) findViewById(R.id.nocontact);
         sessionStartAdapter = new SessionStartAdapter(context);
         lv_contact.setAdapter(sessionStartAdapter);
         initSideBar();
@@ -154,6 +170,11 @@ public class SessionStartActivity extends Activity{
                 } else {
                     model.setIsChoice(true);
                     choiceContacts.add(model);
+                }
+                if(choiceContacts.size()>0){
+                    tv_choose_Ok.setBackgroundResource(R.drawable.button_person_choose_after);
+                }else{
+                    tv_choose_Ok.setBackgroundResource(R.drawable.button_person_choose_before);
                 }
                 tv_choose_Ok.setText("确认(" + choiceContacts.size() + ")");
                 notifySelectAreaDataSetChanged();
@@ -176,7 +197,11 @@ public class SessionStartActivity extends Activity{
                 }
                 pd = new ProgressDialog(SessionStartActivity.this);
                 pd.setCanceledOnTouchOutside(false);
-                pd.setMessage(getString(R.string.creategrups));
+                if(iscreate) {
+                    pd.setMessage(getString(R.string.creategrups));
+                }else{
+                    pd.setMessage(getString(R.string.addmemgrups));
+                }
                 String names = "";
                 for (int i = 0; i < choiceContacts.size(); i++) {
                     if (i != 0)
@@ -221,10 +246,8 @@ public class SessionStartActivity extends Activity{
                     @Override
                     public void onSuccess(SessionMember sessionMember) {
                         addotherMembers(session);
-                        addMyGroups(session);
-                        pd.dismiss();
-                        ToastUtil.ToastMessage(SessionStartActivity.this, "创建成功");
-                        finish();
+                        //addMyGroups(session);
+
                     }
                     @Override
                     public void onError(int errorCode,String error) {
@@ -233,16 +256,7 @@ public class SessionStartActivity extends Activity{
                     }
                 });
     }
-    private void addMyGroups(final Session session){
-        Users.getInstance().getCurrentUser().getUserSessions().getRemote().sessionStore( session.getEntity().getId(),  session.getEntity().getName(),  session.getEntity().getAvatarUrl(),  new Back.Result<UserSession> (){
-            @Override
-            public void onSuccess(UserSession userSession) {
-            }
-            @Override
-            public void onError(int Code, String error) {
-            }
-        });
-    }
+
     private int membersCount = 0;
     private void addotherMembers(final Session session){
         membersCount = choiceContacts.size();
@@ -254,7 +268,7 @@ public class SessionStartActivity extends Activity{
                         public void onSuccess(SessionMember sessionMember) {
                             membersCount--;
                             Log.i("SessionStartActivity", "----------=sessionMemberAdd onSuccess");
-                            if(membersCount==0 && iscreate){
+                            if(membersCount==0){
                                 pd.dismiss();
                                 setResult(100);
                                 Log.i("SessionStartActivity", "----------=sessionMemberAdd iscreate");
@@ -263,30 +277,42 @@ public class SessionStartActivity extends Activity{
                                 } catch (InterruptedException e) {
                                     e.printStackTrace();
                                 }
-                                session.getMessages().getRemote().sendMessage("", new IMClient.SendCallback() {
+                                session.getMessages().getRemote().sendMessage("",false,new IMClient.SendCallback() {
                                     @Override
                                     public void onReturnCode(int i, IMSession imSession, String s) {
                                         Log.i("SessionStartActivity", "----------=sendMessage = " + i);
                                     }
                                 });
+                                Users.getInstance().getCurrentUser().getUserConversations().getRemote().sync(new Back.Result<List<UserConversation>>() {
+                                    @Override
+                                    public void onSuccess(List<UserConversation> userConversations) {
+                                        if(iscreate) {
+                                            ToastUtil.ToastMessage(SessionStartActivity.this, "创建成功");
+                                            Intent intent = new Intent(context, ChatActivity.class);
+                                            Bundle bundle = new Bundle();
+                                            bundle.putString("sessionid", session.getEntity().getId());
+                                            bundle.putString("sessiontype", session.getEntity().getType());
+                                            bundle.putString("otheruserId", session.getEntity().getOtherSideId());
+                                            bundle.putString("name", session.getEntity().getName());
+                                            intent.putExtras(bundle);
+                                            startActivity(intent);
+                                        }
+                                        finish();
+                                    }
+                                    @Override
+                                    public void onError(int code, String error) {
+                                    }
+                                });
                                 //finish();
+
                             }
                         }
                         @Override
                         public void onError(int errorCode,String error) {
+                            pd.dismiss();
+                            ToastUtil.ToastMessage(SessionStartActivity.this, "添加好友失败");
                         }
                     });
-        }
-
-        if(iscreate) {
-            Intent intent = new Intent(context, ChatActivity.class);
-            Bundle bundle = new Bundle();
-            bundle.putString("sessionid", session.getEntity().getId());
-            bundle.putString("sessiontype", session.getEntity().getType());
-            bundle.putString("otheruserId", session.getEntity().getOtherSideId());
-            bundle.putString("name", session.getEntity().getName());
-            intent.putExtras(bundle);
-            startActivity(intent);
         }
     }
 

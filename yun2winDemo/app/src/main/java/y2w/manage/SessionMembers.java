@@ -56,21 +56,51 @@ public class SessionMembers implements Serializable {
             getRemote().sessionMemberGet(userId, result);
         }
     }
-
     /**
      * 异步获取所有会话成员，本地没有服务器获取
      * @param result 回调
      */
+    List<SessionMember> locmemberList = new ArrayList<SessionMember>();//剔除了无效成员
     public void getMembers(Back.Result<List<SessionMember>> result){
         List<SessionMemberEntity> entities = SessionMemberDb.query(session.getEntity().getMyId(), session.getEntity().getId());
         List<SessionMember> memberList = new ArrayList<SessionMember>();
         if(entities.size() > 0){
+            locmemberList.clear();
             for(SessionMemberEntity entity:entities){
-                memberList.add(new SessionMember(this,entity));
+                SessionMember sessionMember = new SessionMember(this,entity);
+                memberList.add(sessionMember);
+                if(EnumManage.UserStatus.active.toString().equals(entity.getStatus())){
+                    locmemberList.add(sessionMember);
+                }
             }
             result.onSuccess(memberList);
         }else{
             getRemote().sync(result);
+        }
+    }
+    //返回有效成员（无效指没有注册账号但是发送了邀请或者在我们平台销号）
+    public void localAllMembers(String sessionId,final Back.Result<List<SessionMember>> result){
+        if(StringUtil.isEmpty(sessionId))
+            return;
+        if(locmemberList==null||locmemberList.size()==0){
+            getMembers(new Back.Result<List<SessionMember>>() {
+                @Override
+                public void onSuccess(List<SessionMember> sessionMembers) {
+                    result.onSuccess(locmemberList);
+                }
+                @Override
+                public void onError(int code, String error) {
+                    result.onError(code,error);
+                }
+            });
+        }else{
+            String smpsessionId =locmemberList.get(0).getEntity().getSessionId();
+           if(!StringUtil.isEmpty(smpsessionId)&&smpsessionId.equals(sessionId)) {
+               result.onSuccess(locmemberList);
+           }else{
+               locmemberList.clear();
+               localAllMembers(sessionId,result);
+           }
         }
     }
     /*
@@ -78,7 +108,8 @@ public class SessionMembers implements Serializable {
     异步获取所有会话成员，根据搜索输入的name
      *
      */
-    public void getAllMembers(Back.Result<List<SessionMember>> result){
+
+    public void getAllMembersBySesionName(Back.Result<List<SessionMember>> result){
         List<SessionMemberEntity> entities = SessionMemberDb.searchByName(session.getEntity().getMyId(),session.getEntity().getName());
         List<SessionMember> memberList = new ArrayList<SessionMember>();
         if(entities.size() > 0){
@@ -90,6 +121,7 @@ public class SessionMembers implements Serializable {
             getRemote().sync(result);
         }
     }
+
     /**
      * 将会话成员列表保存到数据集
      * @param sessionMemberList 会话列表
@@ -116,26 +148,28 @@ public class SessionMembers implements Serializable {
      */
     private void refreshSessionMTS(SessionMember member){
         String createMTS = session.getEntity().getCreateMTS();
+        String updateMTS = session.getEntity().getUpdateMTS();
+        boolean update =false;
         if(StringUtil.isEmpty(createMTS)){
             session.getEntity().setCreateMTS(member.getEntity().getCreatedAt());
-            SessionDb.addSessionEntity(session.getEntity());
+            update = true;
         }else{
-            if(StringUtil.timeCompare(createMTS,member.getEntity().getCreatedAt()) > 0){
+            if(StringUtil.timeCompare(createMTS,member.getEntity().getCreatedAt()) == 0){
                 session.getEntity().setCreateMTS(member.getEntity().getCreatedAt());
-                SessionDb.addSessionEntity(session.getEntity());
+                update = true;
             }
         }
-    }
-
-    /**
-     * user表数据初始化
-     * @param member 会话成员
-     */
-    private void userInit(SessionMember member){
-        UserEntity entity = UserDb.queryById(session.getEntity().getMyId(), member.getEntity().getUserId());
-        if(entity == null){
-            User user = Users.getInstance().createUser(member.getEntity().getUserId(),member.getEntity().getName(),member.getEntity().getAvatarUrl());
-            Users.getInstance().addUser(user);
+        if(StringUtil.isEmpty(updateMTS)){
+            session.getEntity().setUpdateMTS(member.getEntity().getUpdatedAt());
+            update = true;
+        }else{
+            if(StringUtil.timeCompare(updateMTS,member.getEntity().getUpdatedAt()) == 0){
+                session.getEntity().setUpdateMTS(member.getEntity().getUpdatedAt());
+                update = true;
+            }
+        }
+        if(update) {
+            SessionDb.addSessionEntity(session.getEntity());
         }
     }
 
@@ -175,6 +209,10 @@ public class SessionMembers implements Serializable {
                 @Override
                 public void onSuccess(SessionMemberEntity Entity) {
                     SessionMember sessionMember = new SessionMember(sessionMembers, Entity);
+                    Entity.setSessionId(session.getEntity().getId());
+                    Entity.setMyId(session.getEntity().getMyId());
+                    refreshSessionMTS(sessionMember);
+                    SessionMemberDb.addSessionMemberEntity(Entity);
                     result.onSuccess(sessionMember);
                 }
 
@@ -195,16 +233,39 @@ public class SessionMembers implements Serializable {
             SessionSrv.getInstance().sessionMembersDelete(session.getSessions().getUser().getToken(), sessionMember.getEntity().getSessionId(), sessionMember.getEntity().getId(), new Back.Callback() {
                 @Override
                 public void onSuccess() {
-                    SessionMemberDb.delete(sessionMember.getEntity());
+                    sessionMember.getEntity().setIsDelete(true);
+                    SessionMemberDb.addSessionMemberEntity(sessionMember.getEntity());
                     callback.onSuccess();
                 }
 
                 @Override
-                public void onError(int errorCode,String error) {
-                    callback.onError(errorCode,error);
+                public void onError(int errorCode, String error) {
+                    callback.onError(errorCode, error);
                 }
             });
 
+        }
+
+        /**
+         *
+         */
+        public void sessionMemberUpdate(SessionMember sessionMember,String role,String status,final Back.Callback callback){
+            SessionSrv.getInstance().sessionMemberUpdate(session.getSessions().getUser().getToken(), sessionMember.getEntity().getSessionId(), sessionMember.getEntity().getId(),sessionMember.getEntity().getUserId(),
+                    sessionMember.getEntity().getName(),role,sessionMember.getEntity().getAvatarUrl(),status,new Back.Result<SessionMemberEntity>() {
+                        @Override
+                        public void onSuccess(SessionMemberEntity sessionMemberEntity) {
+                            sessionMemberEntity.setSessionId(session.getEntity().getId());
+                            sessionMemberEntity.setMyId(session.getEntity().getMyId());
+                            SessionMember sessionMember = new SessionMember(sessionMembers, sessionMemberEntity);
+                            refreshSessionMTS(sessionMember);
+                            SessionMemberDb.addSessionMemberEntity(sessionMemberEntity);
+                            callback.onSuccess();
+                        }
+                        @Override
+                    public void onError(int errorCode, String error) {
+                    callback.onError(errorCode, error);
+                   }
+            });
         }
 
         public void sessionMemberGet(final String userId, Back.Result<SessionMember> result){
@@ -223,7 +284,16 @@ public class SessionMembers implements Serializable {
                         sessionMemberList.add(new SessionMember(sessionMembers, entity));
                     }
                     add(sessionMemberList);
-                    result.onSuccess(sessionMemberList);
+                    getMembers(new Back.Result<List<SessionMember>>() {
+                        @Override
+                        public void onSuccess(List<SessionMember> sessionMembers) {
+                            result.onSuccess(sessionMembers);
+                        }
+                        @Override
+                        public void onError(int errorCode, String error) {
+                            result.onError(errorCode, error);
+                        }
+                    });
                 }
 
                 @Override
@@ -232,8 +302,5 @@ public class SessionMembers implements Serializable {
                 }
             });
         }
-
     }
-
-
 }

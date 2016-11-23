@@ -8,12 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
-import com.y2w.uikit.customcontrols.listview.ListViewUtil;
 import com.y2w.uikit.customcontrols.listview.PullToRefreshListView;
 import com.y2w.uikit.utils.MoonUtil;
 import com.yun2win.demo.R;
 
+import y2w.common.HeadImageView;
 import y2w.model.MessageModel;
 
 /**

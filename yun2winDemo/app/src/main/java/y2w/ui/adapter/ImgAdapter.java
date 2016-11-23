@@ -181,9 +181,9 @@ public class ImgAdapter extends BaseAdapter {
 		DisplayImageOptions options = new DisplayImageOptions.Builder()
 				.showImageOnLoading(R.drawable.new_img_nom)
 				.showImageForEmptyUri(null).showImageOnFail(null)
-				.cacheInMemory(true).considerExifParams(true)
+				.cacheInMemory(true).cacheOnDisk(true).considerExifParams(true)
 				.bitmapConfig(Bitmap.Config.RGB_565).build();
-		getImageLoader().displayImage("file://" + path, iv, options);
+		getImageLoader().displayImage("file://" + path,null, iv, options);
 	}
 
 	private ImageLoader getImageLoader() {

@@ -25,7 +25,14 @@ public class EnumManage {
      * 会话成员角色
      */
     public static enum GroupRole{
-        master,admin,user
+        master,admin,user,email
+    };
+
+    /**
+     * 用户角色
+     */
+    public static enum UserRole{
+        admin,coadmin,user,email
     };
 
     /**
@@ -50,14 +57,16 @@ public class EnumManage {
     };
 
     public static enum AvType{
-        launch,agree,
+        launch,agree
     };
 
     public static enum AvCallType{
         audio,video,
     };
-
+    public static enum Select_Mode{
+        multiple,single
+    }
     public static enum AvCmdType{
-        groupavcall,singleavcall,
+        groupavcall,singleavcall,groupavcallrefused,singleavcallrefused
     };
 }

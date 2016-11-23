@@ -47,6 +47,7 @@
 
     <!-- 深灰色 -->
     <color name="grey_dep">#DEDEDE</color>
+    <color name="item_top">#F0F0F0</color>
     <color name="item_content">#787878</color>
     <color name="item_divider">#dfdfdf</color>
     <!-- setting -->
@@ -104,7 +105,7 @@
     <!-- 深灰色 -->
     <color name="grey_more_dep">#7F7F7F</color>
     <color name="topbar_bg">#eee</color>
-
+    <color name="remarkColor">#787878</color>
 
     <color name="gray">#eeeeee</color>
     <color name="com_bg_gray">#aaaaaaaa</color>

@@ -40,7 +40,7 @@ public class EmojiDb {
     public static List<EmojiEntity> query(String myId){
         List<EmojiEntity> entityList = null;
         try {
-            entityList = DaoManager.getInstance(AppContext.getAppContext()).dao_emoji.queryBuilder()
+            entityList = DaoManager.getInstance(AppContext.getAppContext()).dao_emoji.queryBuilder().distinct()
                     .where()
                     .eq("myId", myId).query();
 
@@ -53,7 +53,7 @@ public class EmojiDb {
     public static List<EmojiEntity> queryByPackage(String myId, String ePackage){
         List<EmojiEntity> entityList = null;
         try {
-            entityList = DaoManager.getInstance(AppContext.getAppContext()).dao_emoji.queryBuilder()
+            entityList = DaoManager.getInstance(AppContext.getAppContext()).dao_emoji.queryBuilder().distinct()
                     .where()
                     .eq("ePackage", ePackage)
                     .and()
@@ -82,7 +82,7 @@ public class EmojiDb {
     public static long queryCountByPackage(String myId,String ePackage){
         long count = 0;
         try {
-            count = DaoManager.getInstance(AppContext.getAppContext()).dao_emoji.queryBuilder()
+            count = DaoManager.getInstance(AppContext.getAppContext()).dao_emoji.queryBuilder().distinct()
                     .where()
                     .eq("ePackage",ePackage)
                     .and()

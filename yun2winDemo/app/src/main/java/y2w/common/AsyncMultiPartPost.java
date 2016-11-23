@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.webkit.URLUtil;
 
+import com.y2w.uikit.utils.StringUtil;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -23,8 +25,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.y2w.uikit.utils.StringUtil;
-
 /**
  * 文件上传
  * 
@@ -40,6 +40,17 @@ public class AsyncMultiPartPost extends AsyncTask<HttpResponse, Integer, String>
 	private Context context;
 	private String encode = HTTP.UTF_8;
 	private String token;
+	private String remark = "";
+	private boolean iscancel= false;
+	public AsyncMultiPartPost(Context context,String token, String url, String filePath,String remark) {
+		super();
+		// TODO 处理可空格，其他url特殊字符没处理
+		this.url = url.replace(" ", "");
+		this.filePath = filePath;
+		this.context = context;
+		this.token = token;
+		this.remark = remark;
+	}
 
 	public AsyncMultiPartPost(Context context,String token, String url, String filePath) {
 		super();
@@ -49,7 +60,13 @@ public class AsyncMultiPartPost extends AsyncTask<HttpResponse, Integer, String>
 		this.context = context;
 		this.token = token;
 	}
+	public boolean iscancel() {
+		return iscancel;
+	}
 
+	public void setIscancel(boolean iscancel) {
+		this.iscancel = iscancel;
+	}
 	@Override
 	protected void onPreExecute() {
 		if (!URLUtil.isNetworkUrl(url)) {
@@ -65,7 +82,9 @@ public class AsyncMultiPartPost extends AsyncTask<HttpResponse, Integer, String>
 		HttpClient httpClient = new DefaultHttpClient();
 		HttpContext httpContext = new BasicHttpContext();
 		HttpPost httpPost = new HttpPost(url);
-		httpPost.addHeader("Authorization", Config.Token_Prefix+token);
+		if(!StringUtil.isEmpty(token)) {
+			httpPost.addHeader("Authorization", Config.Token_Prefix + token);
+		}
 		try {
 			
 			CustomMultiPartEntity multipartContent = new CustomMultiPartEntity(
@@ -101,7 +120,7 @@ public class AsyncMultiPartPost extends AsyncTask<HttpResponse, Integer, String>
 	                byte[] read = new byte[1024];  
 	                byte[] all = new byte[0];  
 	                int num;  
-	                while ((num = in.read(read)) > 0) {  
+	                while ((num = in.read(read)) > 0 && !iscancel) {
 	                    byte[] temp = new byte[all.length + num];  
 	                    System.arraycopy(all, 0, temp, 0, all.length);  
 	                    System.arraycopy(read, 0, temp, all.length, num);  
@@ -162,5 +181,8 @@ public class AsyncMultiPartPost extends AsyncTask<HttpResponse, Integer, String>
 	public interface CallBackMsg {
 		public void msg(String param);
 	}
-	
+	public String getRemark() {
+		return remark;
+	}
+
 }

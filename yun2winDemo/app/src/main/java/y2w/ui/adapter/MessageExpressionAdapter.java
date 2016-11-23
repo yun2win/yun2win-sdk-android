@@ -15,6 +15,7 @@ import java.util.List;
 
 import y2w.base.AppContext;
 import y2w.common.Config;
+import y2w.common.Constants;
 import y2w.model.Emoji;
 
 public class MessageExpressionAdapter extends BaseAdapter{
@@ -66,7 +67,7 @@ public class MessageExpressionAdapter extends BaseAdapter{
 			if(emoji.getEntity().getTotal() < 0){
 				viewholder.iv_expression.setBackgroundResource(R.drawable.message_expression_delete_normal);
 			}else{
-				Drawable drawable = Drawable.createFromPath(new File(Config.CACHE_PATH_EMOJI+"base", emoji.getEntity().getName()+".png").getAbsolutePath());
+				Drawable drawable = Drawable.createFromPath(new File(Config.CACHE_PATH_EMOJI+"base", emoji.getEntity().getName()+ Constants.IMAGE_SUFFIXES_ENCRYPT).getAbsolutePath());
 				viewholder.iv_expression.setImageDrawable(drawable);
 			}
 		}else{

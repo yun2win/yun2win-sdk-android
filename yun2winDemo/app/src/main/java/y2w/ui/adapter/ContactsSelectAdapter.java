@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.y2w.uikit.utils.HeadTextBgProvider;
 import com.y2w.uikit.utils.StringUtil;
 import com.y2w.uikit.utils.pinyinutils.SortModel;
@@ -15,7 +14,7 @@ import com.yun2win.demo.R;
 
 import java.util.List;
 
-import y2w.model.UserSession;
+import y2w.common.HeadImageView;
 
 /**
  * Created by maa2 on 2016/1/22.

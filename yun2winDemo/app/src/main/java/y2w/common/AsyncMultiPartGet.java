@@ -8,7 +8,7 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.y2w.uikit.utils.StringUtil;
+import com.y2w.uikit.utils.*;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -30,6 +30,7 @@ public class AsyncMultiPartGet extends AsyncTask<Void, Integer, String> {
     private String fileName,filePath;
     private CallBack mCallBack;
     private CallBackMsg mCallBackMsg;
+    private boolean iscancel= false;
     public AsyncMultiPartGet(String token,String url,String filePath,String fileName){
         this.token = token;
         this.url = url;
@@ -43,6 +44,15 @@ public class AsyncMultiPartGet extends AsyncTask<Void, Integer, String> {
                 mCallBack.update(msg.arg1);//更新进度
         }
     };
+
+    public boolean iscancel() {
+        return iscancel;
+    }
+
+    public void setIscancel(boolean iscancel) {
+        this.iscancel = iscancel;
+    }
+
     @Override
     protected String doInBackground(Void... params) {
         //获取文件名
@@ -50,21 +60,25 @@ public class AsyncMultiPartGet extends AsyncTask<Void, Integer, String> {
         try {
             myURL = new URL(url);
             URLConnection conn = myURL.openConnection();
-            conn.addRequestProperty("Authorization", Config.Token_Prefix + token);
+            if(!StringUtil.isEmpty(token)) {
+                conn.addRequestProperty("Authorization", Config.Token_Prefix + token);
+            }
             conn.connect();
             InputStream is = conn.getInputStream();
             this.fileSize = conn.getContentLength();//根据响应获取文件大小
             if (this.fileSize <= 0) throw new RuntimeException("无法获知文件大小 ");
             if (is == null) throw new RuntimeException("stream is null");
+
+
             File file1 = new File(filePath);
-            File file2 = new File(filePath+fileName);
+            File file2 = new File(filePath+"tep"+fileName);
             if(!file1.exists()){
                 file1.mkdirs();
             }
             if(!file2.exists()){
                 file2.createNewFile();
             }
-            FileOutputStream fos = new FileOutputStream(filePath+fileName);
+            FileOutputStream fos = new FileOutputStream(filePath+"tep"+fileName);//下载到备份
             //把数据存入路径+文件名
             byte buf[] = new byte[1024];
             downLoadFileSize = 0;
@@ -73,6 +87,8 @@ public class AsyncMultiPartGet extends AsyncTask<Void, Integer, String> {
                 int numRead = is.read(buf);
                 if (numRead == -1)
                 {
+                    com.y2w.uikit.utils.FileUtil.fileCopy(filePath+"tep"+fileName, filePath + fileName);//下载完成从备份copy
+                    file2.delete();
                     break;
                 }
                 fos.write(buf, 0, numRead);
@@ -82,7 +98,7 @@ public class AsyncMultiPartGet extends AsyncTask<Void, Integer, String> {
                 msg.what = 1;
                 msg.arg1 = result;
                 handler.sendMessage(msg);
-            } while (true);
+            } while (!iscancel);
             is.close();
         } catch (Exception e) {
             e.printStackTrace();

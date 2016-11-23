@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+	android:id="@+id/line_context"
+    android:orientation="vertical" >
+	<LinearLayout
+		android:layout_width="fill_parent"
+		android:layout_height="fill_parent"
+		android:orientation="vertical" >
+    <com.y2w.uikit.customcontrols.view.ObservableScrollWebView
+		android:id="@+id/wv_ytw"
+	    android:layout_width="fill_parent"
+	    android:layout_height="fill_parent"
+	    android:text="@string/app_name"
+	    />
+	</LinearLayout>
+	<RelativeLayout
+		android:id="@+id/rl_menu_top"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:background="@color/transparent"
+		android:visibility="gone">
+		<RelativeLayout
+			android:layout_width="@dimen/dp_150"
+			android:layout_height="wrap_content"
+			android:paddingBottom="@dimen/dp_1"
+			android:layout_alignParentRight="true"
+			android:background="@color/grey_more_light">
+			<ListView
+				android:id="@+id/lv_menu_top"
+				android:layout_width="@dimen/dp_150"
+				android:layout_height="wrap_content"
+				android:background="@color/white"
+				android:layout_alignParentRight="true"
+				>
+			</ListView>
+		</RelativeLayout>
+	</RelativeLayout>
+	<y2w.ui.widget.loading.LoadingView
+		android:id="@+id/loadView"
+		android:layout_centerInParent="true"
+		android:visibility="gone"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"/>
+</RelativeLayout>

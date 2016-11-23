@@ -1,6 +1,9 @@
 package y2w.ui.adapter;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Message;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -8,13 +11,13 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import y2w.common.UserInfo;
 import y2w.model.MessageModel;
 import y2w.model.Session;
+import y2w.model.messages.MViewHolder;
 import y2w.model.messages.MessageDisplay;
 import y2w.model.messages.MessageType;
 import y2w.model.messages.MessageView;
-import y2w.model.messages.MViewHolder;
-import y2w.common.UserInfo;
 
 /**
  * Created by maa2 on 2016/2/23.
@@ -22,23 +25,49 @@ import y2w.common.UserInfo;
 public class MessageAdapter extends BaseAdapter{
 
     private List<MessageModel> models;
+    private Activity _activity;
     private Context _context;
     private Session _session;
     private MessageView messageView;
     private MessageDisplay messageDisplay;
     private MViewHolder viewHolder = new MViewHolder();
-    public MessageAdapter(Context context,Session session){
+    private long spacetime = 0;
+    private Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if(msg.what==1){
+            try {
+                notifyDataSetChanged();
+            }catch (Exception e){}
+          }
+        }
+    };
+    public MessageAdapter(Activity activity,Context context,Session session,List<MessageModel> models){
+        this._activity = activity;
         this._context = context;
         this._session = session;
         this.messageView = new MessageView(context);
+        this.models = models;
+        this.messageDisplay = new MessageDisplay(_activity,_context,models,_session);
     }
     public void setSession(Session session){
         this._session = session;
+        this.messageDisplay.setSession(session);
     }
     public void updateListView(List<MessageModel> list) {
-        this.models = list;
-        this.messageDisplay = new MessageDisplay(_context,models,_session);
-        notifyDataSetChanged();
+        try {
+            this.models = list;
+            messageDisplay.setMessageModels(list);
+            if ((System.currentTimeMillis() - spacetime) > 500) {
+                handler.sendEmptyMessage(1);
+            } else {
+                Message msg = new Message();
+                msg.what = 1;
+                handler.sendMessageDelayed(msg, 500);
+            }
+            spacetime = System.currentTimeMillis();
+        }catch(Exception e){}
     }
     @Override
     public int getCount() {
@@ -85,6 +114,13 @@ public class MessageAdapter extends BaseAdapter{
                     case MessageType.TextLeft:
                         view = messageView.otherSideTextInit(viewHolder);
                         break;
+                    /*********** 任务 ***********/
+                    case MessageType.TaskRight:
+                        view = messageView.mySideTextInit(viewHolder);
+                        break;
+                    case MessageType.TaskLeft:
+                        view = messageView.otherSideTextInit(viewHolder);
+                        break;
                     /*********** 图片 ***********/
                     case MessageType.ImageRight:
                         view = messageView.mySideImageInit(viewHolder);
@@ -120,6 +156,13 @@ public class MessageAdapter extends BaseAdapter{
                     case MessageType.LocationLeft:
                         view = messageView.otherSideImageInit(viewHolder);
                         break;
+                    /*********** 音视频 ***********/
+                    case MessageType.AVRight:
+                        view = messageView.mySideAVInit(viewHolder);
+                        break;
+                    case MessageType.AVLeft:
+                        view = messageView.otherSideAVInit(viewHolder);
+                        break;
                     default:
                         return new TextView(_context);
                 }
@@ -128,7 +171,6 @@ public class MessageAdapter extends BaseAdapter{
                 viewHolder = (MViewHolder) view.getTag();
             }
             messagedisplay(model,viewHolder,position);
-
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -151,7 +193,13 @@ public class MessageAdapter extends BaseAdapter{
                case MessageType.TextLeft:
                    messageDisplay.setOtherSideTextDisplay(model, viewHolder, position);
                    break;
-
+               /*********** 任务 ***********/
+               case MessageType.TaskRight:
+                   messageDisplay.setMySideTextDisplay(model,viewHolder, position);
+                   break;
+               case MessageType.TaskLeft:
+                   messageDisplay.setOtherSideTextDisplay(model, viewHolder, position);
+                   break;
                /*********** 图片 ***********/
                case MessageType.ImageRight:
                    messageDisplay.setMySideImageDisplay(model, viewHolder, position);
@@ -180,12 +228,19 @@ public class MessageAdapter extends BaseAdapter{
                case MessageType.FileLeft:
                    messageDisplay.setOtherSideFileDisplay(model, viewHolder, position);
                    break;
-               /*********** 文件 ***********/
+               /*********** 位置 ***********/
                case MessageType.LocationRight:
                    messageDisplay.setMySideLocationDisplay(model, viewHolder, position);
                    break;
                case MessageType.LocationLeft:
                    messageDisplay.setOtherSideLocationDisplay(model, viewHolder, position);
+                   break;
+               /*********** 音视频 ***********/
+               case MessageType.AVRight:
+                   messageDisplay.setMySideAVDisplay(model, viewHolder, position);
+                   break;
+               case MessageType.AVLeft:
+                   messageDisplay.setOtherSideAVDisplay(model, viewHolder, position);
                    break;
                default:
                    break;
@@ -204,6 +259,9 @@ public class MessageAdapter extends BaseAdapter{
         else if (MessageType.Text.equals(type)) {
             return isMySide(position) ? MessageType.TextRight
                     : MessageType.TextLeft;
+        }  else if (MessageType.Task.equals(type)) {
+            return isMySide(position) ? MessageType.TaskRight
+                    : MessageType.TaskLeft;
         }
         else if (MessageType.Image.equals(type)) {
             return isMySide(position) ? MessageType.ImageRight
@@ -220,6 +278,9 @@ public class MessageAdapter extends BaseAdapter{
         }else if (MessageType.Location.equals(type)) {
             return isMySide(position) ? MessageType.LocationRight
                     : MessageType.LocationLeft;
+        }else if (MessageType.Av.equals(type)) {
+            return isMySide(position) ? MessageType.AVRight
+                    : MessageType.AVLeft;
         }
         else {
             return -1;

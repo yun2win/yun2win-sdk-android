@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.y2w.uikit.utils.StringUtil;
+
+import y2w.base.AppData;
 import y2w.common.UserInfo;
 import y2w.model.messages.MessageCrypto;
 import y2w.model.messages.MessageType;
@@ -26,6 +28,8 @@ public class UserConversationEntity implements Serializable {
     private String targetId;
     @DatabaseField
     private String name;
+    @DatabaseField
+    private String simpchinaname;
     @DatabaseField
     private String type;
     @DatabaseField
@@ -51,6 +55,9 @@ public class UserConversationEntity implements Serializable {
     private String updatedAt;
     @DatabaseField
     private String avatarUrl;
+    @DatabaseField
+    private String extraDate;
+
     //此条数据所有者
     @DatabaseField
     private String myId;
@@ -79,6 +86,7 @@ public class UserConversationEntity implements Serializable {
         entity.setUpdatedAt(json.getStr("updatedAt"));
         entity.setAvatarUrl(json.getStr("avatarUrl"));
         entity.setMyId(UserInfo.getUserId());
+        entity.setSimpchinaname(AppData.getInstance().getsampchina(entity.getName()));
         return entity;
     }
 
@@ -93,6 +101,10 @@ public class UserConversationEntity implements Serializable {
             type = "[文件]";
         }else if(MessageType.Location.equals(type)){
             type = "[位置]";
+        }else if(MessageType.Task.equals(type)){
+            type = "[任务]";
+        }else if(MessageType.Av.equals(type)){
+            type = "[音视频通话]";
         }
         return type;
     }
@@ -242,4 +254,19 @@ public class UserConversationEntity implements Serializable {
         this.myId = myId;
     }
 
+    public String getSimpchinaname() {
+        return simpchinaname;
+    }
+
+    public void setSimpchinaname(String simpchinaname) {
+        this.simpchinaname = simpchinaname;
+    }
+
+    public String getExtraDate() {
+        return extraDate;
+    }
+
+    public void setExtraDate(String extraDate) {
+        this.extraDate = extraDate;
+    }
 }

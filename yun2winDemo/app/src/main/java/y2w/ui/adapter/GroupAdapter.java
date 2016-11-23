@@ -7,14 +7,15 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.y2w.uikit.customcontrols.imageview.HeadImageView;
 import com.y2w.uikit.utils.HeadTextBgProvider;
 import com.y2w.uikit.utils.StringUtil;
-import com.y2w.uikit.utils.pinyinutils.SortModel;
 import com.yun2win.demo.R;
 
 import java.util.List;
 
+import y2w.base.Urls;
+import y2w.common.HeadImageView;
+import y2w.manage.Users;
 import y2w.model.UserSession;
 
 /**
@@ -80,8 +81,8 @@ public class GroupAdapter extends BaseAdapter {
     }
     private void setTitle(HoldView holdView,UserSession model,int position){
         holdView.tv_name.setText(model.getEntity().getName());
-        holdView.img_header.loadBuddyAvatarbyurl(model.getEntity().getAvatarUrl(), R.drawable.default_group_icon);
 
+        holdView.img_header.loadBuddyAvatarbyurl(model.getEntity().getAvatarUrl(), R.drawable.default_group_icon);
         holdView.tv_header.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(model.getEntity().getId())));
         holdView.tv_chart.setVisibility(View.GONE);
     }
