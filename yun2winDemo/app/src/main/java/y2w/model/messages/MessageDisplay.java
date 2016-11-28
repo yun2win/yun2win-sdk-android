@@ -13,6 +13,8 @@ import android.text.Html;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -64,12 +66,14 @@ import y2w.model.Session;
 import y2w.model.SessionMember;
 import y2w.model.User;
 import y2w.service.Back;
+
 import y2w.ui.activity.ChatActivity;
 import y2w.ui.activity.ChooseSessionActivity;
 import y2w.ui.activity.ContactInfoActivity;
 import y2w.ui.activity.ImageBrowseActivity;
 import y2w.ui.activity.LocationActivity;
 import y2w.ui.activity.ReadMessageActivity;
+import y2w.ui.activity.StrongWebViewActivity;
 import y2w.ui.activity.WebViewActivity;
 import y2w.ui.dialog.Y2wDialog;
 import y2w.ui.widget.emoji.Expression;
@@ -115,12 +119,12 @@ public class MessageDisplay {
 
     /********************* 我方，对方日期，头像，消息时间等 基本信息填充 **********************/
     public void setMySideCommonInfo(MessageModel model,
-                                     MViewHolder viewHolder, int position) {
+                                    MViewHolder viewHolder, int position) {
         setMessageTime(model, viewHolder, position);
         setMySideHeader(model, viewHolder, position);
        /*
         mySideSendStateDisplay(position, mm, viewHolder, view);*/
-        }
+    }
 
     public void setOtherSideCommonInfo(MessageModel model,
                                        MViewHolder viewHolder,int position) {
@@ -129,7 +133,7 @@ public class MessageDisplay {
 
        /* setOtherSideMessageTimeInfo(mm, viewHolder, view);*/
     }
-/********************* 消息已读未读**********************/
+    /********************* 消息已读未读**********************/
     public void setreadStatues(final MessageModel model,
                                final TextView readtextView, int position){
         if(MessageEntity.MessageState.storing.toString().equals(model.getEntity().getStatus())){
@@ -241,7 +245,7 @@ public class MessageDisplay {
      * @param position
      */
     private void setMySideHeader(MessageModel model,
-                                      MViewHolder viewHolder,int position) {
+                                 MViewHolder viewHolder,int position) {
         viewHolder.iv_myside_icon.loadBuddyAvatarbyurl(Users.getInstance().getCurrentUser().getEntity().getAvatarUrl(), R.drawable.chat_default_icon);
         viewHolder.tvMySideCircleName.setBackgroundResource(HeadTextBgProvider.getTextBg(StringUtil.parseAscii(model.getEntity().getSender())));
         viewHolder.iv_myside_icon.setOnClickListener(new View.OnClickListener() {
@@ -268,7 +272,7 @@ public class MessageDisplay {
      */
 
     private void setOtherSideHeaderandName(final MessageModel model,
-                                         final MViewHolder viewHolder, int position) {
+                                           final MViewHolder viewHolder, int position) {
         final Handler handler = new Handler(){
             @Override
             public void handleMessage(Message msg) {
@@ -368,7 +372,7 @@ public class MessageDisplay {
     /********************* 系统 **********************/
 
     public void systemTextDisplay(MessageModel model,
-                                     MViewHolder viewHolder,int position) {
+                                  MViewHolder viewHolder,int position) {
         setMessageTime(model, viewHolder, position);
         viewHolder.tvSystemText.setVisibility(View.VISIBLE);
         viewHolder.tvSystemText.setText(MessageCrypto.getInstance().decryText(model.getEntity().getContent()));
@@ -383,7 +387,7 @@ public class MessageDisplay {
     }
 
     public void setOtherSideTextDisplay(MessageModel model,
-                                         MViewHolder viewHolder,int position) {
+                                        MViewHolder viewHolder,int position) {
         setOtherSideCommonInfo(model, viewHolder, position);
         setOtherSideTextContent(model, viewHolder, position);
     }
@@ -398,10 +402,10 @@ public class MessageDisplay {
 
 
     private void setMySideTextContent(MessageModel model,MViewHolder viewHolder,int position
-                                     ) {
+    ) {
         setMySideTextSendAnimation(model, viewHolder, position);
         viewHolder.tvMySideText
-                    .setBackgroundResource(R.drawable.message_text_myside_style);
+                .setBackgroundResource(R.drawable.message_text_myside_style);
         Expression.emojiDisplay(_context, null, viewHolder.tvMySideText, MessageCrypto.getInstance().decryText(model.getEntity().getContent()), Expression.getEmojiScale(_activity,2));
         bindTextOnLongClickEvent(model, viewHolder, position);
         bindOpenURLEvent(model,viewHolder);
@@ -443,7 +447,7 @@ public class MessageDisplay {
                             AppData.getInstance().getClipboardManager(_context)
                                     .setText(MessageCrypto.getInstance().decryText(model.getEntity().getContent()));
                         }else if(position==1){//转发
-                           Intent intent = new Intent(_context, ChooseSessionActivity.class);
+                            Intent intent = new Intent(_context, ChooseSessionActivity.class);
                             Bundle bundle = new Bundle();
                             bundle.putSerializable("repeatMessage",model.getEntity());
                             bundle.putString("type","conversation");
@@ -639,6 +643,14 @@ public class MessageDisplay {
         textView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(MessageType.Task.equals(mm.getEntity().getType())){
+                    String weburl =MessageCrypto.getInstance().decryWebUrl(mm.getEntity().getContent());
+                    if(!StringUtil.isEmpty(weburl)&&weburl.startsWith("http")){
+                        Intent intent = new Intent(_context, StrongWebViewActivity.class);
+                        intent.putExtra("webUrl", weburl);
+                        _context.startActivity(intent);
+                    }
+                }else {
 
                     setMessageURL(textView, MessageCrypto.getInstance().decryText(mm.getEntity().getContent()), "pressed");
                     if (urlbool == true) {
@@ -649,14 +661,18 @@ public class MessageDisplay {
                             url = third;
                         }
                         if (url != null) {
-
+                            if(url.contains("192.168.0")){
+                                Intent intent = new Intent(_context, StrongWebViewActivity.class);
+                                intent.putExtra("webUrl", url);
+                                _context.startActivity(intent);
+                            }else {
                                 Intent intent = new Intent();
                                 Bundle bundle = new Bundle();
                                 bundle.putString("url", url);
                                 intent.putExtras(bundle);
                                 intent.setClass(_context, WebViewActivity.class);
                                 _context.startActivity(intent);
-
+                            }
                         }
                     } else {
                         try {
@@ -668,6 +684,7 @@ public class MessageDisplay {
                         } catch (Exception e) {
                         }
                     }
+                }
             }
         });
     }
@@ -694,7 +711,7 @@ public class MessageDisplay {
         if(MessageEntity.MessageState.storing.toString().equals(model.getEntity().getStatus())){
             Json jsonContent = new Json(model.getEntity().getContent());
             String imgurl = jsonContent.getStr("src");
-           final String thumbnail = jsonContent.getStr("thumbnail");
+            final String thumbnail = jsonContent.getStr("thumbnail");
             int imgWidth =jsonContent.getInt("width");
             int imgHeight =jsonContent.getInt("height");
             final String timestamp = jsonContent.getStr("timestamp");
@@ -733,7 +750,7 @@ public class MessageDisplay {
                         public void update(Integer i) {
                             if (pb != null) {
                               /*  if(i > 80)*/
-                                    pb.setProgress(i);
+                                pb.setProgress(i);
                                 if (i == 100) {
                                     pb.setVisibility(View.GONE);
                                 } else {
@@ -828,30 +845,30 @@ public class MessageDisplay {
         bindOpenImageEvent(model, viewHolder, position);
     }
 
-   private void setViewSize(View view,int width,int height){
-       if(width>0&&height>0) {
-           ViewGroup.LayoutParams lp = view.getLayoutParams();
-           if(fileMaxWidth<width&&fileMaxHeight>=height){
-               height = height*fileMaxWidth/width;
-               width =fileMaxWidth;
+    private void setViewSize(View view,int width,int height){
+        if(width>0&&height>0) {
+            ViewGroup.LayoutParams lp = view.getLayoutParams();
+            if(fileMaxWidth<width&&fileMaxHeight>=height){
+                height = height*fileMaxWidth/width;
+                width =fileMaxWidth;
 
-           }else if(fileMaxWidth>=width&&fileMaxHeight<height){
-               width = width*fileMaxHeight/height;
-               height =fileMaxHeight;
-           }else if(fileMaxWidth<width&&fileMaxHeight<height){
-               if(((width*1.000)/height)>((fileMaxWidth*1.000)/fileMaxHeight)){
-                   height = height*fileMaxWidth/width;
-                   width =fileMaxWidth;
-               }else{
-                   width = width*fileMaxHeight/height;
-                   height =fileMaxHeight;
-               }
-           }
-           lp.width = width;
-           lp.height =height;
-           view.setLayoutParams(lp);
-       }
-   }
+            }else if(fileMaxWidth>=width&&fileMaxHeight<height){
+                width = width*fileMaxHeight/height;
+                height =fileMaxHeight;
+            }else if(fileMaxWidth<width&&fileMaxHeight<height){
+                if(((width*1.000)/height)>((fileMaxWidth*1.000)/fileMaxHeight)){
+                    height = height*fileMaxWidth/width;
+                    width =fileMaxWidth;
+                }else{
+                    width = width*fileMaxHeight/height;
+                    height =fileMaxHeight;
+                }
+            }
+            lp.width = width;
+            lp.height =height;
+            view.setLayoutParams(lp);
+        }
+    }
 
     public Context get_context() {
         return _context;
@@ -921,10 +938,10 @@ public class MessageDisplay {
                     });
                 }
             });
-              if(FileUtil.checkFilePathExists(filePath)){
-                  viewHolder.ivMySideVoiceIcon
-                          .setOnClickListener(new PlayVoiceOnClick());
-              }
+            if(FileUtil.checkFilePathExists(filePath)){
+                viewHolder.ivMySideVoiceIcon
+                        .setOnClickListener(new PlayVoiceOnClick());
+            }
         }else{
             viewHolder.ivMySideMessageLoading.setVisibility(View.GONE);
             Json json = new Json(model.getEntity().getContent());
@@ -933,7 +950,7 @@ public class MessageDisplay {
             if(FileUtil.checkFilePathExists(localsrc)){
                 viewHolder.ivMySideVoiceIcon.setOnClickListener(new PlayVoiceOnClick());
             }else {
-                String audioName = json.getStr("name");
+                String audioName = model.getEntity().getId()+json.getStr("name");
                 String path = RecordUtil.AUDOI_DIR + audioName;
                 if (!StringUtil.isEmpty(audioName) && new File(RecordUtil.AUDOI_DIR + audioName).exists()) {
                     LogUtil.getInstance().log(TAG, "ok", null);
@@ -955,7 +972,7 @@ public class MessageDisplay {
         viewHolder.ivOtherSideVoiceIcon.setTag(model);
         Json json = new Json(model.getEntity().getContent());
         String url = json.getStr("src");
-        String audioName = json.getStr("name");
+        String audioName = model.getEntity().getId()+json.getStr("name");
         File file = new File(RecordUtil.AUDOI_DIR + audioName);
         if (!StringUtil.isEmpty(audioName) && file.exists()) {
             viewHolder.ivOtherSideVoiceIcon
@@ -1236,8 +1253,8 @@ public class MessageDisplay {
                     }else {
                         ImagePool.getInstance(AppContext.getAppContext()).load(Urls.User_Messages_File_DownLoad + thumbnail, fileToken, viewHolder.ivMySideImage, R.drawable.file_loading);
                     }
-                 }
                 }
+            }
         });
     }
     /**
@@ -1429,140 +1446,142 @@ public class MessageDisplay {
                 public void onClick(View v) {
                     File file = new File(model.getEntity().getContent());
                     if (!file.exists()) {
-                         ToastUtil.ToastMessage(_context,"文件不存在");
+                        ToastUtil.ToastMessage(_context,"文件不存在");
                     }else{
                         FileUtil.openFile(_context, file.getAbsolutePath());
                     }
                 }});
         }else {
             Json jsonContext = new Json(model.getEntity().getContent());
-               final String localsrc = jsonContext.getStr("localsrc");
-                final String url = jsonContext.getStr("src");
-                final String fileName = jsonContext.getStr("name");
-                String fileSize = jsonContext.getStr("size");
-                viewHolder.pbMySideFile.setVisibility(View.GONE);
-                if(fileName.endsWith("apk")){
-                    viewHolder.tvMySideFileTitle.setText(fileName.substring(0,fileName.length()-4));
-                }else {
-                    viewHolder.tvMySideFileTitle.setText(fileName);
-                }
-                viewHolder.tvMySideFileState.setText("已发送");
-                viewHolder.llMySideItem.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (FileUtil.checkFilePathExists(localsrc)) {
-                            File file = new File(localsrc);
-                            FileUtil.openFile(_context, file.getAbsolutePath());
-                        }else {
-                            File file = new File(Config.CACHE_PATH_FILE + fileName);
-                            if (!file.exists()) {
-                                AsyncMultiPartGet get = new AsyncMultiPartGet(_session.getSessions().getUser().getToken(), Urls.User_Messages_File_DownLoad + url, Config.CACHE_PATH_FILE, fileName);
-                                get.execute();
-                                get.setCallBack(new AsyncMultiPartGet.CallBack() {
-                                    @Override
-                                    public void update(Integer i) {
-                                        viewHolder.pbMySideFile.setVisibility(View.VISIBLE);
-                                        viewHolder.pbMySideFile.setProgress(i);
-                                        viewHolder.tvMySideFileState.setText(i + "%");
-                                        LogUtil.getInstance().log(TAG, "down load i =" + i, null);
-                                    }
-                                });
-                                get.setCallBackMsg(new AsyncMultiPartGet.CallBackMsg() {
-                                    @Override
-                                    public void msg(String result) {
-                                        viewHolder.pbMySideFile.setVisibility(View.GONE);
-                                        viewHolder.tvMySideFileState.setText("已下载");
-                                        LogUtil.getInstance().log(TAG, "result =" + result, null);
-                                    }
-                                });
-                            } else {
-                                FileUtil.openFile(_context, Config.CACHE_PATH_FILE + fileName);
-                            }
-                        }
-                    }
-                });
-                setFileTypeImage(viewHolder.ivMySideFileIcon, fileName);
-                viewHolder.tvMySideFileSize.setText(StringUtil.getFriendlyFileSize(Long.parseLong(fileSize)));
-            }
-    }
-
-    private void setOtherSideFileContent(final MessageModel model, final MViewHolder viewHolder,int position) {
-            Json json = new Json(model.getEntity().getContent());
-            final String url = json.getStr("src");
-            final String fileName = json.getStr("name");
-            String fileSize = json.getStr("size");
-            long longsize = Long.parseLong(fileSize);
-            viewHolder.pbOtherSideFile.setVisibility(View.GONE);
+            final String localsrc = jsonContext.getStr("localsrc");
+            final String url = jsonContext.getStr("src");
+            final String fileName = jsonContext.getStr("name");
+            String fileSize = jsonContext.getStr("size");
+            viewHolder.pbMySideFile.setVisibility(View.GONE);
             if(fileName.endsWith("apk")){
-                viewHolder.tvOtherSideFileTitle.setText(fileName.substring(0,fileName.length()-4));
+                viewHolder.tvMySideFileTitle.setText(fileName.substring(0,fileName.length()-4));
             }else {
-                viewHolder.tvOtherSideFileTitle.setText(fileName);
+                viewHolder.tvMySideFileTitle.setText(fileName);
             }
-            File file = new File(Config.CACHE_PATH_FILE+fileName);
-             if(!file.exists() || file.length()<longsize){
-                 viewHolder.tvOtherSideFileState.setText("未下载");
-             }else{
-                 viewHolder.tvOtherSideFileState.setText("已下载");
-             }
-            setFileTypeImage(viewHolder.ivOtherSideFileIcon, fileName);
-            viewHolder.tvOtherSideFileSize.setText(StringUtil.getFriendlyFileSize(Long.parseLong(fileSize)));
-            viewHolder.llOtherSideItem.setOnClickListener(new View.OnClickListener() {
+            viewHolder.tvMySideFileState.setText("已发送");
+            final String modelId =  model.getEntity().getId();
+            viewHolder.llMySideItem.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    File file = new File(Config.CACHE_PATH_FILE + fileName);
-                    if (!file.exists()) {
-                        AsyncMultiPartGet get = new AsyncMultiPartGet(_session.getSessions().getUser().getToken(), Urls.User_Messages_File_DownLoad + url, Config.CACHE_PATH_FILE, fileName);
-                        get.execute();
-                        get.setCallBack(new AsyncMultiPartGet.CallBack() {
-                            @Override
-                            public void update(Integer i) {
-                                viewHolder.pbOtherSideFile.setVisibility(View.VISIBLE);
-                                viewHolder.pbOtherSideFile.setProgress(i);
-                                viewHolder.tvOtherSideFileState.setText(i + "%");
-                                LogUtil.getInstance().log(TAG, "down load i =" + i, null);
-                            }
-                        });
-                        get.setCallBackMsg(new AsyncMultiPartGet.CallBackMsg() {
-                            @Override
-                            public void msg(String result) {
-                                viewHolder.pbOtherSideFile.setVisibility(View.GONE);
-                                viewHolder.tvOtherSideFileState.setText("已下载");
-                                LogUtil.getInstance().log(TAG, "result =" + result, null);
-                            }
-                        });
-                    } else {
-                        FileUtil.openFile(_context, Config.CACHE_PATH_FILE + fileName);
+                    if (FileUtil.checkFilePathExists(localsrc)) {
+                        File file = new File(localsrc);
+                        FileUtil.openFile(_context, file.getAbsolutePath());
+                    }else {
+                        File file = new File(Config.CACHE_PATH_FILE +modelId+ fileName);
+                        if (!file.exists()) {
+                            AsyncMultiPartGet get = new AsyncMultiPartGet(_session.getSessions().getUser().getToken(), Urls.User_Messages_File_DownLoad + url, Config.CACHE_PATH_FILE, modelId+fileName);
+                            get.execute();
+                            get.setCallBack(new AsyncMultiPartGet.CallBack() {
+                                @Override
+                                public void update(Integer i) {
+                                    viewHolder.pbMySideFile.setVisibility(View.VISIBLE);
+                                    viewHolder.pbMySideFile.setProgress(i);
+                                    viewHolder.tvMySideFileState.setText(i + "%");
+                                    LogUtil.getInstance().log(TAG, "down load i =" + i, null);
+                                }
+                            });
+                            get.setCallBackMsg(new AsyncMultiPartGet.CallBackMsg() {
+                                @Override
+                                public void msg(String result) {
+                                    viewHolder.pbMySideFile.setVisibility(View.GONE);
+                                    viewHolder.tvMySideFileState.setText("已下载");
+                                    LogUtil.getInstance().log(TAG, "result =" + result, null);
+                                }
+                            });
+                        } else {
+                            FileUtil.openFile(_context, Config.CACHE_PATH_FILE + modelId+fileName);
+                        }
                     }
                 }
             });
+            setFileTypeImage(viewHolder.ivMySideFileIcon, fileName);
+            viewHolder.tvMySideFileSize.setText(StringUtil.getFriendlyFileSize(Long.parseLong(fileSize)));
+        }
+    }
+
+    private void setOtherSideFileContent(final MessageModel model, final MViewHolder viewHolder,int position) {
+        Json json = new Json(model.getEntity().getContent());
+        final String url = json.getStr("src");
+        final String fileName = json.getStr("name");
+        String fileSize = json.getStr("size");
+        long longsize = Long.parseLong(fileSize);
+        viewHolder.pbOtherSideFile.setVisibility(View.GONE);
+        if(fileName.endsWith("apk")){
+            viewHolder.tvOtherSideFileTitle.setText(fileName.substring(0,fileName.length()-4));
+        }else {
+            viewHolder.tvOtherSideFileTitle.setText(fileName);
+        }
+        final String modelId =  model.getEntity().getId();
+        File file = new File(Config.CACHE_PATH_FILE+modelId+fileName);
+        if(!file.exists() || file.length()<longsize){
+            viewHolder.tvOtherSideFileState.setText("未下载");
+        }else{
+            viewHolder.tvOtherSideFileState.setText("已下载");
+        }
+        setFileTypeImage(viewHolder.ivOtherSideFileIcon, fileName);
+        viewHolder.tvOtherSideFileSize.setText(StringUtil.getFriendlyFileSize(Long.parseLong(fileSize)));
+        viewHolder.llOtherSideItem.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                File file = new File(Config.CACHE_PATH_FILE +modelId+ fileName);
+                if (!file.exists()) {
+                    AsyncMultiPartGet get = new AsyncMultiPartGet(_session.getSessions().getUser().getToken(), Urls.User_Messages_File_DownLoad + url, Config.CACHE_PATH_FILE, modelId+fileName);
+                    get.execute();
+                    get.setCallBack(new AsyncMultiPartGet.CallBack() {
+                        @Override
+                        public void update(Integer i) {
+                            viewHolder.pbOtherSideFile.setVisibility(View.VISIBLE);
+                            viewHolder.pbOtherSideFile.setProgress(i);
+                            viewHolder.tvOtherSideFileState.setText(i + "%");
+                            LogUtil.getInstance().log(TAG, "down load i =" + i, null);
+                        }
+                    });
+                    get.setCallBackMsg(new AsyncMultiPartGet.CallBackMsg() {
+                        @Override
+                        public void msg(String result) {
+                            viewHolder.pbOtherSideFile.setVisibility(View.GONE);
+                            viewHolder.tvOtherSideFileState.setText("已下载");
+                            LogUtil.getInstance().log(TAG, "result =" + result, null);
+                        }
+                    });
+                } else {
+                    FileUtil.openFile(_context, Config.CACHE_PATH_FILE +modelId+ fileName);
+                }
+            }
+        });
     }
 
     private void setFileTypeImage(ImageView imageView,String fileName){
-            String extensionName = StringUtil.getFileExtensionName(fileName);
+        String extensionName = StringUtil.getFileExtensionName(fileName);
 
-            if (StringUtil.isPdfFileWithSuffixName(extensionName)) {
-                imageView.setImageResource(R.drawable.message_file_pdf);
-            } else if (StringUtil.isImageWithSuffixName(extensionName)) {
-                imageView.setImageResource(R.drawable.message_file_pic);
-            } else if (StringUtil.isAudioWithSuffixName(extensionName)) {
-                imageView.setImageResource(R.drawable.message_file_audio);
-            } else if (StringUtil.isVideoWithSuffixName(extensionName)) {
-                imageView.setImageResource(R.drawable.message_file_video);
-            } else if (StringUtil.isApkFileWithSuffixName(extensionName)) {
-                imageView.setImageResource(R.drawable.message_file_apk);
-            } else if (StringUtil.isPPTFileWithSuffixName(extensionName)) {
-                imageView.setImageResource(R.drawable.message_file_ppt);
-            } else if (StringUtil.isDocFileWithSuffixName(extensionName)) {
-                imageView.setImageResource(R.drawable.message_file_doc);
-            } else if (StringUtil.isXlsFileWithSuffixName(extensionName)) {
-                imageView.setImageResource(R.drawable.message_file_xls);
-            } else if (StringUtil.isZIPFileWithSuffixName(extensionName)) {
-                imageView.setImageResource(R.drawable.message_file_zip);
-            }else if (StringUtil.isTxtFileWithSuffixName(extensionName)) {
-                imageView.setImageResource(R.drawable.message_file_txt);
-            } else {
-                imageView.setImageResource(R.drawable.message_file_unknow);
-            }
+        if (StringUtil.isPdfFileWithSuffixName(extensionName)) {
+            imageView.setImageResource(R.drawable.message_file_pdf);
+        } else if (StringUtil.isImageWithSuffixName(extensionName)) {
+            imageView.setImageResource(R.drawable.message_file_pic);
+        } else if (StringUtil.isAudioWithSuffixName(extensionName)) {
+            imageView.setImageResource(R.drawable.message_file_audio);
+        } else if (StringUtil.isVideoWithSuffixName(extensionName)) {
+            imageView.setImageResource(R.drawable.message_file_video);
+        } else if (StringUtil.isApkFileWithSuffixName(extensionName)) {
+            imageView.setImageResource(R.drawable.message_file_apk);
+        } else if (StringUtil.isPPTFileWithSuffixName(extensionName)) {
+            imageView.setImageResource(R.drawable.message_file_ppt);
+        } else if (StringUtil.isDocFileWithSuffixName(extensionName)) {
+            imageView.setImageResource(R.drawable.message_file_doc);
+        } else if (StringUtil.isXlsFileWithSuffixName(extensionName)) {
+            imageView.setImageResource(R.drawable.message_file_xls);
+        } else if (StringUtil.isZIPFileWithSuffixName(extensionName)) {
+            imageView.setImageResource(R.drawable.message_file_zip);
+        }else if (StringUtil.isTxtFileWithSuffixName(extensionName)) {
+            imageView.setImageResource(R.drawable.message_file_txt);
+        } else {
+            imageView.setImageResource(R.drawable.message_file_unknow);
+        }
     }
 
     /********************* 位置 ************************/
@@ -1726,7 +1745,7 @@ public class MessageDisplay {
     public void setMySideAVDisplay(final MessageModel model, MViewHolder viewHolder,int position) {
         setMySideCommonInfo(model, viewHolder, position);
         setMySideAVContent(model, viewHolder, position);
-		setreadStatues(model, viewHolder.tvMySideMessageRead, position);
+        setreadStatues(model, viewHolder.tvMySideMessageRead, position);
     }
 
     public void setOtherSideAVDisplay(final MessageModel model, MViewHolder viewHolder,int position) {
