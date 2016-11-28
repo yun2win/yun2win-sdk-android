@@ -175,6 +175,7 @@ public class GroupInfoActivity extends Activity{
         findViewById(R.id.savecotactRe).setVisibility(View.GONE);
 
         RelativeLayout rela_groupfiles = (RelativeLayout) findViewById(R.id.rela_groupfiles);
+         rela_groupfiles.setVisibility(View.GONE);
         rela_groupfiles.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
