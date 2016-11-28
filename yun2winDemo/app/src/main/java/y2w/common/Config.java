@@ -8,10 +8,10 @@ import y2w.base.AppContext;
  * Created by yangrongfang on 2016/1/11.
  */
 public class Config {
-    public static final String Host_Port = "http://112.74.210.208:8080";
+    public static final String Host_Port = "http://console.yun2win.com:8080";
     public static final String COMPAMY_NAME = "yun2win";
     public static final String Token_Get = "http://console.yun2win.com/oauth/token";
-    public static final String File_Host="http://112.74.210.208:443/#/imGroupFile/index.html";
+    public static final String File_Host="http://console.yun2win.com:443/#/imGroupFile/index.html";
     private static String PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
     // private static String PATH = AppContext.getAppContext().getFilesDir().getAbsolutePath();
     public static final String CACHE_PATH_FILE = PATH + "/"+COMPAMY_NAME+"/file/";
