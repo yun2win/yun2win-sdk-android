@@ -456,7 +456,7 @@ public class ChatActivity extends FragmentActivity {
 		TextView tv_right_oper = (TextView) actionbar.getCustomView().findViewById(R.id.tv_right_oper);
 		if(EnumManage.SessionType.p2p.toString().equals(sessionType)){
 			imageButtongroup.setVisibility(View.GONE);
-			tv_right_oper.setVisibility(View.VISIBLE);
+			tv_right_oper.setVisibility(View.GONE);
 			tv_right_oper.setText("文件");
 			tv_right_oper.setOnClickListener(new View.OnClickListener() {
 				@Override
