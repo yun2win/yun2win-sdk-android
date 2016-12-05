@@ -107,6 +107,7 @@ public class AvCallNew {
     public class OtherPush{
         String msg;
         PayLoad payload;
+        String sound;
 
         public String getMsg() {
             return msg;
@@ -114,6 +115,14 @@ public class AvCallNew {
 
         public void setMsg(String msg) {
             this.msg = msg;
+        }
+
+        public String getSound() {
+            return sound;
+        }
+
+        public void setSound(String sound) {
+            this.sound = sound;
         }
 
         public PayLoad getPayload() {

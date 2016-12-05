@@ -128,6 +128,7 @@ public class CmdBuilder {
                 pushmsg = pushmsg+"音频频聊天";
             }
             otherPush.setMsg(pushmsg);
+            otherPush.setSound("bell1.mp3");
             otherPush.getPayload().setAv(avItem);
         }
 

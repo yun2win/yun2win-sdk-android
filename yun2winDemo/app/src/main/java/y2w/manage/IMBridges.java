@@ -227,6 +227,7 @@ public class IMBridges implements Serializable{
                     pns.put("msg", "您有一条新消息");
                     pnsContext.put("from", session.getEntity().getName());
                     pns.put("payload", pnsContext);
+                    pns.put("sound","global.wav");
                 } catch (JSONException e) {
                     pns = null;
                     e.printStackTrace();
