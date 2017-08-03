@@ -6,7 +6,7 @@
 
 -
 ### 开发文档
-http://console.yun2win.com/docs/android/Y2W_tvConnect/index.html<br>
+http://console.yun2win.com/docs/android.html<br>
 
 
 
